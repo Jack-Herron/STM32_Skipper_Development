@@ -1,10 +1,10 @@
 
 /*
- * date [date]
- * Project name - [your project name]
- * Created by: [your name]
+ * Date 			[dd-mm-yyyy]
+ * Author: 			[your name]
+ * Project Name:  	[project name]
  *
- * description[description]
+ * Description		[description]
  */
 
 #include <stdint.h>										// Include C library for fixed-width integer types
