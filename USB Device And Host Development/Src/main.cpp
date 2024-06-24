@@ -7,8 +7,7 @@
  * description[description]
  */
 
-#include <stdint.h>					// include standard c functions
-#include <stdio.h>
+#include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
 #include <Skipper.h>				// include skipper library
 #include <cmath>					// include CMath
