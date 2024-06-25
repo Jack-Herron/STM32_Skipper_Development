@@ -81,15 +81,6 @@
 		#error "Skipper_Clock___PLL_N_OUTPUT_FREQUENCY must be >= 100 Mhz and be <= 432 Mhz"
 	#endif
 #else
-	#error "Skipper_Clock_PLL_M value out of bounds"
-#endif
-
-#if ((Skipper_Clock___PLL_N <= 432) && (Skipper_Clock___PLL_N >= 50))
-	#define Skipper_Clock___PLL_N_OUTPUT_FREQUENCY Skipper_Clock___PLL_M_OUTPUT_FREQUENCY * Skipper_Clock___PLL_N
-	#if ((Skipper_Clock___PLL_N_OUTPUT_FREQUENCY < 100000000) || (Skipper_Clock___PLL_N_OUTPUT_FREQUENCY > 432000000))
-		#error "Skipper_Clock___PLL_N_OUTPUT_FREQUENCY must be >= 100 Mhz and be <= 432 Mhz"
-	#endif
-#else
 	#error "Skipper_Clock_PLL_N value out of bounds"
 #endif
 
@@ -170,13 +161,33 @@
 	#error "Skipper_Clock___APB2_PRESCALER value out of bounds"
 #endif
 
+#if (Skipper_Clock___APB1_PRESCALER == 1)
+	#define Skipper_Clock___APB1_TIMER_MULTIPLIER_OUTPUT_FREQUENCY Skipper_Clock___APB1_PRESCALER_OUTPUT_FREQUENCY
+#else
+	#define Skipper_Clock___APB1_TIMER_MULTIPLIER_OUTPUT_FREQUENCY (Skipper_Clock___APB1_PRESCALER_OUTPUT_FREQUENCY * 2)
+#endif
+
+#if (Skipper_Clock___APB2_PRESCALER == 1)
+	#define Skipper_Clock___APB2_TIMER_MULTIPLIER_OUTPUT_FREQUENCY Skipper_Clock___APB2_PRESCALER_OUTPUT_FREQUENCY
+#else
+	#define Skipper_Clock___APB2_TIMER_MULTIPLIER_OUTPUT_FREQUENCY (Skipper_Clock___APB2_PRESCALER_OUTPUT_FREQUENCY * 2)
+#endif
+
 #if ((Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER == 1) || (Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER == 8))
 	#define Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY / Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER
 #else
 	#error "Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER value out of bounds"
 #endif
 
-
+#define Skipper_Clock___48Mhz_FREQUENCY					Skipper_Clock___PLL_Q_OUTPUT_FREQUENCY
+#define Skipper_Clock___APB2_TIMER_FREQUENCY			Skipper_Clock___APB2_TIMER_MULTIPLIER_OUTPUT_FREQUENCY
+#define Skipper_Clock___APB2_PERIPHERAL_FREQUENCY		Skipper_Clock___APB2_PRESCALER_OUTPUT_FREQUENCY
+#define Skipper_Clock___APB1_TIMER_FREQUENCY			Skipper_Clock___APB1_TIMER_MULTIPLIER_OUTPUT_FREQUENCY
+#define Skipper_Clock___APB1_PERIPHERAL_FREQUENCY		Skipper_Clock___APB1_PRESCALER_OUTPUT_FREQUENCY
+#define Skipper_Clock___FCLK_FREQUENCY					Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
+#define Skipper_Clock___CORTEX_SYSTEM_FREQUENCY			Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY
+#define Skipper_Clock___AHB_FREQUENCY					Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
+#define Skipper_Clock___ETHERNET_PTP_FREQUENCY			Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
 
 #define Skipper_Clock___APB_DIV_1			1
 #define Skipper_Clock___APB_DIV_2			2
