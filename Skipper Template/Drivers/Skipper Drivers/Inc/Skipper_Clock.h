@@ -11,14 +11,14 @@
 #define Skipper_Clock___HSE_FREQUENCY			16000000
 #define Skipper_Clock___HSI_FREQUENCY			16000000
 
-// CRYSTAL SELECTION 	-- UN-COMMMENT SELECTION
+// PLL INPUT SELECTION 	-- UN-COMMMENT SELECTION
 
 #define Skipper_Clock___PLL_USE_HSE
 //#define Skipper_Clock___PLL_USE_HSI
 
 // ------------------------------------------------------------------
 
-// MUX SELECTION 		-- UN-COMMMENT SELECTION
+// MUX INPUT SELECTION 	-- UN-COMMMENT SELECTION
 
 //#define Skipper_Clock___MUX_USE_HSE
 //#define Skipper_Clock___MUX_USE_HSI
@@ -188,6 +188,7 @@
 #define Skipper_Clock___CORTEX_SYSTEM_FREQUENCY			Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY
 #define Skipper_Clock___AHB_FREQUENCY					Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
 #define Skipper_Clock___ETHERNET_PTP_FREQUENCY			Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
+
 
 #define Skipper_Clock___APB_DIV_1			1
 #define Skipper_Clock___APB_DIV_2			2
