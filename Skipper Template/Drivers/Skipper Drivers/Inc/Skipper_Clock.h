@@ -8,21 +8,25 @@
 #ifndef DRIVERS_SKIPPER_DRIVERS_INC_SKIPPER_CLOCK_H_
 #define DRIVERS_SKIPPER_DRIVERS_INC_SKIPPER_CLOCK_H_
 
-#define Skipper_Clock___HSE_FREQUENCY			16000000
-#define Skipper_Clock___HSI_FREQUENCY			16000000
+#define Skipper_Clock___HSE_FREQUENCY					16000000
+#define Skipper_Clock___HSI_FREQUENCY					16000000
+
+#define Skipper_Clock___PLL_USE_HSE						0
+#define Skipper_Clock___PLL_USE_HSI						1
+
+#define Skipper_Clock___MUX_USE_HSE						0
+#define Skipper_Clock___MUX_USE_HSI						1
+#define Skipper_Clock___MUX_USE_PLL						2
 
 // PLL INPUT SELECTION 	-- UN-COMMMENT SELECTION
 
-#define Skipper_Clock___PLL_USE_HSE
-//#define Skipper_Clock___PLL_USE_HSI
+#define Skipper_Clock___PLL_SOURCE						Skipper_Clock___PLL_USE_HSE
 
 // ------------------------------------------------------------------
 
-// MUX INPUT SELECTION 	-- UN-COMMMENT SELECTION
+// MUX INPUT SELECTION
 
-//#define Skipper_Clock___MUX_USE_HSE
-//#define Skipper_Clock___MUX_USE_HSI
-#define Skipper_Clock___MUX_USE_PLL
+#define Skipper_Clock___MUX_SOURCE						Skipper_Clock___MUX_USE_PLL
 
 // ------------------------------------------------------------------
 
@@ -44,26 +48,16 @@
 
 // ------------------------------------------------------------------
 
-#ifdef Skipper_Clock___PLL_USE_HSE
-	#ifndef Skipper_Clock___PLL_SOURCE_FREQUENCY
-		#define Skipper_Clock___PLL_SOURCE_FREQUENCY 	Skipper_Clock___HSE_FREQUENCY
-	#else
-		#error "You must select either HSE or HSI, not both."
-	#endif
+#if Skipper_Clock___PLL_SOURCE == Skipper_Clock___PLL_USE_HSE
+	#define Skipper_Clock___PLL_SOURCE_FREQUENCY 	Skipper_Clock___HSE_FREQUENCY
 #endif
 
-#ifdef Skipper_Clock___PLL_USE_HSI
-	#ifndef Skipper_Clock___PLL_SOURCE_FREQUENCY
-		#define Skipper_Clock___PLL_SOURCE_FREQUENCY 	Skipper_Clock___HSI_FREQUENCY
-	#else
-		#error "You must select either HSE or HSI, not both."
-	#endif
+#if Skipper_Clock___PLL_SOURCE == Skipper_Clock___PLL_USE_HSI
+	#define Skipper_Clock___PLL_SOURCE_FREQUENCY 	Skipper_Clock___HSI_FREQUENCY
 #endif
 
-#ifndef Skipper_Clock___PLL_USE_HSE
-	#ifndef Skipper_Clock___PLL_USE_HSI
-		#error "You must select either HSE or HSI."
-	#endif
+#if (!Skipper_Clock___PLL_SOURCE == Skipper_Clock___PLL_USE_HSE) && (!Skipper_Clock___PLL_SOURCE == Skipper_Clock___PLL_USE_HSI)
+	#error "PLL source selection out of bounds"
 #endif
 
 #if ((Skipper_Clock___PLL_M <= 63) && (Skipper_Clock___PLL_M >= 2))
@@ -102,36 +96,20 @@
 	#error "Skipper_Clock_PLL_Q value out of bounds"
 #endif
 
-#ifdef Skipper_Clock___MUX_USE_HSI
-	#ifndef Skipper_Clock___PLL_M_OUTPUT_FREQUENCY
-		#define Skipper_Clock___MUX_OUTPUT_FREQUENCY 			Skipper_Clock___HSI_FREQUENCY
-	#else
-		#error "You must select only one value for the system clock mux"
-	#endif
+#if Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_HSI
+	#define Skipper_Clock___MUX_OUTPUT_FREQUENCY 			Skipper_Clock___HSI_FREQUENCY
 #endif
 
-#ifdef Skipper_Clock___MUX_USE_HSE
-	#ifndef Skipper_Clock___MUX_OUTPUT_FREQUENCY
-		#define Skipper_Clock___MUX_OUTPUT_FREQUENCY 			Skipper_Clock___HSE_FREQUENCY
-	#else
-		#error "You must select only one value for the system clock mux"
-	#endif
+#if Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_HSE
+	#define Skipper_Clock___MUX_OUTPUT_FREQUENCY 			Skipper_Clock___HSE_FREQUENCY
 #endif
 
-#ifdef Skipper_Clock___MUX_USE_PLL
-	#ifndef Skipper_Clock___MUX_OUTPUT_FREQUENCY
-		#define Skipper_Clock___MUX_OUTPUT_FREQUENCY 			Skipper_Clock___PLL_P_OUTPUT_FREQUENCY
-	#else
-		#error "You must select only one value for the system clock mux"
-	#endif
+#if Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_PLL
+	#define Skipper_Clock___MUX_OUTPUT_FREQUENCY 			Skipper_Clock___PLL_P_OUTPUT_FREQUENCY
 #endif
 
-#ifndef Skipper_Clock___MUX_USE_PLL
-	#ifndef Skipper_Clock___MUX_USE_HSE
-		#ifndef Skipper_Clock___MUX_USE_HSI
-			#error "You must select only one value for the system clock mux"
-		#endif
-	#endif
+#if (!Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_PLL) && (!Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_HSI) && (!Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_HSE)
+	#error "MUX selection out of bounds"
 #endif
 
 #if ((Skipper_Clock___AHB_PRESCALER == 1) || (Skipper_Clock___AHB_PRESCALER == 2) || (Skipper_Clock___AHB_PRESCALER == 4) || (Skipper_Clock___AHB_PRESCALER == 8) || (Skipper_Clock___AHB_PRESCALER == 16) || (Skipper_Clock___AHB_PRESCALER == 64) || (Skipper_Clock___AHB_PRESCALER == 128) || (Skipper_Clock___AHB_PRESCALER == 256) || (Skipper_Clock___AHB_PRESCALER == 512))
@@ -179,7 +157,7 @@
 	#error "Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER value out of bounds"
 #endif
 
-#define Skipper_Clock___48Mhz_FREQUENCY					Skipper_Clock___PLL_Q_OUTPUT_FREQUENCY
+#define Skipper_Clock___USB_FREQUENCY					Skipper_Clock___PLL_Q_OUTPUT_FREQUENCY
 #define Skipper_Clock___APB2_TIMER_FREQUENCY			Skipper_Clock___APB2_TIMER_MULTIPLIER_OUTPUT_FREQUENCY
 #define Skipper_Clock___APB2_PERIPHERAL_FREQUENCY		Skipper_Clock___APB2_PRESCALER_OUTPUT_FREQUENCY
 #define Skipper_Clock___APB1_TIMER_FREQUENCY			Skipper_Clock___APB1_TIMER_MULTIPLIER_OUTPUT_FREQUENCY
@@ -190,38 +168,38 @@
 #define Skipper_Clock___ETHERNET_PTP_FREQUENCY			Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
 
 
-#define Skipper_Clock___APB_DIV_1			1
-#define Skipper_Clock___APB_DIV_2			2
-#define Skipper_Clock___APB_DIV_4			4
-#define Skipper_Clock___APB_DIV_8			8
-#define Skipper_Clock___APB_DIV_16			16
+#define Skipper_Clock___APB_DIV_1				1
+#define Skipper_Clock___APB_DIV_2				2
+#define Skipper_Clock___APB_DIV_4				4
+#define Skipper_Clock___APB_DIV_8				8
+#define Skipper_Clock___APB_DIV_16				16
 
-#define Skipper_Clock___APB_DIV_1_VALUE		0
-#define Skipper_Clock___APB_DIV_2_VALUE		4
-#define Skipper_Clock___APB_DIV_4_VALUE		5
-#define Skipper_Clock___APB_DIV_8_VALUE		6
-#define Skipper_Clock___APB_DIV_16_VALUE	7
+#define Skipper_Clock___RCC_CFGR_APB_DIV_1		0
+#define Skipper_Clock___RCC_CFGR_APB_DIV_2		4
+#define Skipper_Clock___RCC_CFGR_APB_DIV_4		5
+#define Skipper_Clock___RCC_CFGR_APB_DIV_8		6
+#define Skipper_Clock___RCC_CFGR_APB_DIV_16		7
 
-#define Skipper_Clock___AHB_DIV_1			1
-#define Skipper_Clock___AHB_DIV_2			2
-#define Skipper_Clock___AHB_DIV_4			4
-#define Skipper_Clock___AHB_DIV_8			8
-#define Skipper_Clock___AHB_DIV_16			16
-#define Skipper_Clock___AHB_DIV_64			64
-#define Skipper_Clock___AHB_DIV_128			128
-#define Skipper_Clock___AHB_DIV_256			256
-#define Skipper_Clock___AHB_DIV_512			512
+#define Skipper_Clock___AHB_DIV_1				1
+#define Skipper_Clock___AHB_DIV_2				2
+#define Skipper_Clock___AHB_DIV_4				4
+#define Skipper_Clock___AHB_DIV_8				8
+#define Skipper_Clock___AHB_DIV_16				16
+#define Skipper_Clock___AHB_DIV_64				64
+#define Skipper_Clock___AHB_DIV_128				128
+#define Skipper_Clock___AHB_DIV_256				256
+#define Skipper_Clock___AHB_DIV_512				512
 
-#define Skipper_Clock___AHB_DIV_1_VALUE		0
-#define Skipper_Clock___AHB_DIV_2_VALUE		8
-#define Skipper_Clock___AHB_DIV_4_VALUE		9
-#define Skipper_Clock___AHB_DIV_8_VALUE		10
-#define Skipper_Clock___AHB_DIV_16_VALUE	11
-#define Skipper_Clock___AHB_DIV_64_VALUE	12
-#define Skipper_Clock___AHB_DIV_128_VALUE	13
-#define Skipper_Clock___AHB_DIV_256_VALUE	14
-#define Skipper_Clock___AHB_DIV_512_VALUE	15
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_1		0
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_2		8
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_4		9
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_8		10
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_16		11
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_64		12
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_128	13
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_256	14
+#define Skipper_Clock___RCC_CFGR_AHB_DIV_512	15
 
-
+void Skipper_Clock___Init();
 
 #endif /* DRIVERS_SKIPPER_DRIVERS_INC_SKIPPER_CLOCK_H_ */
