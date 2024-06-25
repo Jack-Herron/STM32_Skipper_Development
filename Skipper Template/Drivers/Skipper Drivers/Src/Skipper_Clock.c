@@ -87,12 +87,48 @@ uint8_t Skipper_Clock___Get_RCC_CFGR_AHB_Value_From_Prescaler_Value(uint16_t Pre
 	return(AHB_Value);
 }
 
+void Skipper_Clock___Turn_On_HSE()
+{
+	RCC -> CR 		|= 	(RCC_CR_HSEON);
+	while(!(RCC -> CR & RCC_CR_HSERDY));
+}
+
+void Skipper_Clock___Turn_On_PLL()
+{
+	RCC -> CR |= RCC_CR_PLLON;
+	while(!(RCC->CR & RCC_CR_PLLRDY));
+}
+
+void Skipper_Clock___Turn_Off_HSI()
+{
+	RCC -> CR &= ~(RCC_CR_HSION);
+	while(RCC -> CR & RCC_CR_HSIRDY);
+}
+
+void Skipper_Clock___Set_MUX_Source(uint8_t MUX_Source)
+{
+	if(MUX_Source == Skipper_Clock___MUX_USE_PLL)
+	{
+		RCC -> CFGR |= (RCC_CFGR_SW_PLL);
+		while(!(RCC -> CFGR & RCC_CFGR_SWS_PLL));
+	}
+	else if(MUX_Source == Skipper_Clock___MUX_USE_HSE)
+	{
+		RCC -> CFGR |= (RCC_CFGR_SW_HSE);
+		while(!(RCC -> CFGR & RCC_CFGR_SWS_HSE));
+	}
+	else if(MUX_Source == Skipper_Clock___MUX_USE_HSI)
+	{
+		RCC -> CFGR |= (RCC_CFGR_SW_HSI);
+		while(!(RCC -> CFGR & RCC_CFGR_SWS_HSI));
+	}
+}
+
 void Skipper_Clock___Init()
 {
 	if((Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_HSE) || (Skipper_Clock___PLL_SOURCE == Skipper_Clock___PLL_USE_HSE))
 	{
-		RCC -> CR 		|= 	(RCC_CR_HSEON);
-		while(!(RCC -> CR & RCC_CR_HSERDY));
+		Skipper_Clock___Turn_On_HSE();
 	}
 
 	PWR -> CR |= PWR_CR_VOS;
@@ -108,6 +144,10 @@ void Skipper_Clock___Init()
 	{
 		RCC -> PLLCFGR 	|= 	(RCC_PLLCFGR_PLLSRC_HSE);
 	}
+	else
+	{
+		RCC -> PLLCFGR 	&= 	~(RCC_PLLCFGR_PLLSRC_HSE);
+	}
 
 	uint8_t RCC_CFGR_AHB_Value = Skipper_Clock___Get_RCC_CFGR_AHB_Value_From_Prescaler_Value(Skipper_Clock___AHB_PRESCALER);
 	uint8_t RCC_CFGR_APB1_Value = Skipper_Clock___Get_RCC_CFGR_APB_Value_From_Prescaler_Value(Skipper_Clock___APB1_PRESCALER);
@@ -117,28 +157,17 @@ void Skipper_Clock___Init()
 						(RCC_CFGR_APB1_Value << RCC_CFGR_PPRE1_Pos) |
 						(RCC_CFGR_APB2_Value << RCC_CFGR_PPRE2_Pos)	;
 
-	RCC -> CR |= RCC_CR_PLLON;
-	while(!(RCC->CR & RCC_CR_PLLRDY));
+	Skipper_Clock___Turn_On_PLL();
 
-	if(Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_PLL)
-	{
-		RCC -> CFGR |= (RCC_CFGR_SW_PLL);
-		while(!(RCC -> CFGR & RCC_CFGR_SWS_PLL));
-	}
-	else if(Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_HSE)
-	{
-		RCC -> CFGR |= (RCC_CFGR_SW_HSE);
-		while(!(RCC -> CFGR & RCC_CFGR_SWS_HSE));
-	}
-	else if(Skipper_Clock___MUX_SOURCE == Skipper_Clock___MUX_USE_HSI)
-	{
-		RCC -> CFGR |= (RCC_CFGR_SW_HSI);
-		while(!(RCC -> CFGR & RCC_CFGR_SWS_HSI));
-	}
+	Skipper_Clock___Set_MUX_Source(Skipper_Clock___MUX_SOURCE);
 
 	if((Skipper_Clock___MUX_SOURCE != Skipper_Clock___MUX_USE_HSI) && (Skipper_Clock___PLL_SOURCE != Skipper_Clock___PLL_USE_HSI))
 	{
-		RCC -> CR &= ~(RCC_CR_HSION);
-		while(RCC -> CR & RCC_CR_HSIRDY);
+		Skipper_Clock___Turn_Off_HSI();
 	}
+}
+
+void Skipper_Clock___Systick_Init()
+{
+
 }

@@ -157,7 +157,7 @@
 	#error "Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER value out of bounds"
 #endif
 
-#define Skipper_Clock___USB_FREQUENCY					Skipper_Clock___PLL_Q_OUTPUT_FREQUENCY
+#define Skipper_Clock___48Mhz_FREQUENCY					Skipper_Clock___PLL_Q_OUTPUT_FREQUENCY
 #define Skipper_Clock___APB2_TIMER_FREQUENCY			Skipper_Clock___APB2_TIMER_MULTIPLIER_OUTPUT_FREQUENCY
 #define Skipper_Clock___APB2_PERIPHERAL_FREQUENCY		Skipper_Clock___APB2_PRESCALER_OUTPUT_FREQUENCY
 #define Skipper_Clock___APB1_TIMER_FREQUENCY			Skipper_Clock___APB1_TIMER_MULTIPLIER_OUTPUT_FREQUENCY
