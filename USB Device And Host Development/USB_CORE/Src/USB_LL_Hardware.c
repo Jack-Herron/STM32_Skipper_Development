@@ -70,3 +70,61 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 }
 
 // ----------------------------------------------------------------------------------
+
+void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode)
+{
+	USB_OTG_GlobalTypeDef* USB = USB_LL_Hardware___Get_USB(port_Number);
+
+	if(port_Number == USB_LL_Hardware___PORT_0)
+	{
+		RCC->AHB2ENR |= (RCC_AHB2ENR_OTGFSEN);
+		NVIC_SetPriority (OTG_FS_IRQn, 1);
+		NVIC_EnableIRQ (OTG_FS_IRQn);
+	}
+	else if(port_Number == USB_LL_Hardware___PORT_1)
+	{
+		RCC->AHB1ENR |= (RCC_AHB1ENR_OTGHSEN);
+		NVIC_SetPriority (OTG_HS_IRQn, 1);
+		NVIC_EnableIRQ (OTG_HS_IRQn);
+	}
+
+	Skipper_Clock___Delay_ms(USB_LL_Hardware___USB_ENABLE_DELAY);
+
+	USB -> GAHBCFG &= ~(USB_OTG_GAHBCFG_DMAEN);
+	USB -> GUSBCFG &= ~(USB_OTG_GUSBCFG_HNPCAP);
+	USB -> GUSBCFG &= ~(USB_OTG_GUSBCFG_SRPCAP);
+	USB -> GUSBCFG &= ~(USB_OTG_GUSBCFG_TRDT_Msk);
+	USB -> GUSBCFG |=  (USB_LL_Hardware___TRDT_Value << USB_OTG_GUSBCFG_TRDT_Pos);
+	USB -> GUSBCFG |=  (USB_OTG_GUSBCFG_PHYSEL);
+
+	if(port_Mode == USB_LL_Hardware___HOST_MODE)
+	{
+		USB_OTG_HostPortTypeDef* 	USB_Host_Port 	= USB_LL_Hardware___Get_USB_Host_Port(port_Number);
+		USB_OTG_HostTypeDef* 		USB_Host 		= USB_LL_Hardware___Get_USB_Host(port_Number);
+
+		USB -> 				GUSBCFG 	|= 	(USB_OTG_GUSBCFG_FHMOD);
+
+		Skipper_Clock___Delay_ms(USB_LL_Hardware___CHANGE_MODE_DELAY);
+
+		USB_Host -> 		HCFG 		|= 	(USB_LL_Hardware___HCFG_SELECT_48Mhz_PHY_FREQUENCY 	<<	USB_OTG_HCFG_FSLSPCS_Pos);
+		USB_Host_Port -> 	HPRT 		|= 	(USB_LL_Hardware___HPRT_Port_Power_Enabled 			<< 	USB_OTG_HPRT_PPWR_Pos);
+	}
+	else if(port_Mode == USB_LL_Hardware___DEVICE_MODE)
+	{
+		USB_OTG_DeviceTypeDef* USB_Device = USB_LL_Hardware___Get_USB_Device(port_Number);
+
+		USB_Device 	-> 		DIEPMSK		= 	USB_LL_Interrupts___IN_ENDPOINT_INTERRUPTS_MASK;
+		USB_Device 	-> 		DOEPMSK 	= 	USB_LL_Interrupts___OUT_ENDPOINT_INTERRUPTS_MASK;
+		USB 	   	-> 		GUSBCFG		|= 	USB_OTG_GUSBCFG_FDMOD;
+		USB 		-> 		GCCFG 		|= 	USB_OTG_GCCFG_NOVBUSSENS;
+
+		Skipper_Clock___Delay_ms(USB_LL_Hardware___CHANGE_MODE_DELAY);
+
+		USB_Device 	-> 		DCFG 		|= 	 (USB_LL_Hardware___DCFG_SELECT_48Mhz_PHY_FREQUENCY << USB_OTG_DCFG_DSPD_Pos);
+		USB_Device 	-> 		DCFG 		&= 	~(USB_OTG_DCFG_NZLSOHSK);
+	}
+
+	USB -> GINTMSK 	 = (USB_LL_Interrupts___GLOBAL_INTERRUPTS_MASK);
+	USB -> GCCFG 	|= (USB_OTG_GCCFG_PWRDWN);
+	USB -> GAHBCFG 	|= (USB_OTG_GAHBCFG_GINT);
+}
