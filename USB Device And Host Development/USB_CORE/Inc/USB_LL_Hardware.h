@@ -19,6 +19,10 @@
 #define USB_LL_Hardware___HPRT_Port_Power_Enabled					0x01
 #define USB_LL_Hardware___CHANGE_MODE_DELAY							0x19
 #define USB_LL_Hardware___TRDT_Value								0x06
+#define USB_LL_Hardware___GPIO_ALTERNATE_MODE						0x02
+#define USB_LL_Hardware___GPIO_Alt_FUNCTION_10						0x0a
+#define USB_LL_Hardware___GPIO_Alt_FUNCTION_12						0x0c
+
 
 typedef struct
 {
@@ -36,5 +40,6 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 
 
 void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode);
+void USB_LL_Hardware___GPIO_init(uint8_t port_Number);
 
 #endif /* INC_USB_LL_HARDWARE_H_ */

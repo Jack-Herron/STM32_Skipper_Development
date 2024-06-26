@@ -71,6 +71,26 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 
 // ----------------------------------------------------------------------------------
 
+void USB_LL_Hardware___GPIO_init(uint8_t port_Number)
+{
+	if(port_Number == USB_LL_Hardware___PORT_0)
+	{
+		RCC -> AHB1ENR 	|= (RCC_AHB1ENR_GPIOAEN);
+		GPIOA -> MODER 	|= (USB_LL_Hardware___GPIO_ALTERNATE_MODE 	<< GPIO_MODER_MODE11_Pos);
+		GPIOA -> MODER 	|= (USB_LL_Hardware___GPIO_ALTERNATE_MODE 	<< GPIO_MODER_MODE12_Pos);
+		GPIOA -> AFR[1] |= (USB_LL_Hardware___GPIO_Alt_FUNCTION_10 	<< GPIO_AFRH_AFSEL11_Pos);
+		GPIOA -> AFR[1] |= (USB_LL_Hardware___GPIO_Alt_FUNCTION_10 	<< GPIO_AFRH_AFSEL12_Pos);
+	}
+	else if(port_Number == USB_LL_Hardware___PORT_1)
+	{
+		RCC -> AHB1ENR 	|= (RCC_AHB1ENR_GPIOBEN);
+		GPIOB -> MODER 	|= (USB_LL_Hardware___GPIO_ALTERNATE_MODE 	<< GPIO_MODER_MODE14_Pos);
+		GPIOB -> MODER 	|= (USB_LL_Hardware___GPIO_ALTERNATE_MODE 	<< GPIO_MODER_MODE15_Pos);
+		GPIOB -> AFR[1] |= (USB_LL_Hardware___GPIO_Alt_FUNCTION_12 	<< GPIO_AFRH_AFSEL14_Pos);
+		GPIOB -> AFR[1] |= (USB_LL_Hardware___GPIO_Alt_FUNCTION_12 	<< GPIO_AFRH_AFSEL15_Pos);
+	}
+}
+
 void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode)
 {
 	USB_OTG_GlobalTypeDef* USB = USB_LL_Hardware___Get_USB(port_Number);
@@ -128,3 +148,4 @@ void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode)
 	USB -> GCCFG 	|= (USB_OTG_GCCFG_PWRDWN);
 	USB -> GAHBCFG 	|= (USB_OTG_GAHBCFG_GINT);
 }
+
