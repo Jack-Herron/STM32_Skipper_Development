@@ -9,8 +9,7 @@
 
 #include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
-#include <Skipper.h>				// include skipper library
-#include <cmath>					// include CMath
+#include <Skipper_Clock.h>			// Include Skipper clock configuration
 
 void GPIO_init(void){
 	RCC->AHB1ENR |= (1<<3); 		// enable GPIOD clock
@@ -35,9 +34,8 @@ void GPIO_init(void){
 }
 
 int main(void) {
-	clock.setParams(8,72,2,3,1,2,1);				// set the clock parameters
-	clock.init();									// initiate the clock
-	GPIO_init();									//initiate the GPIO to be used in this program.
+	Skipper_Clock___Init();			// initiate the clock
+	GPIO_init();					//initiate the GPIO to be used in this program.
 
 	for(;;)
 	{
