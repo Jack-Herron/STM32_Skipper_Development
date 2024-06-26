@@ -8,13 +8,15 @@
 #include <stdlib.h>						// include c standard library
 #include <stdint.h>						// Include C library for fixed-width integer types
 #include <stm32f4xx.h>					// include MCU specific definitions
+#include <Skipper_Clock.h>
 #include "../Inc/USB_LL_Interrupts.h"
 #include "../Inc/USB_LL_Hardware.h"
-#include <Skipper_Clock.h>
 
 #if (Skipper_Clock___48Mhz_FREQUENCY != 48000000)
 	#error("USB requires 48Mhz Clock to be running at exactly 48000000. Reconfigure the clock parameters in Skipper_Clock.h")
 #endif
+
+// ------------------- FETCH USB REGISTER STRUCTURE FUNCTIONS ------------------------
 
 uint32_t USB_LL_Hardware___Get_USB_BASE(uint8_t port_number)
 {
@@ -66,3 +68,5 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 {
 	return((USB_OTG_OUTEndpointTypeDef *) (USB_LL_Hardware___Get_USB_BASE(port_Number) + USB_OTG_OUT_ENDPOINT_BASE + (endpoint_Number * USB_OTG_EP_REG_SIZE)));
 }
+
+// ----------------------------------------------------------------------------------
