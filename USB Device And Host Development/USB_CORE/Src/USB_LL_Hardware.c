@@ -69,7 +69,9 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 	return((USB_OTG_OUTEndpointTypeDef *) (USB_LL_Hardware___Get_USB_BASE(port_Number) + USB_OTG_OUT_ENDPOINT_BASE + (endpoint_Number * USB_OTG_EP_REG_SIZE)));
 }
 
-// ----------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------
+
+// ---------------------------- USB INIT FUNCTIONS -----------------------------------
 
 void USB_LL_Hardware___GPIO_init(uint8_t port_Number)
 {
@@ -149,3 +151,4 @@ void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode)
 	USB -> GAHBCFG 	|= (USB_OTG_GAHBCFG_GINT);
 }
 
+// -----------------------------------------------------------------------------------
