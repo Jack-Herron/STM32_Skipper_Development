@@ -73,7 +73,7 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 
 // ---------------------------- USB INIT FUNCTIONS -----------------------------------
 
-void USB_LL_Hardware___GPIO_init(uint8_t port_Number)
+void USB_LL_Hardware___GPIO_Init(uint8_t port_Number)
 {
 	if(port_Number == USB_LL_Hardware___PORT_0)
 	{
@@ -152,3 +152,5 @@ void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode)
 }
 
 // -----------------------------------------------------------------------------------
+
+

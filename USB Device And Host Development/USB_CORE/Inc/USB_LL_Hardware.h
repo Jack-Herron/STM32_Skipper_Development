@@ -40,6 +40,6 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 
 
 void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode);
-void USB_LL_Hardware___GPIO_init(uint8_t port_Number);
+void USB_LL_Hardware___GPIO_Init(uint8_t port_Number);
 
 #endif /* INC_USB_LL_HARDWARE_H_ */
