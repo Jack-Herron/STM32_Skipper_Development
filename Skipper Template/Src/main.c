@@ -24,6 +24,7 @@ void GPIO_init(void)
 int main(void)
 {
 	Skipper_Clock___Init();
+	Skipper_Clock___Systick_Init();
 	GPIO_init();										// Initiate the GPIO's to be used in this program
 
 	for(;;)

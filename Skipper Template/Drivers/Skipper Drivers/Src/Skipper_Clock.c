@@ -135,10 +135,10 @@ void Skipper_Clock___Init()
 	FLASH -> ACR |= (FLASH_ACR_ICEN | FLASH_ACR_PRFTEN | FLASH_ACR_DCEN |FLASH_ACR_LATENCY_5WS);
 
 	RCC->PLLCFGR = 0;
-	RCC -> PLLCFGR |= 	(Skipper_Clock___PLL_Q << RCC_PLLCFGR_PLLQ_Pos) 	|
-						(Skipper_Clock___PLL_P << RCC_PLLCFGR_PLLP_Pos) 	|
-						(Skipper_Clock___PLL_N << RCC_PLLCFGR_PLLN_Pos)		|
-						(Skipper_Clock___PLL_M << RCC_PLLCFGR_PLLM_Pos)		;
+	RCC -> PLLCFGR |= 	(Skipper_Clock___PLL_Q 				<< RCC_PLLCFGR_PLLQ_Pos) 	|
+						(((Skipper_Clock___PLL_P - 2) / 2) 	<< RCC_PLLCFGR_PLLP_Pos) 	|
+						(Skipper_Clock___PLL_N 				<< RCC_PLLCFGR_PLLN_Pos)		|
+						(Skipper_Clock___PLL_M 				<< RCC_PLLCFGR_PLLM_Pos)		;
 
 	if(Skipper_Clock___PLL_SOURCE == Skipper_Clock___PLL_USE_HSE)
 	{
@@ -169,5 +169,31 @@ void Skipper_Clock___Init()
 
 void Skipper_Clock___Systick_Init()
 {
+	SysTick -> CTRL |= (Skipper_Clock___SYSTICK_ENABLE_INTERRUPT);
+
+	if(Skipper_Clock___ENABLE_SYSTICK_PRESCALER == 0)
+	{
+		SysTick -> CTRL |= (Skipper_Clock___SYSTICK_CLOKC_SOURCE_SYSTEM_CLOCK);
+	}
+	else
+	{
+		SysTick -> CTRL &= ~(Skipper_Clock___SYSTICK_CLOKC_SOURCE_SYSTEM_CLOCK);
+	}
+
+	SysTick -> LOAD = ((Skipper_Clock___CORTEX_SYSTEM_TIMER_FREQUENCY / 2) - 1);
+	SysTick -> CTRL |= (Skipper_Clock___SYSTICK_ENABLE);
+}
+
+void SysTick_Handler()
+{
+
+	if(GPIOD -> ODR & (GPIO_ODR_ODR_4))
+	{
+		GPIOD -> ODR 	&= ~(GPIO_ODR_ODR_4);				// Set PD4 HIGH
+	}
+	else
+	{
+		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PD4 HIGH
+	}
 
 }

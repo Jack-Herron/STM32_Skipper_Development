@@ -44,7 +44,6 @@
 #define Skipper_Clock___AHB_PRESCALER					1					// 1, 2, 4, 8, 16, 64, 128, 256, 512
 #define Skipper_Clock___APB1_PRESCALER					2					// 1, 2, 4, 8, 16
 #define Skipper_Clock___APB2_PRESCALER					1					// 1, 2, 4, 8, 16
-#define Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER	1					// 1, 8
 
 // ------------------------------------------------------------------
 
@@ -151,10 +150,12 @@
 	#define Skipper_Clock___APB2_TIMER_MULTIPLIER_OUTPUT_FREQUENCY (Skipper_Clock___APB2_PRESCALER_OUTPUT_FREQUENCY * 2)
 #endif
 
-#if ((Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER == 1) || (Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER == 8))
-	#define Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY / Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER
+#if ((Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY/2) > 0xffffff)
+	#define Skipper_Clock___ENABLE_SYSTICK_PRESCALER	1
+	#define Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY (Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY/8)
 #else
-	#error "Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER value out of bounds"
+	#define Skipper_Clock___ENABLE_SYSTICK_PRESCALER	0
+	#define Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY (Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY)
 #endif
 
 #define Skipper_Clock___48Mhz_FREQUENCY					Skipper_Clock___PLL_Q_OUTPUT_FREQUENCY
@@ -163,10 +164,21 @@
 #define Skipper_Clock___APB1_TIMER_FREQUENCY			Skipper_Clock___APB1_TIMER_MULTIPLIER_OUTPUT_FREQUENCY
 #define Skipper_Clock___APB1_PERIPHERAL_FREQUENCY		Skipper_Clock___APB1_PRESCALER_OUTPUT_FREQUENCY
 #define Skipper_Clock___FCLK_FREQUENCY					Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
-#define Skipper_Clock___CORTEX_SYSTEM_FREQUENCY			Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY
+#define Skipper_Clock___CORTEX_SYSTEM_TIMER_FREQUENCY	Skipper_Clock___CORTEX_SYSTEM_TIMER_PRESCALER_OUTPUT_FREQUENCY
 #define Skipper_Clock___AHB_FREQUENCY					Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
 #define Skipper_Clock___ETHERNET_PTP_FREQUENCY			Skipper_Clock___AHB_PRESCALER_OUTPUT_FREQUENCY
 
+#define Skipper_Clock___SYSTICK_ENABLE_INTERRUPT_Pos			(1u)
+#define Skipper_Clock___SYSTICK_ENABLE_INTERRUPT_Msk			(1 << Skipper_Clock___SYSTICK_ENABLE_INTERRUPT_Pos)
+#define Skipper_Clock___SYSTICK_ENABLE_INTERRUPT				Skipper_Clock___SYSTICK_ENABLE_INTERRUPT_Msk
+
+#define Skipper_Clock___SYSTICK_ENABLE_Pos						(0u)
+#define Skipper_Clock___SYSTICK_ENABLE_Msk						(1 << Skipper_Clock___SYSTICK_ENABLE_Pos)
+#define Skipper_Clock___SYSTICK_ENABLE							Skipper_Clock___SYSTICK_ENABLE_Msk
+
+#define Skipper_Clock___SYSTICK_CLOCK_SOURCE_Pos				(2u)
+#define Skipper_Clock___SYSTICK_CLOCK_SOURCE_Msk				(1 << Skipper_Clock___SYSTICK_CLOCK_SOURCE_Pos)
+#define Skipper_Clock___SYSTICK_CLOKC_SOURCE_SYSTEM_CLOCK		Skipper_Clock___SYSTICK_CLOCK_SOURCE_Msk
 
 #define Skipper_Clock___APB_DIV_1				1
 #define Skipper_Clock___APB_DIV_2				2
