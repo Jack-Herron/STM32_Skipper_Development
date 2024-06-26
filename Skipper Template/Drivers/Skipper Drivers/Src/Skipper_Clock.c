@@ -11,6 +11,8 @@
 #include <assert.h>										// Include assert
 #include "../Inc/Skipper_Clock.h"
 
+static uint64_t Skipper_Clock___Micros_Storage;
+
 uint8_t Skipper_Clock___Get_RCC_CFGR_APB_Value_From_Prescaler_Value(uint8_t Prescaler_Value)
 {
 	uint8_t APB_Value = 0;
@@ -169,6 +171,7 @@ void Skipper_Clock___Init()
 
 void Skipper_Clock___Systick_Init()
 {
+	Skipper_Clock___Micros_Storage = 0;
 	SysTick -> CTRL |= (Skipper_Clock___SYSTICK_ENABLE_INTERRUPT);
 
 	if(Skipper_Clock___ENABLE_SYSTICK_PRESCALER == 0)
@@ -184,16 +187,30 @@ void Skipper_Clock___Systick_Init()
 	SysTick -> CTRL |= (Skipper_Clock___SYSTICK_ENABLE);
 }
 
+uint64_t Skipper_Clock___Micros()
+{
+	uint32_t half_Second_Value 		= (SysTick -> LOAD) + 1;
+	uint32_t current_Value 	 		= (SysTick -> VAL) + 1;
+	uint32_t current_SysTick_Time 	= half_Second_Value - current_Value;
+	uint64_t additional_Time		= (((uint64_t)current_SysTick_Time * 500000) / half_Second_Value);
+	return(Skipper_Clock___Micros_Storage + additional_Time);
+}
+
+void Skipper_Clock___Delay_ms(uint64_t delay)
+{
+	uint64_t current_Time 	= Skipper_Clock___Micros();
+	uint64_t stop_Time		= current_Time + (delay*1000);
+	while(Skipper_Clock___Micros() < stop_Time);
+}
+
+void Skipper_Clock___Delay_us(uint64_t delay)
+{
+	uint64_t current_Time 	= Skipper_Clock___Micros();
+	uint64_t stop_Time		= current_Time + delay;
+	while(Skipper_Clock___Micros() < stop_Time);
+}
+
 void SysTick_Handler()
 {
-
-	if(GPIOD -> ODR & (GPIO_ODR_ODR_4))
-	{
-		GPIOD -> ODR 	&= ~(GPIO_ODR_ODR_4);				// Set PD4 HIGH
-	}
-	else
-	{
-		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PD4 HIGH
-	}
-
+	Skipper_Clock___Micros_Storage += 500000;
 }

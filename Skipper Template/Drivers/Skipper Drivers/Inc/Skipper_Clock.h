@@ -213,5 +213,7 @@
 #define Skipper_Clock___RCC_CFGR_AHB_DIV_512	15
 
 void Skipper_Clock___Init();
-
+uint64_t Skipper_Clock___Micros();
+void Skipper_Clock___Delay_us(uint64_t delay);
+void Skipper_Clock___Delay_ms(uint64_t delay);
 #endif /* DRIVERS_SKIPPER_DRIVERS_INC_SKIPPER_CLOCK_H_ */
