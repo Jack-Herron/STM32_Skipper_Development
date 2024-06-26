@@ -198,3 +198,52 @@ uint16_t USB_LL_Hardware___Host_Get_Frame_Number(uint8_t port_Number)
 }
 
 // -----------------------------------------------------------------------------------
+
+// ---------------------------- USB CHANNEL_CONTROL_SECTION --------------------------
+
+uint32_t* USB_LL_Hardware___Channel_Get_Fifo_Pointer(uint8_t port_Number, uint8_t channel_Number)
+{
+	uint32_t USB_offset = USB_LL_Hardware___Get_USB_BASE(port_Number);
+	return((uint32_t*)(USB_offset + USB_OTG_FIFO_BASE + (USB_OTG_FIFO_SIZE * channel_Number)));
+}
+
+void USB_LLHardware___Channel_Halt(uint8_t port_Number, uint8_t channel_Number)
+{
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_Host_Channel -> HCCHAR |= (USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_CHENA);
+}
+
+void USB_LL_Hardware___Channel_Halt_And_Wait(uint8_t port_Number, uint8_t channel_Number)
+{
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_Host_Channel -> HCCHAR |= (USB_OTG_HCCHAR_CHDIS);
+	while(USB_Host_Channel -> HCCHAR & USB_OTG_HCCHAR_CHENA);
+}
+
+uint8_t USB_LL_Hardware___Channel_Get_Current_PID(uint8_t port_Number, uint8_t channel_Number)
+{
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	return(USB_LL_Hardware___GET_BIT_SEGMENT(USB_Host_Channel -> HCTSIZ, USB_OTG_HCTSIZ_DPID_Msk, USB_OTG_HCTSIZ_DPID_Pos));
+}
+
+void USB_LL_Hardware___Channel_Set_Interrupts(uint8_t port_Number,uint8_t channel_Number)
+{
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel 	= USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_OTG_HostTypeDef*		USB_Host 			= USB_LL_Hardware___Get_USB_Host(port_Number);
+	USB_Host 			-> HAINTMSK |= (1 << channel_Number);
+	USB_Host_Channel 	-> HCINTMSK  = USB_LL_Interrupts___CHANNEL_INTERRUPTS_MASK;
+}
+
+void USB_LL_Hardware___Channel_Set_Characteristics(uint8_t port_Number, uint8_t channel_Number, uint32_t channel_Characteristics)
+{
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_Host_Channel -> HCCHAR = channel_Characteristics;
+}
+
+void USB_LL_Hardware___Channel_Load_HCTSIZ(uint8_t port_Number, uint8_t channel_Number, uint32_t transfer_Size_In_Bytes, uint32_t packet_Count, uint8_t packet_ID)
+{
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_Host_Channel -> HCTSIZ = (transfer_Size_In_Bytes << USB_OTG_HCTSIZ_XFRSIZ_Pos | packet_Count << USB_OTG_HCTSIZ_PKTCNT_Pos | packet_ID << USB_OTG_HCTSIZ_DPID_Pos);
+}
+
+// -----------------------------------------------------------------------------------
