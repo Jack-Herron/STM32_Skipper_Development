@@ -153,4 +153,48 @@ void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode)
 
 // -----------------------------------------------------------------------------------
 
+// ---------------------------- USB HOST CONTROL SECTION -----------------------------
 
+void USB_LL_Hardware___Host_Set_FIFO_Size(uint8_t port_Number, uint32_t RX_FIFO_Depth, uint32_t non_Periodic_TX_FIFO_Depth, uint32_t periodic_TX_FIFO_Depth)
+{
+	USB_OTG_GlobalTypeDef* USB = USB_LL_Hardware___Get_USB(port_Number);
+	uint32_t Start_Address = 0;
+
+	USB -> GRXFSIZ = (RX_FIFO_Depth);
+
+	Start_Address += RX_FIFO_Depth;
+
+	USB -> DIEPTXF0_HNPTXFSIZ = ((non_Periodic_TX_FIFO_Depth << USB_OTG_NPTXFD_Pos) | (Start_Address << USB_OTG_NPTXFSA_Pos));
+
+	Start_Address += non_Periodic_TX_FIFO_Depth;
+
+	USB -> HPTXFSIZ = ((periodic_TX_FIFO_Depth << USB_OTG_HPTXFSIZ_PTXFD_Pos) | (Start_Address << USB_OTG_HPTXFSIZ_PTXSA_Pos));
+}
+
+uint32_t USB_LL_Hardware___Host_Get_FIFO_Space_Available(uint8_t port_Number, uint8_t FIFO_Type)
+{
+	switch(FIFO_Type)
+	{
+	case USB_LL_Hardware___NON_PERIODIC_TX_FIFO:
+	{
+		USB_OTG_GlobalTypeDef* USB = USB_LL_Hardware___Get_USB(port_Number);
+		return(USB_LL_Hardware___GET_BIT_SEGMENT(USB -> HNPTXSTS, USB_OTG_GNPTXSTS_NPTXFSAV_Msk, USB_OTG_GNPTXSTS_NPTXFSAV_Pos));
+		break;
+	}
+	case USB_LL_Hardware___PERIODIC_TX_FIFO:
+	{
+		USB_OTG_HostTypeDef* USB_Host = USB_LL_Hardware___Get_USB_Host(port_Number);
+		return(USB_LL_Hardware___GET_BIT_SEGMENT(USB_Host -> HPTXSTS, USB_OTG_HPTXSTS_PTXFSAVL_Msk, USB_OTG_HPTXSTS_PTXFSAVL_Pos));
+		break;
+	}
+	}
+	return(0);
+}
+
+uint16_t USB_LL_Hardware___Host_Get_Frame_Number(uint8_t port_Number)
+{
+	USB_OTG_HostTypeDef* USB_Host = USB_LL_Hardware___Get_USB_Host(port_Number);
+	return(USB_Host->HFNUM & USB_OTG_HFNUM_FRNUM_Msk);
+}
+
+// -----------------------------------------------------------------------------------

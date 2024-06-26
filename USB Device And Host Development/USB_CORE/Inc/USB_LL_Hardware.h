@@ -8,6 +8,7 @@
 #ifndef INC_USB_LL_HARDWARE_H_
 #define INC_USB_LL_HARDWARE_H_
 
+#define USB_LL_Hardware___GET_BIT_SEGMENT(word, mask, pos)			((word & mask) >> pos)
 #define USB_LL_Hardware___PORT_0									0
 #define USB_LL_Hardware___PORT_1									1
 #define USB_LL_Hardware___DEVICE_MODE								0
@@ -22,7 +23,8 @@
 #define USB_LL_Hardware___GPIO_ALTERNATE_MODE						0x02
 #define USB_LL_Hardware___GPIO_Alt_FUNCTION_10						0x0a
 #define USB_LL_Hardware___GPIO_Alt_FUNCTION_12						0x0c
-
+#define USB_LL_Hardware___NON_PERIODIC_TX_FIFO						0x00
+#define USB_LL_Hardware___PERIODIC_TX_FIFO							0x01
 
 typedef struct
 {
@@ -41,5 +43,8 @@ USB_OTG_OUTEndpointTypeDef* USB_LL_Hardware___Get_USB_Device_OUT(uint8_t port_Nu
 
 void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode);
 void USB_LL_Hardware___GPIO_Init(uint8_t port_Number);
+uint16_t USB_LL_Hardware___Host_Get_Frame_Number(uint8_t port_Number);
+uint32_t USB_LL_Hardware___Host_Get_FIFO_Space_Available(uint8_t port_Number, uint8_t FIFO_Type);
+void USB_LL_Hardware___Host_Set_FIFO_Size(uint8_t port_Number, uint32_t RX_FIFO_Depth, uint32_t non_Periodic_TX_FIFO_Depth, uint32_t periodic_TX_FIFO_Depth);
 
 #endif /* INC_USB_LL_HARDWARE_H_ */
