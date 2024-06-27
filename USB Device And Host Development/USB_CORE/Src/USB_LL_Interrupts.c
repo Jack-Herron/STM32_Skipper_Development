@@ -11,7 +11,12 @@
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Interrupts.h"
 
+static USB_LL_Interrupts___Status_TypeDef port_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
 
+USB_LL_Interrupts___Status_TypeDef* USB_LL_Interrupts___Get_Status(uint8_t port_Number)
+{
+	return(&port_Status[port_Number]);
+}
 
 void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 {
