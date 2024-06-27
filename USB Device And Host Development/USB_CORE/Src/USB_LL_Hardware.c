@@ -9,6 +9,7 @@
 #include <stdint.h>						// Include C library for fixed-width integer types
 #include <stm32f4xx.h>					// include MCU specific definitions
 #include <Skipper_Clock.h>
+#include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Interrupts.h"
 #include "../Inc/USB_LL_Hardware.h"
 

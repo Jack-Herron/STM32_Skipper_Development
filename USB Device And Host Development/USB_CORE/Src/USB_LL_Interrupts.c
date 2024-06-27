@@ -7,12 +7,13 @@
 
 #include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
+#include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Interrupts.h"
 
 
 
-void USB_LL_Interrupts___IRQHandler(uint8_t port_Number)
+void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 {
 	USB_OTG_GlobalTypeDef* USB = USB_LL_Hardware___Get_USB(port_Number);
 
@@ -21,7 +22,6 @@ void USB_LL_Interrupts___IRQHandler(uint8_t port_Number)
 		switch((USB_LL_Interrupts___WORD_32_MSB - __CLZ(USB -> GINTSTS)) & USB_LL_Interrupts___GLOBAL_INTERRUPTS_MASK)
 		{
 		case USB_OTG_GINTSTS_SOF_Pos:											// SOF Received/sent Interrupt
-
 			break;
 
 		case USB_OTG_GINTSTS_RXFLVL_Pos:										// RXFIFO nonempty (data ready to be read)
@@ -101,10 +101,10 @@ void USB_LL_Interrupts___IRQHandler(uint8_t port_Number)
 
 void OTG_FS_IRQHandler()
 {
-	USB_LL_Interrupts___IRQHandler(USB_LL_Hardware___PORT_0);
+	USB_LL_Interrupts___Interrupt_Handler(USB_LL_Hardware___PORT_0);
 }
 
 void OTG_HS_IRQHandler()
 {
-	USB_LL_Interrupts___IRQHandler(USB_LL_Hardware___PORT_1);
+	USB_LL_Interrupts___Interrupt_Handler(USB_LL_Hardware___PORT_1);
 }
