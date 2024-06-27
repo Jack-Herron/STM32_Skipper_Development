@@ -14,7 +14,7 @@
 #include "../Inc/USB_LL_Hardware.h"
 
 #if (Skipper_Clock___48Mhz_FREQUENCY != 48000000)
-	#error("USB requires 48Mhz Clock to be running at exactly 48000000. Reconfigure the clock parameters in Skipper_Clock.h")
+	#error("USB requires 48Mhz Clock to be running at exactly 48000000 Hz. Reconfigure the clock parameters in Skipper_Clock.h")
 #endif
 
 // ------------------- FETCH USB REGISTER STRUCTURE FUNCTIONS ------------------------
