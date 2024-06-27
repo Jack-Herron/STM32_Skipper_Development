@@ -167,6 +167,7 @@ void Skipper_Clock___Init()
 	{
 		Skipper_Clock___Turn_Off_HSI();
 	}
+	SystemCoreClockUpdate();
 }
 
 void Skipper_Clock___Systick_Init()
