@@ -23,8 +23,6 @@
 #define USB_LL_Hardware___GPIO_ALTERNATE_MODE						0x02
 #define USB_LL_Hardware___GPIO_Alt_FUNCTION_10						0x0a
 #define USB_LL_Hardware___GPIO_Alt_FUNCTION_12						0x0c
-#define USB_LL_Hardware___NON_PERIODIC_TX_FIFO						0x00
-#define USB_LL_Hardware___PERIODIC_TX_FIFO							0x01
 
 typedef struct
 {
