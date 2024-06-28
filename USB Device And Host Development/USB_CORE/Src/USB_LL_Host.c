@@ -10,6 +10,7 @@
 #include <stm32f4xx.h>					// include MCU specific definitions
 #include <Skipper_Clock.h>
 #include "../Inc/USB_LL_Definitions.h"
+#include "../Inc/USB_LL_Interrupts.h"
 #include "../Inc/USB_LL_Interrupts_Host.h"
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Host.h"
