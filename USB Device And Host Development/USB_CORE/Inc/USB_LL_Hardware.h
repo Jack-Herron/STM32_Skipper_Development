@@ -14,7 +14,6 @@
 #define USB_LL_Hardware___DEVICE_MODE								0
 #define USB_LL_Hardware___HOST_MODE									1
 #define USB_LL_Hardware___USB_ENABLE_DELAY							0x80
-#define USB_LL_Hardware___HOST_RESET_DELAY							0x19
 #define USB_LL_Hardware___HCFG_SELECT_48Mhz_PHY_FREQUENCY			0x01
 #define USB_LL_Hardware___DCFG_SELECT_48Mhz_PHY_FREQUENCY			0x03
 #define USB_LL_Hardware___HPRT_Port_Power_Enabled					0x01
