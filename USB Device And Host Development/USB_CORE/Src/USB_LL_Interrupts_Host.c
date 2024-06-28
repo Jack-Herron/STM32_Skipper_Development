@@ -12,6 +12,13 @@
 #include "../Inc/USB_LL_Interrupts.h"
 #include "../Inc/USB_LL_Interrupts_Host.h"
 
+static USB_LL_Interrupts_Host___Status_TypeDef host_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
+
+USB_LL_Interrupts_Host___Status_TypeDef* USB_LL_Interrupts_Host___Get_Host_Status(uint8_t port_Number)
+{
+	return(&host_Status[port_Number]);
+}
+
 void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)
 {
 	USB_OTG_HostPortTypeDef* USB_Host_Port = USB_LL_Hardware___Get_USB_Host_Port(port_Number);
