@@ -89,7 +89,8 @@ void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)
 	}
 }
 
-void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number){
+void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
+{
 	USB_OTG_HostTypeDef*		USB_Host 		= USB_LL_Hardware___Get_USB_Host(port_Number);
 	uint8_t 					channel_Number 	= POSITION_VAL(USB_Host -> HAINT);
 	USB_OTG_HostChannelTypeDef* USB_Host_Ch 	= USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);

@@ -31,5 +31,7 @@ typedef struct {
 	USB_LL_Interrupts_Host___Channel_Status_TypeDef		channel_Status[USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS];
 } USB_LL_Interrupts_Host___Status_TypeDef;
 
+void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number);
+void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number);
 
 #endif /* INC_USB_LL_INTERRUPTS_HOST_H_ */
