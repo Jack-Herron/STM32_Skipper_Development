@@ -7,8 +7,10 @@
 
 #include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
+#include <Skipper_Clock.h>
 #include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Hardware.h"
+#include "../Inc/USB_LL_Host.h"
 #include "../Inc/USB_LL_Interrupts.h"
 #include "../Inc/USB_LL_Interrupts_Host.h"
 
@@ -18,6 +20,46 @@ USB_LL_Interrupts_Host___Status_TypeDef* USB_LL_Interrupts_Host___Get_Host_Statu
 {
 	return(&host_Status[port_Number]);
 }
+
+void USB_LL_Interrupts_Host___Device_Connect_Detected(uint8_t port_Number)
+{
+	USB_OTG_HostPortTypeDef*	USB_Host_Port 	= USB_LL_Hardware___Get_USB_Host_Port(port_Number);
+	USB_OTG_HostTypeDef* 		USB_Host 		= USB_LL_Hardware___Get_USB_Host(port_Number);
+	if(!(USB_Host -> HCFG & USB_OTG_HCFG_FSLSPCS))
+	{
+		USB_Host -> HFIR  = (USB_LL_HOST___CLOCK_CYCLES_IN_ONE_MILLISECOND_FRAME);
+		USB_Host -> HCFG |= (USB_OTG_HCFG_FSLSPCS_0);
+		f_USB_Hardware___Reset_Host(port_Number);
+	}
+	else
+	{
+		uint8_t host_Speed = USB_LL_Hardware___GET_BIT_SEGMENT(USB_Host_Port -> HPRT, USB_OTG_HPRT_PSPD_Msk, USB_OTG_HPRT_PSPD_Pos);
+		uint8_t speed;
+
+		if(host_Speed == USB_LL_Host___HPRT_LOW_SPEED_VALUE)
+		{
+			speed = USB_LL_Interrupts___LOW_SPEED_VALUE;
+		}
+		else if(host_Speed == USB_LL_Host___HPRT_FULL_SPEED_VALUE)
+		{
+			speed = USB_LL_Interrupts___FULL_SPEED_VALUE;
+		}
+		else if(host_Speed == USB_LL_Host___HPRT_HIGH_SPEED_VALUE)
+		{
+			speed = USB_LL_Interrupts___HIGH_SPEED_VALUE;
+		}
+		host_Status[port_Number].port_Status -> root_Device_Connected = 1;
+		host_Status[port_Number].port_Status -> root_Device_Connected_Speed = speed;
+	}
+}
+
+
+void USB_LL_Interrupts_Host___Device_Disconnect_Detected(uint8_t port_Number)
+{
+	host_Status[port_Number].port_Status -> root_Device_Connected = 0;
+	host_Status[port_Number].port_Status -> root_Device_Disconnected = 1;
+}
+
 
 void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)
 {
@@ -33,7 +75,7 @@ void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case(USB_OTG_HPRT_PENCHNG_Pos):
-			USB_Host_Port -> HPRT = (USB_Host_Port -> HPRT & ~(USB_LL_Interrupts_Host___HPRT_RC_W1_BITS)) | (USB_OTG_HPRT_PENCHNG_Msk);
+			USB_Host_Port -> HPRT = (USB_Host_Port -> HPRT & ~(USB_LL_Host___HPRT_RC_W1_BITS)) | (USB_OTG_HPRT_PENCHNG_Msk);
 			if(USB_Host_Port -> HPRT & USB_OTG_HPRT_PCSTS)
 			{
 				//f_USB_Hardware___Host_Port_Device_Connect_Detected(port_Number);
