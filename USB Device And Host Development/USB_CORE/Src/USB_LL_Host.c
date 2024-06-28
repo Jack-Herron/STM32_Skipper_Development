@@ -17,6 +17,14 @@
 
 // ---------------------------- USB HOST CONTROL SECTION -----------------------------
 
+void USB_LL_Host___Reset_Port(uint8_t port_Number)
+{
+	USB_OTG_HostPortTypeDef* USB_Host_Port = USB_LL_Hardware___Get_USB_Host_Port(port_Number);
+	USB_Host_Port -> HPRT = (USB_Host_Port -> HPRT & ~(USB_LL_Host___HPRT_RC_W1_BITS)) | (USB_OTG_HPRT_PRST);
+	Skipper_Clock___Delay_ms(USB_LL_Host___HOST_RESET_DELAY);
+	USB_Host_Port -> HPRT = (USB_Host_Port -> HPRT & ~(USB_LL_Host___HPRT_RC_W1_BITS)) & ~(USB_OTG_HPRT_PRST);;
+}
+
 void USB_LL_Host___Set_FIFO_Size(uint8_t port_Number, uint32_t RX_FIFO_Depth, uint32_t non_Periodic_TX_FIFO_Depth, uint32_t periodic_TX_FIFO_Depth)
 {
 	USB_OTG_GlobalTypeDef* USB = USB_LL_Hardware___Get_USB(port_Number);
