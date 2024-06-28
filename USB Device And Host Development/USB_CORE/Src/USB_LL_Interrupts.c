@@ -10,7 +10,8 @@
 #include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Interrupts.h"
-
+#include "../Inc/USB_LL_Interrupts_Host.h"
+#include "../Inc/USB_LL_Interrupts_Device.h"
 static USB_LL_Interrupts___Status_TypeDef port_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
 
 USB_LL_Interrupts___Status_TypeDef* USB_LL_Interrupts___Get_Status(uint8_t port_Number)
@@ -83,11 +84,11 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_HPRTINT_Pos:										// Host Port Interrupt
-
+			USB_LL_Interrupts_Host___Port_Interrupt_Handler(port_Number);
 			break;
 
 		case USB_OTG_GINTSTS_HCINT_Pos:											// Host Channel Interrupt
-
+			USB_LL_Interrupts_Host___Channel_Interrupt_Handler(port_Number);
 			break;
 
 		case USB_OTG_GINTSTS_PTXFE_Pos:											// Periodic TxFIFO empty / half empty Interrupt
