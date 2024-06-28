@@ -29,7 +29,7 @@ void USB_LL_Interrupts_Host___Device_Connect_Detected(uint8_t port_Number)
 	{
 		USB_Host -> HFIR  = (USB_LL_HOST___CLOCK_CYCLES_IN_ONE_MILLISECOND_FRAME);
 		USB_Host -> HCFG |= (USB_OTG_HCFG_FSLSPCS_0);
-		f_USB_Hardware___Reset_Host(port_Number);
+		USB_LL_Host___Reset_Port(port_Number);
 	}
 	else
 	{
