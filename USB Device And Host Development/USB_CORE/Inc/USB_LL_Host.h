@@ -16,6 +16,17 @@
 #define USB_LL_Host___HPRT_FULL_SPEED_VALUE						0x01
 #define USB_LL_Host___HPRT_HIGH_SPEED_VALUE						0x00
 #define USB_LL_HOST___CLOCK_CYCLES_IN_ONE_MILLISECOND_FRAME		0xbb80
+#define USB_LL_HOST___RX_PACKET_STATUS_DATA_PACKET_RECIEVED		0x02
+
+typedef struct {
+	uint32_t 									RX_Buffer_Size;
+	uint32_t 									RX_Buffer_Fill_Level;
+	uint8_t* 									p_RX_Buffer;
+} USB_LL_Host___Host_Channel_TypeDef;
+
+typedef struct {
+	USB_LL_Host___Host_Channel_TypeDef			Channel[USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS];
+} USB_LL_Host___Host_Port_TypeDef;
 
 uint16_t 	USB_LL_Host___Host_Get_Frame_Number			(uint8_t port_Number);
 uint32_t 	USB_LL_Host___Host_Get_FIFO_Space_Available	(uint8_t port_Number, uint8_t FIFO_Type);
