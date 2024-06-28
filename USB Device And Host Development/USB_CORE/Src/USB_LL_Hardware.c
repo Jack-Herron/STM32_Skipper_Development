@@ -154,3 +154,32 @@ void USB_LL_Hardware___Init(uint8_t port_Number, uint8_t port_Mode)
 
 // -----------------------------------------------------------------------------------
 
+void USB_LL_Hardware___FIFO_Transfer_In(uint8_t* Source, uint32_t* Destination, uint32_t transfer_Size)
+{
+	uint32_t 	full_Copies 	= 	transfer_Size / USB_LL_Hardware___NUMBER_OF_BYTES_IN_WORD_32;
+	uint8_t 	remainder 		= 	transfer_Size % USB_LL_Hardware___NUMBER_OF_BYTES_IN_WORD_32;
+
+	for(uint16_t i = 0; i < full_Copies; i++)
+	{
+		Destination[i] = ((uint32_t*)Source)[i];
+	}
+
+	if(remainder > 0)
+	{
+		uint32_t final32 = 0;
+		for(uint8_t i = 0; i < remainder; i++)
+		{
+			final32 |= Source[transfer_Size - (remainder - i)] << (i * USB_LL_Hardware___NUMBER_OF_BITS_IN_BYTE);
+		}
+		Destination[full_Copies] = final32;
+	}
+}
+
+void USB_LL_Hardware___FIFO_Transfer_Out(uint32_t* Source, uint8_t* Destination, uint32_t size)
+{
+	for(uint32_t i = 0; i<size; i++)
+	{
+		((uint32_t*)Destination)[i] = Source[i];
+	}
+}
+
