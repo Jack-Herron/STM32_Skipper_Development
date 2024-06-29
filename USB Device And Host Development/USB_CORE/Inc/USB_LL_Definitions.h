@@ -9,7 +9,5 @@
 #define INC_USB_LL_DEFINITIONS_H_
 
 #define USB_LL_Definitions___NUMBER_OF_PORTS						(0x0c)
-#define USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS					(0x0c)
-#define USB_LL_Definitions___MAX_NUMBER_OF_Endpoints
 
 #endif /* INC_USB_LL_DEFINITIONS_H_ */

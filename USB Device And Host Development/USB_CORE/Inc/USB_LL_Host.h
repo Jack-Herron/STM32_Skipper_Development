@@ -10,6 +10,7 @@
 
 #define USB_LL_Host___QUICK_DIV_ROOF(number, diviser) 			((number + (diviser-1)) / diviser)
 
+#define USB_LL_Host___MAX_NUMBER_OF_CHANNELS					0x0c
 #define USB_LL_Host___NON_PERIODIC_TX_FIFO						0x00
 #define USB_LL_Host___PERIODIC_TX_FIFO							0x01
 #define USB_LL_Host___HOST_RESET_DELAY							0x19
@@ -19,10 +20,10 @@
 #define USB_LL_Host___HPRT_HIGH_SPEED_VALUE						0x00
 #define USB_LL_HOST___CLOCK_CYCLES_IN_ONE_MILLISECOND_FRAME		0xbb80
 #define USB_LL_Host___RX_PACKET_STATUS_DATA_PACKET_RECIEVED		0x02
-
 #define USB_LL_Host___EXIT_SUCCESS								 (0x01)
 #define USB_LL_Host___EXIT_FAILURE_BUFFER_OVERFLOW				-(0x02)
-
+#define USB_LL_Host___PORT_INTERRUPTS_MASK						0x000a
+#define USB_LL_Host___CHANNEL_INTERRUPTS_MASK					0x029b
 
 typedef struct {
 	uint32_t 									size;
@@ -31,7 +32,7 @@ typedef struct {
 } USB_LL_Host___Host_Channel_Buffer_TypeDef;
 
 typedef struct {
-	USB_LL_Host___Host_Channel_Buffer_TypeDef			channel_Buffer[USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS];
+	USB_LL_Host___Host_Channel_Buffer_TypeDef			channel_Buffer[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
 } USB_LL_Host___Host_Port_TypeDef;
 
 uint16_t 	USB_LL_Host___Host_Get_Frame_Number			(uint8_t port_Number);

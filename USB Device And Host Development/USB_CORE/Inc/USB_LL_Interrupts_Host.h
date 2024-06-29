@@ -7,8 +7,6 @@
 
 #ifndef INC_USB_LL_INTERRUPTS_HOST_H_
 #define INC_USB_LL_INTERRUPTS_HOST_H_
-#define USB_LL_Interrupts_Host___PORT_INTERRUPTS_MASK						0x000a
-#define USB_LL_Interrupts_Host___CHANNEL_INTERRUPTS_MASK					0x029b
 
 typedef enum {
 	Channel_Status_Enum___IDLE,
@@ -28,7 +26,7 @@ typedef struct {
 
 typedef struct {
 	USB_LL_Interrupts___Status_TypeDef*					port_Status;
-	USB_LL_Interrupts_Host___Channel_Status_TypeDef		channel_Status[USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS];
+	USB_LL_Interrupts_Host___Channel_Status_TypeDef		channel_Status[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
 } USB_LL_Interrupts_Host___Status_TypeDef;
 
 void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number);

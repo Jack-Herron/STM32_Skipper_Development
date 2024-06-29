@@ -94,9 +94,9 @@ void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)
 {
 	USB_OTG_HostPortTypeDef* USB_Host_Port = USB_LL_Hardware___Get_USB_Host_Port(port_Number);
 
-	while((USB_Host_Port -> HPRT) & USB_LL_Interrupts_Host___PORT_INTERRUPTS_MASK)
+	while((USB_Host_Port -> HPRT) & USB_LL_Host___PORT_INTERRUPTS_MASK)
 	{
-		switch(POSITION_VAL((USB_Host_Port -> HPRT) & USB_LL_Interrupts_Host___PORT_INTERRUPTS_MASK))
+		switch(POSITION_VAL((USB_Host_Port -> HPRT) & USB_LL_Host___PORT_INTERRUPTS_MASK))
 		{
 		case(USB_OTG_HPRT_PCDET_Pos):
 			USB_Host_Port -> HPRT |= (USB_OTG_HPRT_PCDET_Msk);
@@ -125,9 +125,9 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 	USB_OTG_HostChannelTypeDef* USB_Host_Ch 	= USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
 	uint8_t 					device_Address 	= USB_LL_Hardware___GET_BIT_SEGMENT(USB_Host_Ch -> HCCHAR, USB_OTG_HCCHAR_DAD_Msk, USB_OTG_HCCHAR_DAD_Pos);
 
-	while((USB_Host_Ch -> HCINT) & USB_LL_Interrupts_Host___CHANNEL_INTERRUPTS_MASK)
+	while((USB_Host_Ch -> HCINT) & USB_LL_Host___CHANNEL_INTERRUPTS_MASK)
 	{
-		switch(POSITION_VAL((USB_Host_Ch -> HCINT) & USB_LL_Interrupts_Host___CHANNEL_INTERRUPTS_MASK))
+		switch(POSITION_VAL((USB_Host_Ch -> HCINT) & USB_LL_Host___CHANNEL_INTERRUPTS_MASK))
 		{
 		case USB_OTG_HCINT_XFRC_Pos: 								// XFER Complete received
 			break;

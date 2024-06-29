@@ -11,7 +11,7 @@
 #include <Skipper_Clock.h>
 #include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Interrupts.h"
-#include "../Inc/USB_LL_Interrupts_Host.h"
+
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Host.h"
 
@@ -124,7 +124,7 @@ void USB_LL_Host___Channel_Set_Interrupts(uint8_t port_Number,uint8_t channel_Nu
 	USB_OTG_HostChannelTypeDef* USB_Host_Channel 	= USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
 	USB_OTG_HostTypeDef*		USB_Host 			= USB_LL_Hardware___Get_USB_Host(port_Number);
 	USB_Host 			-> HAINTMSK |= (1 << channel_Number);
-	USB_Host_Channel 	-> HCINTMSK  = USB_LL_Interrupts_Host___CHANNEL_INTERRUPTS_MASK;
+	USB_Host_Channel 	-> HCINTMSK  = USB_LL_Host___CHANNEL_INTERRUPTS_MASK;
 }
 
 void USB_LL_Host___Channel_Set_Characteristics(uint8_t port_Number, uint8_t channel_Number, uint32_t channel_Characteristics)
