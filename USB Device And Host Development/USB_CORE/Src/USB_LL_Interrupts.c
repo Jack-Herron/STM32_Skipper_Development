@@ -61,27 +61,27 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_ESUSP_Pos:											// Early suspend (USB has been in idle state for 3ms)
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_ESUSP);
 			break;
 
 		case USB_OTG_GINTSTS_USBSUSP_Pos:										// USB suspend (no data activity for 3ms)
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_USBSUSP);
 			break;
 
 		case USB_OTG_GINTSTS_USBRST_Pos:										// USB RESET (reset detected on USB core)
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_USBRST);
 			break;
 
 		case USB_OTG_GINTSTS_ENUMDNE_Pos:										// enumeration done (core knows the speed of the port)
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_ENUMDNE);
 			break;
 
 		case USB_OTG_GINTSTS_ISOODRP_Pos:										// Isochronous OUT packet dropped interrupt
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_ISOODRP);
 			break;
 
 		case USB_OTG_GINTSTS_EOPF_Pos:											// end of periodic frame (the period specified in the periodic frame interval field of the device configuration register has been reached in the current frame)
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_EOPF);
 			break;
 
 		case USB_OTG_GINTSTS_IEPINT_Pos:										// IN End-point interrupt
@@ -93,11 +93,11 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_IISOIXFR_Pos:										// Incomplete isochronous IN transfer Interrupt
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_IISOIXFR);
 			break;
 
 		case USB_OTG_GINTSTS_PXFR_INCOMPISOOUT_Pos:								// Incomplete periodic transfer
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_PXFR_INCOMPISOOUT);
 			break;
 
 		case USB_OTG_GINTSTS_HPRTINT_Pos:										// Host Port Interrupt
@@ -112,11 +112,11 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_DISCINT_Pos:										// Disconnect detected interrupt
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_DISCINT);
 			break;
 
 		case USB_OTG_GINTSTS_WKUINT_Pos:										// Resume/remote wake-up detected interrupt
-
+			USB -> GINTSTS = (USB_OTG_GINTSTS_WKUINT);
 			break;
 		}
 	}
