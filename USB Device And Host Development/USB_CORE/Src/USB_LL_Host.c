@@ -15,6 +15,8 @@
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Host.h"
 
+static USB_LL_Host___Host_Port_TypeDef USB_LL_Host___Host_Port[USB_LL_Definitions___NUMBER_OF_PORTS];
+
 // ---------------------------- USB HOST CONTROL SECTION -----------------------------
 
 void USB_LL_Host___Reset_Port(uint8_t port_Number)
@@ -70,6 +72,27 @@ uint16_t USB_LL_Host___Get_Frame_Number(uint8_t port_Number)
 // -----------------------------------------------------------------------------------
 
 // ---------------------------- USB CHANNEL_CONTROL_SECTION --------------------------
+
+int8_t USB_LL_Host___Channel_RX_POP(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status)
+{
+	uint32_t 	USB_offset 				= USB_LL_Hardware___Get_USB_BASE(port_Number);
+	uint32_t 	transfer_Size 			= USB_LL_Hardware___GET_BIT_SEGMENT(RX_Status,USB_OTG_GRXSTSP_BCNT_Msk,USB_OTG_GRXSTSP_BCNT_Pos);
+	uint32_t 	transfer_Size_Word32	= USB_LL_Host___QUICK_DIV_ROOF(transfer_Size, USB_LL_Hardware___NUMBER_OF_BYTES_IN_WORD_32);
+	uint32_t* 	fifo 					= (uint32_t*)(USB_offset + USB_OTG_FIFO_BASE + (USB_OTG_FIFO_SIZE * channel_Number));
+	uint8_t* 	p_Buffer	  			= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].p_Buffer;
+
+	if((USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].fill_Level + transfer_Size) <= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].size)
+	{
+		USB_LL_Hardware___FIFO_Transfer_Out(fifo, p_Buffer, transfer_Size_Word32);
+		USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].fill_Level += transfer_Size;
+	}
+	else
+	{
+		return(USB_LL_Host___EXIT_FAILURE_BUFFER_OVERFLOW);
+	}
+
+	return(USB_LL_Host___EXIT_SUCCESS);
+}
 
 uint32_t* USB_LL_Host___Channel_Get_Fifo_Pointer(uint8_t port_Number, uint8_t channel_Number)
 {
