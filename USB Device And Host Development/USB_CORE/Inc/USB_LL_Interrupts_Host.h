@@ -33,5 +33,5 @@ typedef struct {
 
 void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number);
 void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number);
-
+void USB_LL_Interrupts_Host___Packet_Received(uint8_t port_Number);
 #endif /* INC_USB_LL_INTERRUPTS_HOST_H_ */

@@ -21,6 +21,35 @@ USB_LL_Interrupts_Host___Status_TypeDef* USB_LL_Interrupts_Host___Get_Host_Statu
 	return(&host_Status[port_Number]);
 }
 
+void USB_LL_Interrupts_Host___Packet_Received(uint8_t port_Number)
+{
+	USB_OTG_GlobalTypeDef* 		USB 				= USB_LL_Hardware___Get_USB(port_Number);
+
+	uint32_t 					RX_Status        	= USB -> GRXSTSP;
+	uint8_t 					channel_Number     	= USB_LL_Hardware___GET_BIT_SEGMENT(RX_Status, USB_OTG_GRXSTSP_EPNUM_Msk, USB_OTG_GRXSTSP_EPNUM_Pos);
+
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel 	= USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+
+	uint8_t						packets_Remaining 	= USB_LL_Hardware___GET_BIT_SEGMENT(USB_Host_Channel -> HCTSIZ, USB_OTG_HCTSIZ_PKTCNT_Msk, USB_OTG_HCTSIZ_PKTCNT_Pos);
+	uint8_t 					packet_Status 		= USB_LL_Hardware___GET_BIT_SEGMENT(RX_Status, USB_OTG_GRXSTSP_PKTSTS_Msk, USB_OTG_GRXSTSP_PKTSTS_Pos);
+	uint8_t 					byte_Count			= USB_LL_Hardware___GET_BIT_SEGMENT(RX_Status, USB_OTG_GRXSTSP_BCNT_Msk, USB_OTG_GRXSTSP_BCNT_Pos);
+
+	if(packet_Status == USB_LL_Host___RX_PACKET_STATUS_DATA_PACKET_RECIEVED)
+	{
+		if(byte_Count > 0)
+		{
+
+			(void)USB_LL_Host___Channel_RX_POP(port_Number, channel_Number, RX_Status);
+
+			if(packets_Remaining > 0)
+			{
+				USB_Host_Channel -> HCCHAR |= (USB_OTG_HCCHAR_CHENA);
+			}
+		}
+	}
+}
+
+
 void USB_LL_Interrupts_Host___Device_Connect_Detected(uint8_t port_Number)
 {
 	USB_OTG_HostPortTypeDef*	USB_Host_Port 	= USB_LL_Hardware___Get_USB_Host_Port(port_Number);
