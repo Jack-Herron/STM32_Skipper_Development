@@ -12,11 +12,17 @@
 #include "../Inc/USB_LL_Interrupts.h"
 #include "../Inc/USB_LL_Interrupts_Host.h"
 #include "../Inc/USB_LL_Interrupts_Device.h"
-static USB_LL_Interrupts___Status_TypeDef port_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
+
+static USB_LL_Interrupts___Status_TypeDef USB_LL_Interrupts___Port_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
 
 USB_LL_Interrupts___Status_TypeDef* USB_LL_Interrupts___Get_Status(uint8_t port_Number)
 {
-	return(&port_Status[port_Number]);
+	return(&USB_LL_Interrupts___Port_Status[port_Number]);
+}
+
+void USB_LL_Interrupts___Start_Of_Frame_Reveived(uint8_t port_Number)
+{
+	USB_LL_Interrupts___Port_Status[port_Number].start_Of_Frame = 1;
 }
 
 void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
@@ -28,6 +34,8 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 		switch(POSITION_VAL((USB -> GINTSTS) & USB_LL_Interrupts___GLOBAL_INTERRUPTS_MASK))
 		{
 		case USB_OTG_GINTSTS_SOF_Pos:											// SOF Received/sent Interrupt
+			USB -> GINTSTS = (USB_OTG_GINTSTS_SOF);
+			USB_LL_Interrupts___Start_Of_Frame_Reveived(port_Number);
 			break;
 
 		case USB_OTG_GINTSTS_RXFLVL_Pos:										// RXFIFO nonempty (data ready to be read)
