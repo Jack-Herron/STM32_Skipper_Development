@@ -8,6 +8,10 @@
 #ifndef CORE_INC_USB_HOST_DEVICE_MANAGER_H_
 #define CORE_INC_USB_HOST_DEVICE_MANAGER_H_
 
+#include <stdint.h>
+#include "USB_Host.h"
+#include "../../Config/USB_Host_Config.h"
+
 // Definitions
 
 #define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS				0x10
@@ -90,7 +94,7 @@ typedef struct {
 	uint8_t																language_ID_Descriptor_Buffer			[USB_Host_Config___DEVICE_LANGUAGE_ID_STRING_MAX_LENGTH];
 } USB_Host_Device_Manager___Device_Descriptor_Buffers_TypeDef;
 
-struct USB_Host_Control___Device_TypeDef{
+typedef struct{
 	USB_Host_Device_Manager___Device_Descriptor_Buffers_TypeDef 		descriptor_Buffers;
 	USB_Host_Device_Manager___Device_Callbacks_TypeDef					callbacks;
 	USB_Host_Device_Manager___Device_Status_TypeDef						status;
@@ -98,6 +102,6 @@ struct USB_Host_Control___Device_TypeDef{
 	USB_Host_Device_Manager___Out_Endpoint_Status_Typedef				in_Endpoint_Status	[USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS];
 	USB_Host_Device_Manager___Device_Descriptors_TypeDef				descriptors;
 	USB_Host_Device_Manager___Device_Strings_TypeDef					strings;
-};
+} USB_Host_Control___Device_TypeDef;
 
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
