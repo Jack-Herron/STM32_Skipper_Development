@@ -7,12 +7,13 @@
 
 #include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
+
 #include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Host.h"
 #include "../Inc/USB_LL_Interrupts.h"
-#include "../Inc/USB_LL_Interrupts_Host.h"
 #include "../Inc/USB_LL_Interrupts_Device.h"
+#include "../Inc/USB_LL_Interrupts_Host.h"
 
 static USB_LL_Interrupts___Status_TypeDef USB_LL_Interrupts___Port_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
 
