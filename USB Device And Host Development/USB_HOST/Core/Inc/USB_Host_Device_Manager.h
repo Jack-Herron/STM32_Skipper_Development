@@ -8,11 +8,15 @@
 #ifndef CORE_INC_USB_HOST_DEVICE_MANAGER_H_
 #define CORE_INC_USB_HOST_DEVICE_MANAGER_H_
 
+// Dependencies
+
 #include <stdint.h>
 #include "USB_Host.h"
 #include "../../Config/USB_Host_Config.h"
 
 // Definitions
+#define USB_Host_Device_Manager___DEVICE_POOL_SIZE						USB_Host_Config___MAX_DEVICES
+#define USB_Host_Device_Manager___PORT_DEVICE_LIMIT						0x80
 
 #define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS				0x10
 #define USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS				0x10
@@ -72,6 +76,7 @@ typedef struct{
 	uint8_t 															is_Configured;
 	uint8_t                           									is_Low_Speed_Device;
 	uint8_t																is_High_Speed_Device;
+	uint8_t 															port_Number;
 } USB_Host_Device_Manager___Device_Status_TypeDef;
 
 typedef struct {
@@ -102,6 +107,21 @@ typedef struct{
 	USB_Host_Device_Manager___Out_Endpoint_Status_Typedef				in_Endpoint_Status	[USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS];
 	USB_Host_Device_Manager___Device_Descriptors_TypeDef				descriptors;
 	USB_Host_Device_Manager___Device_Strings_TypeDef					strings;
-} USB_Host_Control___Device_TypeDef;
+} USB_Host_Device_Manager___Device_TypeDef;
+
+typedef struct {
+	uint8_t 															top_Device_Address;
+	uint8_t 															is_New_Device_Enumerated;
+	uint8_t																is_New_Device_Connected;
+	uint8_t																is_Port_Open;
+}USB_Host_Device_Manager___Port_Status_TypeDef;
+
+typedef struct {
+	USB_Host_Device_Manager___Device_TypeDef*			p_Device[USB_Host_Device_Manager___PORT_DEVICE_LIMIT];
+	uint8_t 											number_Of_Devices_Connected;
+	USB_Host_Device_Manager___Port_Status_TypeDef		port_Status;
+} USB_Host_Device_Manager___Port_TypeDef;
+
+USB_Host_Device_Manager___Port_Status_TypeDef USB_Host_Device_Manager___Get_Port_Status(uint8_t port_Number);
 
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
