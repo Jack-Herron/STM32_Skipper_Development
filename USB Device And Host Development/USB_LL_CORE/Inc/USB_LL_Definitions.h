@@ -8,6 +8,6 @@
 #ifndef INC_USB_LL_DEFINITIONS_H_
 #define INC_USB_LL_DEFINITIONS_H_
 
-#define USB_LL_Definitions___NUMBER_OF_PORTS						(0x0c)
+#define USB_LL_Definitions___NUMBER_OF_PORTS						(0x02)
 
 #endif /* INC_USB_LL_DEFINITIONS_H_ */
