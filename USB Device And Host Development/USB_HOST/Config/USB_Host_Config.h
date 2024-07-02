@@ -8,7 +8,16 @@
 #ifndef CONFIG_USB_HOST_CONFIG_H_
 #define CONFIG_USB_HOST_CONFIG_H_
 
-#define USB_Host_Config___MAX_NUMBER_OF_CONNECTED_DEVICES				0x08
+#include <stdbool.h>
+
+#define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					false
+
+
+// if USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES is set to true, ignore this #define
+#define USB_Host_Config___MAX_DEVICES									0x8
+// -------------------------------------------------------------------------------------
+
+#define USB_Host_Config___MAX_NUMBER_OF_DEVICES_PER_PORT				0x08
 
 #define USB_Host_Config___DEVICE_MANUFACTURER_STRING_MAX_LENGTH			0x40
 #define USB_Host_Config___DEVICE_PRODUCT_STRING_MAX_LENGTH				0x40
