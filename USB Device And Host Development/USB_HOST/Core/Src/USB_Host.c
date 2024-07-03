@@ -22,7 +22,7 @@ void USB_Host___Init(uint8_t port_Number)
 	USB_LL_Hardware___Init(port_Number, USB_LL_Hardware___HOST_MODE);
 }
 
-void USB_Host___Proccess_Host_Interrupts(uint8_t port_Number)
+void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 {
 	if(USB_LL_Interrupts_Host___Is_Root_Device_Connection_Status_Change(port_Number))
 	{
@@ -37,7 +37,7 @@ void USB_Host___Proccess_Host_Interrupts(uint8_t port_Number)
 	}
 }
 
-void USB_Host___Proccess_Device_Manager_Status(uint8_t port_Number)
+void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 {
 	USB_Host_Device_Manager___Port_Status_TypeDef port_Status = USB_Host_Device_Manager___Get_Port_Status(port_Number);
 
@@ -52,8 +52,8 @@ void USB_Host___Proccess_Device_Manager_Status(uint8_t port_Number)
 	}
 }
 
-void USB_Host___Proccess(uint8_t port_Number)
+void USB_Host___Process(uint8_t port_Number)
 {
-	USB_Host___Proccess_Host_Interrupts(port_Number);
-	USB_Host___Proccess_Device_Manager_Status(port_Number);
+	USB_Host___Process_Host_Interrupts(port_Number);
+	USB_Host___Process_Device_Manager_Status(port_Number);
 }

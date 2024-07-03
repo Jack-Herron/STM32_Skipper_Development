@@ -66,5 +66,5 @@ typedef struct __attribute__((packed)) {
 } USB_Host___Endpoint_Descriptor_TypeDef;
 
 void USB_Host___Init(uint8_t port_Number);
-void USB_Host___Proccess(uint8_t port_Number);
+void USB_Host___Process(uint8_t port_Number);
 #endif /* CORE_INC_USB_HOST_H_ */

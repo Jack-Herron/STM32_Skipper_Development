@@ -41,7 +41,7 @@ int main(void) {
 	USB_Host___Init(0);
 	for(;;)
 	{
-		USB_Host___Proccess(0);
+		USB_Host___Process(0);
 	}
 }
 
