@@ -18,9 +18,7 @@
 
 typedef struct {
 	uint8_t 									start_Of_Frame;
-	uint8_t 									root_Device_Connected;
-	uint8_t 									root_Device_Disconnected;
-	uint8_t 									root_Device_Connected_Speed;
+
 } USB_LL_Interrupts___Status_TypeDef;
 
 #endif /* INC_USB_LL_INTERRUPTS_H_ */
