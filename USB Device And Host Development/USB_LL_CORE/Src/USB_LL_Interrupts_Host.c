@@ -8,6 +8,7 @@
 #include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
 #include <Skipper_Clock.h>
+#include <stdbool.h>
 
 #include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Hardware.h"
@@ -19,7 +20,25 @@ static USB_LL_Interrupts_Host___Status_TypeDef host_Status[USB_LL_Definitions___
 
 USB_LL_Interrupts_Host___Status_TypeDef* USB_LL_Interrupts_Host___Get_Host_Status(uint8_t port_Number)
 {
+
 	return(&host_Status[port_Number]);
+}
+
+uint8_t USB_LL_Interrupts_Host___Is_Root_Device_Connection_Status_Change(uint8_t port_Number)
+{
+	uint8_t return_Value = host_Status[port_Number].is_Root_Device_Connection_Status_Change;
+	host_Status[port_Number].is_Root_Device_Connection_Status_Change = 0;
+	return(return_Value);
+}
+
+uint8_t USB_LL_Interrupts_Host___Is_Root_Device_Connected(uint8_t port_Number)
+{
+	return(host_Status[port_Number].is_Root_Device_Connected);
+}
+
+uint8_t USB_LL_Interrupts_Host___Is_Root_Device_Disconnected(uint8_t port_Number)
+{
+	return(host_Status[port_Number].is_Root_Device_Disconnected);
 }
 
 void USB_LL_Interrupts_Host___Packet_Received(uint8_t port_Number)
@@ -78,16 +97,20 @@ void USB_LL_Interrupts_Host___Device_Connect_Detected(uint8_t port_Number)
 		{
 			speed = USB_LL_Interrupts___HIGH_SPEED_VALUE;
 		}
-		host_Status[port_Number].port_Status -> root_Device_Connected = 1;
-		host_Status[port_Number].port_Status -> root_Device_Connected_Speed = speed;
+
+		host_Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
+		host_Status[port_Number].is_Root_Device_Connected 					= true;
+		host_Status[port_Number].is_Root_Device_Disconnected 				= false;
+		host_Status[port_Number].root_Device_Connected_Speed 				= speed;
 	}
 }
 
 
 void USB_LL_Interrupts_Host___Device_Disconnect_Detected(uint8_t port_Number)
 {
-	host_Status[port_Number].port_Status -> root_Device_Connected = 0;
-	host_Status[port_Number].port_Status -> root_Device_Disconnected = 1;
+	host_Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
+	host_Status[port_Number].is_Root_Device_Connected 					= 	false;
+	host_Status[port_Number].is_Root_Device_Disconnected 				= 	true;
 }
 
 
@@ -101,18 +124,18 @@ void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)
 		{
 		case(USB_OTG_HPRT_PCDET_Pos):
 			USB_Host_Port -> HPRT |= (USB_OTG_HPRT_PCDET_Msk);
-			//f_USB_Hardware___Reset_Host(port_Number);
+			USB_LL_Host___Reset_Port(port_Number);
 			break;
 
 		case(USB_OTG_HPRT_PENCHNG_Pos):
 			USB_Host_Port -> HPRT = (USB_Host_Port -> HPRT & ~(USB_LL_Host___HPRT_RC_W1_BITS)) | (USB_OTG_HPRT_PENCHNG_Msk);
 			if(USB_Host_Port -> HPRT & USB_OTG_HPRT_PCSTS)
 			{
-				//f_USB_Hardware___Host_Port_Device_Connect_Detected(port_Number);
+				USB_LL_Interrupts_Host___Device_Connect_Detected(port_Number);
 			}
 			else
 			{
-				//f_USB_Hardware___Host_Port_Device_Disconnect_Detected(port_Number);
+				USB_LL_Interrupts_Host___Device_Disconnect_Detected(port_Number);
 			}
 			break;
 		}
