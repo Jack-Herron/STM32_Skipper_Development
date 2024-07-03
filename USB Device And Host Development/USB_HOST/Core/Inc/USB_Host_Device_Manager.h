@@ -122,6 +122,7 @@ typedef struct {
 	USB_Host_Device_Manager___Port_Status_TypeDef		port_Status;
 } USB_Host_Device_Manager___Port_TypeDef;
 
+int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number);
 USB_Host_Device_Manager___Port_Status_TypeDef USB_Host_Device_Manager___Get_Port_Status(uint8_t port_Number);
 
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

@@ -48,6 +48,21 @@ USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Allocate_Dev
 	return(p_Device);
 }
 
+int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number)
+{
+	if(USB_Host_Device_Manager___Port[port_Number].p_Device[0] == NULL)
+	{
+		USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Allocate_Device();
+		if(p_Device != NULL)
+		{
+			USB_Host_Device_Manager___Port[port_Number].p_Device[0] = p_Device;
+
+			return(EXIT_SUCCESS);
+		}
+		return(EXIT_FAILURE);
+	}
+	return(EXIT_FAILURE);
+}
 
 USB_Host_Device_Manager___Port_Status_TypeDef USB_Host_Device_Manager___Get_Port_Status(uint8_t port_Number)
 {
