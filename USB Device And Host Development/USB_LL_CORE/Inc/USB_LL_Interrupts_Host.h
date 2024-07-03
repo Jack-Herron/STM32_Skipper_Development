@@ -25,11 +25,18 @@ typedef struct {
 } USB_LL_Interrupts_Host___Channel_Status_TypeDef;
 
 typedef struct {
-	USB_LL_Interrupts___Status_TypeDef*					port_Status;
+	uint8_t												is_Root_Device_Connection_Status_Change;
+	uint8_t 											is_Root_Device_Connected;
+	uint8_t 											is_Root_Device_Disconnected;
+	uint8_t 											root_Device_Connected_Speed;
 	USB_LL_Interrupts_Host___Channel_Status_TypeDef		channel_Status[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
 } USB_LL_Interrupts_Host___Status_TypeDef;
 
+USB_LL_Interrupts_Host___Status_TypeDef* USB_LL_Interrupts_Host___Get_Host_Status(uint8_t port_Number);
 void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number);
 void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number);
 void USB_LL_Interrupts_Host___Packet_Received(uint8_t port_Number);
+uint8_t USB_LL_Interrupts_Host___Is_Root_Device_Connection_Status_Change(uint8_t port_Number);
+uint8_t USB_LL_Interrupts_Host___Is_Root_Device_Connected(uint8_t port_Number);
+uint8_t USB_LL_Interrupts_Host___Is_Root_Device_Disconnected(uint8_t port_Number);
 #endif /* INC_USB_LL_INTERRUPTS_HOST_H_ */
