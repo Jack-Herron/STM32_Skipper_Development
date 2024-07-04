@@ -48,15 +48,22 @@ USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Allocate_Dev
 void USB_Host_Device_Manager___Device_Set_Is_Root_Device(uint8_t port_Number, uint8_t device_Address, uint8_t is_Root_Device)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
-	p_Device -> status.is_Root_Device = is_Root_Device;
+	if(p_Device != NULL)
+	{
+		p_Device -> status.is_Root_Device = is_Root_Device;
+	}
 }
 
 void USB_Host_Device_Manager___Device_Set_Is_Connected(uint8_t port_Number, uint8_t device_Address, uint8_t is_Connected)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
 
-	p_Device -> status.is_Connected_Status_Change 	= true;
-	p_Device -> status.is_Connected 				= is_Connected;
+	if(p_Device != NULL)
+	{
+		p_Device -> status.is_Connected_Status_Change 	= true;
+		p_Device -> status.is_Connected 				= is_Connected;
+
+	}
 }
 
 int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number, uint8_t device_Address, USB_Host_Device_Manager___Device_TypeDef* p_Device)
@@ -66,6 +73,7 @@ int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number,
 		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] = p_Device;
 		return(EXIT_SUCCESS);
 	}
+
 	return(EXIT_FAILURE);
 }
 
@@ -107,27 +115,33 @@ void USB_Host_Device_Manager___Device_Set_Port_Number(uint8_t port_Number, uint8
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
 
-	p_Device -> status.port_Number = port_Number;
+	if(p_Device != NULL)
+	{
+		p_Device -> status.port_Number = port_Number;
+	}
 }
 
 void USB_Host_Device_Manager___Device_Set_Speed(uint8_t port_Number, uint8_t device_Address, uint8_t device_Speed)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
 
-	if(device_Speed == USB_Host_Device_Manager___LOW_SPEED_DEVICE)
+	if(p_Device != NULL)
 	{
-		p_Device -> status.is_Low_Speed_Device = 1;
-		p_Device -> status.is_High_Speed_Device = 0;
-	}
-	else if(device_Speed == USB_Host_Device_Manager___HIGH_SPEED_DEVICE)
-	{
-		p_Device -> status.is_Low_Speed_Device = 0;
-		p_Device -> status.is_High_Speed_Device = 1;
-	}
-	else
-	{
-		p_Device -> status.is_Low_Speed_Device = 0;
-		p_Device -> status.is_High_Speed_Device = 0;
+		if(device_Speed == USB_Host_Device_Manager___LOW_SPEED_DEVICE)
+		{
+			p_Device -> status.is_Low_Speed_Device = 1;
+			p_Device -> status.is_High_Speed_Device = 0;
+		}
+		else if(device_Speed == USB_Host_Device_Manager___HIGH_SPEED_DEVICE)
+		{
+			p_Device -> status.is_Low_Speed_Device = 0;
+			p_Device -> status.is_High_Speed_Device = 1;
+		}
+		else
+		{
+			p_Device -> status.is_Low_Speed_Device = 0;
+			p_Device -> status.is_High_Speed_Device = 0;
+		}
 	}
 }
 
