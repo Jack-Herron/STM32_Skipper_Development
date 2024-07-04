@@ -83,8 +83,12 @@ void USB_Host_Device_Manager___Port_Clear_Is_New_Device_Connected(uint8_t port_N
 uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+	if(p_Device != NULL)
+	{
+		return(p_Device -> status.is_Connected_Status_Change);
+	}
 
-	return(p_Device -> status.is_Connected_Status_Change);
+	return(0);
 }
 
 uint8_t USB_Host_Device_Manager__Port_Set_Is_New_Device_Connected(uint8_t port_Number)
