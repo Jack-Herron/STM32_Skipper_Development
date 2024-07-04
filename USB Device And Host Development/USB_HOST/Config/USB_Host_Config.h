@@ -10,7 +10,8 @@
 
 #include <stdbool.h>
 
-#define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					true
+#define USB_Host_Config___NUMBER_OF_HOST_PORTS_USED						0x01
+#define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					false
 
 #define USB_Host_Config___MAX_DEVICES_PER_PORT							0x8
 

@@ -15,7 +15,7 @@
 #include "../../Config/USB_Host_Config.h"
 
 // Definitions
-#define USB_Host_Device_Manager___DEVICE_POOL_SIZE						USB_Host_Config___MAX_DEVICES
+#define USB_Host_Device_Manager___DEVICE_POOL_SIZE						USB_Host_Config___PORT_DEVICE_LIMIT * USB_Host_Config___NUMBER_OF_HOST_PORTS_USED
 #define USB_Host_Device_Manager___PORT_DEVICE_LIMIT						USB_Host_Config___PORT_DEVICE_LIMIT
 
 #define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS				0x10
