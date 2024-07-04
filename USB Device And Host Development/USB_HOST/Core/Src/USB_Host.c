@@ -62,16 +62,16 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 {
-	/*
-	if(port_Status.is_New_Device_Connected)
-	{
 
+	if(USB_Host_Device_Manager__Port_Is_New_Device_Connected(port_Number))
+	{
+		USB_Host_Device_Manager___Port_Clear_Is_New_Device_Connected(port_Number);
+		for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT; i++)
+		{
+
+		}
 	}
 
-	if(port_Status.is_New_Device_Enumerated)
-	{
-
-	}*/
 }
 
 void USB_Host___Process(uint8_t port_Number)
