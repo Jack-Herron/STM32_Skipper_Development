@@ -16,7 +16,7 @@
 
 // Definitions
 #define USB_Host_Device_Manager___DEVICE_POOL_SIZE						USB_Host_Config___MAX_DEVICES
-#define USB_Host_Device_Manager___PORT_DEVICE_LIMIT						0x80
+#define USB_Host_Device_Manager___PORT_DEVICE_LIMIT						USB_Host_Config___PORT_DEVICE_LIMIT
 
 #define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS				0x10
 #define USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS				0x10
@@ -76,7 +76,9 @@ typedef struct{
 	uint8_t 															start_Of_Frame_Polling_Counter;
 	uint8_t																current_USB_Address;
 	uint8_t																current_Configuration;
-	uint8_t 															is_Connected;
+	uint8_t																is_Connected_Status_Change;
+	uint8_t																is_Connected;
+	uint8_t																is_Enumerated_Status_Change;
 	uint8_t 															is_Enumerated;
 	uint8_t																is_Root_Device;
 	uint8_t                           									is_Low_Speed_Device;
@@ -126,11 +128,13 @@ typedef struct {
 }USB_Host_Device_Manager___Port_Status_TypeDef;
 
 typedef struct {
-	USB_Host_Device_Manager___Device_TypeDef*			p_Device[USB_Host_Device_Manager___PORT_DEVICE_LIMIT];
-	uint8_t 											number_Of_Devices_Connected;
-	USB_Host_Device_Manager___Port_Status_TypeDef		port_Status;
+	USB_Host_Device_Manager___Device_TypeDef*							p_Device[USB_Host_Device_Manager___PORT_DEVICE_LIMIT];
+	uint8_t 															number_Of_Devices_Connected;
+	USB_Host_Device_Manager___Port_Status_TypeDef						port_Status;
 } USB_Host_Device_Manager___Port_TypeDef;
 
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device);
-
+uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(USB_Host_Device_Manager___Device_TypeDef* p_Device, uint8_t is_Connected);
+uint8_t USB_Host_Device_Manager__Port_Is_New_Device_Connected(uint8_t port_Number);
+void USB_Host_Device_Manager___Port_Clear_Is_New_Device_Connected(uint8_t port_Number);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
