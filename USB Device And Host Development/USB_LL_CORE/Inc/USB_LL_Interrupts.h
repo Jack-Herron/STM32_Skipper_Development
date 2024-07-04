@@ -12,9 +12,6 @@
 #define USB_LL_Interrupts___GLOBAL_INTERRUPTS_MASK					0xa33c7c98
 #define USB_LL_Interrupts___IN_ENDPOINT_INTERRUPTS_MASK				0x000b
 #define USB_LL_Interrupts___OUT_ENDPOINT_INTERRUPTS_MASK			0x000b
-#define USB_LL_Interrupts___LOW_SPEED_VALUE							0x00
-#define USB_LL_Interrupts___FULL_SPEED_VALUE						0x01
-#define USB_LL_Interrupts___HIGH_SPEED_VALUE						0x02
 
 typedef struct {
 	uint8_t 									start_Of_Frame;

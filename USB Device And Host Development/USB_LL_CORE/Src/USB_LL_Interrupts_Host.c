@@ -24,10 +24,20 @@ USB_LL_Interrupts_Host___Status_TypeDef* USB_LL_Interrupts_Host___Get_Host_Statu
 	return(&host_Status[port_Number]);
 }
 
+uint8_t USB_LL_Interrupts_Host___Get_Root_Device_Speed(uint8_t port_Number)
+{
+	uint8_t return_Value = host_Status[port_Number].root_Device_Speed;
+	return(return_Value);
+}
+
+void USB_LL_Interrupts_Host___Clear_Connection_Status_Change(uint8_t port_Number)
+{
+	host_Status[port_Number].is_Root_Device_Connection_Status_Change = false;
+}
+
 uint8_t USB_LL_Interrupts_Host___Is_Root_Device_Connection_Status_Change(uint8_t port_Number)
 {
 	uint8_t return_Value = host_Status[port_Number].is_Root_Device_Connection_Status_Change;
-	host_Status[port_Number].is_Root_Device_Connection_Status_Change = 0;
 	return(return_Value);
 }
 
@@ -87,21 +97,21 @@ void USB_LL_Interrupts_Host___Device_Connect_Detected(uint8_t port_Number)
 
 		if(host_Speed == USB_LL_Host___HPRT_LOW_SPEED_VALUE)
 		{
-			speed = USB_LL_Interrupts___LOW_SPEED_VALUE;
+			speed = USB_LL_Interrupts_Host___LOW_SPEED_VALUE;
 		}
 		else if(host_Speed == USB_LL_Host___HPRT_FULL_SPEED_VALUE)
 		{
-			speed = USB_LL_Interrupts___FULL_SPEED_VALUE;
+			speed = USB_LL_Interrupts_Host___FULL_SPEED_VALUE;
 		}
 		else if(host_Speed == USB_LL_Host___HPRT_HIGH_SPEED_VALUE)
 		{
-			speed = USB_LL_Interrupts___HIGH_SPEED_VALUE;
+			speed = USB_LL_Interrupts_Host___HIGH_SPEED_VALUE;
 		}
 
 		host_Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
 		host_Status[port_Number].is_Root_Device_Connected 					= true;
 		host_Status[port_Number].is_Root_Device_Disconnected 				= false;
-		host_Status[port_Number].root_Device_Connected_Speed 				= speed;
+		host_Status[port_Number].root_Device_Speed 							= speed;
 	}
 }
 

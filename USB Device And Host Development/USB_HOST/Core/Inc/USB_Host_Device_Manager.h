@@ -21,6 +21,10 @@
 #define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS				0x10
 #define USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS				0x10
 
+#define USB_Host_Device_Manager___LOW_SPEED_DEVICE						0
+#define USB_Host_Device_Manager___FULL_SPEED_DEVICE						1
+#define USB_Host_Device_Manager___HIGH_SPEED_DEVICE						2
+
 // Structures
 
 typedef struct{
@@ -73,7 +77,8 @@ typedef struct{
 	uint8_t																current_USB_Address;
 	uint8_t																current_Configuration;
 	uint8_t 															is_Connected;
-	uint8_t 															is_Configured;
+	uint8_t 															is_Enumerated;
+	uint8_t																is_Root_Device;
 	uint8_t                           									is_Low_Speed_Device;
 	uint8_t																is_High_Speed_Device;
 	uint8_t 															port_Number;
@@ -99,7 +104,8 @@ typedef struct {
 	uint8_t																language_ID_Descriptor_Buffer			[USB_Host_Config___DEVICE_LANGUAGE_ID_STRING_MAX_LENGTH];
 } USB_Host_Device_Manager___Device_Descriptor_Buffers_TypeDef;
 
-typedef struct{
+struct USB_Host_Device_Manager___Device_TypeDef{
+
 	USB_Host_Device_Manager___Device_Descriptor_Buffers_TypeDef 		descriptor_Buffers;
 	USB_Host_Device_Manager___Device_Callbacks_TypeDef					callbacks;
 	USB_Host_Device_Manager___Device_Status_TypeDef						status;
@@ -107,10 +113,13 @@ typedef struct{
 	USB_Host_Device_Manager___Out_Endpoint_Status_Typedef				in_Endpoint_Status	[USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS];
 	USB_Host_Device_Manager___Device_Descriptors_TypeDef				descriptors;
 	USB_Host_Device_Manager___Device_Strings_TypeDef					strings;
-} USB_Host_Device_Manager___Device_TypeDef;
+};
+
+typedef struct USB_Host_Device_Manager___Device_TypeDef USB_Host_Device_Manager___Device_TypeDef;
 
 typedef struct {
 	uint8_t 															top_Device_Address;
+	uint8_t																root_Device_Address;
 	uint8_t 															is_New_Device_Enumerated;
 	uint8_t																is_New_Device_Connected;
 	uint8_t																is_Port_Open;
@@ -122,7 +131,6 @@ typedef struct {
 	USB_Host_Device_Manager___Port_Status_TypeDef		port_Status;
 } USB_Host_Device_Manager___Port_TypeDef;
 
-int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number);
-USB_Host_Device_Manager___Port_Status_TypeDef USB_Host_Device_Manager___Get_Port_Status(uint8_t port_Number);
+int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device);
 
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

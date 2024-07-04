@@ -10,7 +10,7 @@
 
 #include <stdbool.h>
 
-#define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					false
+#define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					true
 
 
 // if USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES is set to true, ignore this #define

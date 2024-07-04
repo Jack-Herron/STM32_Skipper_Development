@@ -22,13 +22,36 @@ void USB_Host___Init(uint8_t port_Number)
 	USB_LL_Hardware___Init(port_Number, USB_LL_Hardware___HOST_MODE);
 }
 
+uint8_t USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manager_Speed(uint8_t USB_Interrupts_Host_Speed)
+{
+	if(USB_Interrupts_Host_Speed == USB_LL_Interrupts_Host___LOW_SPEED_VALUE)
+	{
+		return(USB_Host_Device_Manager___LOW_SPEED_DEVICE);
+	}
+	else if(USB_Interrupts_Host_Speed == USB_LL_Interrupts_Host___HIGH_SPEED_VALUE)
+	{
+		return(USB_Host_Device_Manager___HIGH_SPEED_DEVICE);
+	}
+	else
+	{
+		return(USB_Host_Device_Manager___FULL_SPEED_DEVICE);
+	}
+}
+
 void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 {
 	if(USB_LL_Interrupts_Host___Is_Root_Device_Connection_Status_Change(port_Number))
 	{
 		if(USB_LL_Interrupts_Host___Is_Root_Device_Connected(port_Number))
 		{
+			uint8_t USB_LL_Interrupts_Host_Speed = USB_LL_Interrupts_Host___Get_Root_Device_Speed(port_Number);
 
+			uint8_t device_Manager_Speed = USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manager_Speed(USB_LL_Interrupts_Host_Speed);
+
+			if(USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(port_Number, device_Manager_Speed, true) == EXIT_SUCCESS)
+			{
+				USB_LL_Interrupts_Host___Clear_Connection_Status_Change(port_Number);
+			}
 		}
 		else
 		{
@@ -39,8 +62,7 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 {
-	USB_Host_Device_Manager___Port_Status_TypeDef port_Status = USB_Host_Device_Manager___Get_Port_Status(port_Number);
-
+	/*
 	if(port_Status.is_New_Device_Connected)
 	{
 
@@ -49,7 +71,7 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 	if(port_Status.is_New_Device_Enumerated)
 	{
 
-	}
+	}*/
 }
 
 void USB_Host___Process(uint8_t port_Number)
