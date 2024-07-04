@@ -68,7 +68,10 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 		USB_Host_Device_Manager___Port_Clear_Is_New_Device_Connected(port_Number);
 		for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT; i++)
 		{
-
+			if(USB_Host_Device_Manager___Device_Is_Connected_Status_Change(port_Number, i))
+			{
+				uint8_t j = 0;
+			}
 		}
 	}
 
