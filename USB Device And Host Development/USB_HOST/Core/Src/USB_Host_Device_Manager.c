@@ -24,7 +24,7 @@ static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[
 	{
 		for(uint16_t i = 0; i < USB_Host_Device_Manager___DEVICE_POOL_SIZE; i++)
 		{
-			if(device_Pool[i].status.is_Connected == false)
+			if(device_Pool[i].is_Free == false)
 			{
 				return(&device_Pool[i]);
 			}
