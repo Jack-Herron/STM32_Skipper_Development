@@ -60,6 +60,16 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 	}
 }
 
+void USB_Host___Process_Device_Connect(uint8_t port_Number, uint8_t device_Address)
+{
+
+}
+
+void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Address)
+{
+
+}
+
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 {
 
@@ -73,10 +83,11 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 
 				if(USB_Host_Device_Manager___Device_Is_Connected(port_Number, i))
 				{
-
+					USB_Host___Process_Device_Connect(port_Number, i);
 				}
 				else
 				{
+					USB_Host___Process_Device_Disconnect(port_Number, i);
 				}
 			}
 		}
