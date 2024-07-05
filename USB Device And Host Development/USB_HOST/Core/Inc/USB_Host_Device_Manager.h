@@ -107,7 +107,7 @@ typedef struct {
 } USB_Host_Device_Manager___Device_Descriptor_Buffers_TypeDef;
 
 struct USB_Host_Device_Manager___Device_TypeDef{
-
+	uint8_t																is_Free;
 	USB_Host_Device_Manager___Device_Descriptor_Buffers_TypeDef 		descriptor_Buffers;
 	USB_Host_Device_Manager___Device_Callbacks_TypeDef					callbacks;
 	USB_Host_Device_Manager___Device_Status_TypeDef						status;
