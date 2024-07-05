@@ -156,7 +156,31 @@ void USB_Host_Device_Manager___Device_Set_Speed(uint8_t port_Number, uint8_t dev
 	}
 }
 
+uint8_t USB_Host_Device_Manager___Port_Get_Root_Device_Address(uint8_t port_Number)
+{
+	for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT; i++)
+	{
+		USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[i];
+		if(p_Device != NULL)
+		{
+			if(p_Device -> status.is_Root_Device)
+			{
+				return(i);
+			}
+		}
+	}
+	return(0);
+}
 
+void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+	if(p_Device != NULL)
+	{
+		USB_Host_Device_Manager___Device_Set_Is_Connected			(port_Number, device_Address, false);
+
+	}
+}
 
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device)
 {
