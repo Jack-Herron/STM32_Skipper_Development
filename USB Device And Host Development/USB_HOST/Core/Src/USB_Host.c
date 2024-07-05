@@ -70,7 +70,14 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 		{
 			if(USB_Host_Device_Manager___Device_Is_Connected_Status_Change(port_Number, i))
 			{
-				uint8_t j = 0;
+
+				if(USB_Host_Device_Manager___Device_Is_Connected(port_Number, i))
+				{
+
+				}
+				else
+				{
+				}
 			}
 		}
 	}
