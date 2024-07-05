@@ -14,17 +14,19 @@
 #include "../../Config/USB_Host_Config.h"
 #include "../Inc/USB_Host_Device_Manager.h"
 
+
+
 static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[USB_Host___NUMBER_OF_PORTS] = {0};
 
 #if USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES == false
 
-	USB_Host_Device_Manager___Device_TypeDef device_Pool[USB_Host_Device_Manager___DEVICE_POOL_SIZE];
+	USB_Host_Device_Manager___Device_TypeDef device_Pool[USB_Host_Device_Manager___DEVICE_POOL_SIZE] = {0};
 
 	USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Allocate_Device()
 	{
 		for(uint16_t i = 0; i < USB_Host_Device_Manager___DEVICE_POOL_SIZE; i++)
 		{
-			if(device_Pool[i].is_Free == false)
+			if(device_Pool[i].is_Allocated == false)
 			{
 				return(&device_Pool[i]);
 			}
