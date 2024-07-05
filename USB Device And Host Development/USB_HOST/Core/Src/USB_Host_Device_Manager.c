@@ -66,6 +66,17 @@ void USB_Host_Device_Manager___Device_Set_Is_Connected(uint8_t port_Number, uint
 	}
 }
 
+void USB_Host_Device_Manager___Device_Is_Connected(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
+	if(p_Device != NULL)
+	{
+		return(p_Device -> status.is_Connected);
+	}
+	return(0);
+}
+
 int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number, uint8_t device_Address, USB_Host_Device_Manager___Device_TypeDef* p_Device)
 {
 	if(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] == NULL)
