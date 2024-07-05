@@ -138,4 +138,6 @@ uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(uint8_t port
 uint8_t USB_Host_Device_Manager___Device_Is_Connected(uint8_t port_Number, uint8_t device_Address);
 uint8_t USB_Host_Device_Manager__Port_Is_New_Device_Connected(uint8_t port_Number);
 void USB_Host_Device_Manager___Port_Clear_Is_New_Device_Connected(uint8_t port_Number);
+uint8_t USB_Host_Device_Manager___Port_Get_Root_Device_Address(uint8_t port_Number);
+void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t device_Address);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
