@@ -55,7 +55,9 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 		}
 		else
 		{
-
+			uint8_t root_Device_Address = USB_Host_Device_Manager___Port_Get_Root_Device_Address(port_Number);
+			USB_Host_Device_Manager___Device_Disconnected(port_Number, root_Device_Address);
+			USB_LL_Interrupts_Host___Clear_Connection_Status_Change(port_Number);
 		}
 	}
 }
