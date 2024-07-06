@@ -74,15 +74,13 @@ void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Ad
 
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 {
-
-	if(USB_Host_Device_Manager__Port_Is_New_Device_Connected(port_Number))
+	if(USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(port_Number))
 	{
-		USB_Host_Device_Manager___Port_Clear_Is_New_Device_Connected(port_Number);
+		USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(port_Number);
 		for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT; i++)
 		{
 			if(USB_Host_Device_Manager___Device_Is_Connected_Status_Change(port_Number, i))
 			{
-
 				if(USB_Host_Device_Manager___Device_Is_Connected(port_Number, i))
 				{
 					USB_Host___Process_Device_Connect(port_Number, i);
@@ -94,7 +92,6 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 			}
 		}
 	}
-
 }
 
 void USB_Host___Process(uint8_t port_Number)
