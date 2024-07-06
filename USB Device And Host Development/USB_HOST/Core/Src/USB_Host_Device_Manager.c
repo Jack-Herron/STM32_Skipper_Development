@@ -28,24 +28,43 @@ static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[
 		{
 			if(device_Pool[i].is_Allocated == false)
 			{
+				device_Pool[i].is_Allocated = true;
 				return(&device_Pool[i]);
 			}
 		}
 		return(NULL);
 	}
 
+	void USB_Host_Device_Manager___Free_Device(USB_Host_Device_Manager___Device_TypeDef* p_Device)
+	{
+		p_Device -> is_Allocated = false;
+	}
+
 #else
 
-USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Allocate_Device()
-{
-	USB_Host_Device_Manager___Device_TypeDef* p_Device = NULL;
+	USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Allocate_Device()
+	{
+		USB_Host_Device_Manager___Device_TypeDef* p_Device = NULL;
 
-	p_Device = (USB_Host_Device_Manager___Device_TypeDef*)malloc(sizeof(USB_Host_Device_Manager___Device_TypeDef));
+		p_Device = (USB_Host_Device_Manager___Device_TypeDef*)malloc(sizeof(USB_Host_Device_Manager___Device_TypeDef));
+		p_Device -> is_Allocated = true;
+		return(p_Device);
+	}
 
-	return(p_Device);
-}
+	void USB_Host_Device_Manager___Free_Device(USB_Host_Device_Manager___Device_TypeDef* p_Device)
+	{
+		free(p_Device);
+	}
 
 #endif // --------------------------------------------------------------------------------------------------------
+
+
+void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+	USB_Host_Device_Manager___Free_Device(p_Device);
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] = NULL;
+}
 
 void USB_Host_Device_Manager___Device_Set_Is_Root_Device(uint8_t port_Number, uint8_t device_Address, uint8_t is_Root_Device)
 {
