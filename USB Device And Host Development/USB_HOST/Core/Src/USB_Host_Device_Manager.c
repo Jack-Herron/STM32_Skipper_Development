@@ -140,12 +140,23 @@ uint8_t USB_Host_Device_Manager___Is_Device_Connected(uint8_t port_Number, uint8
 uint8_t USB_Host_Device_Manager___Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
 	if(p_Device != NULL)
 	{
 		return(p_Device -> status.connection_Flag);
 	}
 
 	return(0);
+}
+
+void USB_Host_Device_Manager___Clear_Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
+	if(p_Device != NULL)
+	{
+		p_Device -> status.connection_Flag = false;
+	}
 }
 
 void USB_Host_Device_Manager___Device_Set_Port_Number(uint8_t port_Number, uint8_t device_Address)
