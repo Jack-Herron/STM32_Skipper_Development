@@ -89,6 +89,7 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 				{
 					USB_Host___Process_Device_Disconnect(port_Number, i);
 				}
+
 			}
 		}
 	}

@@ -75,29 +75,6 @@ void USB_Host_Device_Manager___Device_Set_Is_Root_Device(uint8_t port_Number, ui
 	}
 }
 
-void USB_Host_Device_Manager___Device_Set_Is_Connected(uint8_t port_Number, uint8_t device_Address, uint8_t is_Connected)
-{
-	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
-
-	if(p_Device != NULL)
-	{
-		p_Device -> status.is_Connected_Status_Change 	= true;
-		p_Device -> status.is_Connected 				= is_Connected;
-
-	}
-}
-
-uint8_t USB_Host_Device_Manager___Device_Is_Connected(uint8_t port_Number, uint8_t device_Address)
-{
-	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
-
-	if(p_Device != NULL)
-	{
-		return(p_Device -> status.is_Connected);
-	}
-	return(0);
-}
-
 int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number, uint8_t device_Address, USB_Host_Device_Manager___Device_TypeDef* p_Device)
 {
 	if(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] == NULL)
@@ -107,17 +84,6 @@ int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number,
 	}
 
 	return(EXIT_FAILURE);
-}
-
-uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(uint8_t port_Number, uint8_t device_Address)
-{
-	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
-	if(p_Device != NULL)
-	{
-		return(p_Device -> status.is_Connected_Status_Change);
-	}
-
-	return(0);
 }
 
 void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)
@@ -136,6 +102,51 @@ uint8_t USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(u
 	return(USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag);
 }
 
+void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
+	if(p_Device != NULL)
+	{
+		USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag 	= true;
+		p_Device->status.is_Connected_Status_Change 													= true;
+		p_Device->status.is_Connected 																	= false;
+	}
+}
+
+void USB_Host_Device_Manager___Device_Connected(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
+	if(p_Device != NULL)
+	{
+		USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag 	= true;
+		p_Device->status.is_Connected_Status_Change 													= true;
+		p_Device->status.is_Connected 																	= true;
+	}
+}
+
+uint8_t USB_Host_Device_Manager___Device_Is_Connected(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
+	if(p_Device != NULL)
+	{
+		return(p_Device -> status.is_Connected);
+	}
+	return(0);
+}
+
+uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+	if(p_Device != NULL)
+	{
+		return(p_Device -> status.is_Connected_Status_Change);
+	}
+
+	return(0);
+}
 
 void USB_Host_Device_Manager___Device_Set_Port_Number(uint8_t port_Number, uint8_t device_Address)
 {
@@ -187,16 +198,6 @@ uint8_t USB_Host_Device_Manager___Port_Get_Root_Device_Address(uint8_t port_Numb
 	return(0);
 }
 
-void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t device_Address)
-{
-	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
-	if(p_Device != NULL)
-	{
-		USB_Host_Device_Manager___Device_Set_Is_Connected			(port_Number, device_Address, false);
-
-	}
-}
-
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device)
 {
 	if(USB_Host_Device_Manager___Port[port_Number].p_Device[0] == NULL)
@@ -206,8 +207,7 @@ int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Nu
 		{
 			USB_Host_Device_Manager___Device_Set_Port_Number							(port_Number, 0);
 			USB_Host_Device_Manager___Device_Set_Speed									(port_Number, 0, device_Speed);
-			USB_Host_Device_Manager___Device_Set_Is_Connected							(port_Number, 0, true);
-			USB_Host_Device_Manager___Port_Set_Device_Connected_Or_Disconnected_Flag	(port_Number);
+			USB_Host_Device_Manager___Device_Connected									(port_Number, 0);
 
 			return(EXIT_SUCCESS);
 		}
