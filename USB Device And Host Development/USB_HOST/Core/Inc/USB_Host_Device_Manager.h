@@ -76,9 +76,9 @@ typedef struct{
 	uint8_t 															start_Of_Frame_Polling_Counter;
 	uint8_t																current_USB_Address;
 	uint8_t																current_Configuration;
-	uint8_t																is_Connected_Status_Change;
+	uint8_t																connection_Flag;
 	uint8_t																is_Connected;
-	uint8_t																is_Enumerated_Status_Change;
+	uint8_t																enumerated_Flag;
 	uint8_t 															is_Enumerated;
 	uint8_t																is_Root_Device;
 	uint8_t                           									is_Low_Speed_Device;
@@ -134,8 +134,8 @@ typedef struct {
 } USB_Host_Device_Manager___Port_TypeDef;
 
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device);
-uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(uint8_t port_Number, uint8_t device_Address);
-uint8_t USB_Host_Device_Manager___Device_Is_Connected(uint8_t port_Number, uint8_t device_Address);
+uint8_t USB_Host_Device_Manager___Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address);
+uint8_t USB_Host_Device_Manager___Is_Device_Connected(uint8_t port_Number, uint8_t device_Address);
 uint8_t USB_Host_Device_Manager___Port_Get_Root_Device_Address(uint8_t port_Number);
 void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t device_Address);
 uint8_t USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number);
