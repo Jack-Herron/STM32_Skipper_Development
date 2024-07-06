@@ -109,17 +109,6 @@ int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number,
 	return(EXIT_FAILURE);
 }
 
-void USB_Host_Device_Manager___Port_Set_Is_New_Device_Connected(uint8_t port_Number)
-{
-	USB_Host_Device_Manager___Port[port_Number].port_Status.is_New_Device_Connected = true;
-}
-
-
-void USB_Host_Device_Manager___Port_Clear_Is_New_Device_Connected(uint8_t port_Number)
-{
-	USB_Host_Device_Manager___Port[port_Number].port_Status.is_New_Device_Connected = false;
-}
-
 uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
@@ -131,15 +120,20 @@ uint8_t USB_Host_Device_Manager___Device_Is_Connected_Status_Change(uint8_t port
 	return(0);
 }
 
-uint8_t USB_Host_Device_Manager__Port_Set_Is_New_Device_Connected(uint8_t port_Number)
+void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)
 {
-	return(USB_Host_Device_Manager___Port[port_Number].port_Status.is_New_Device_Connected);
+	USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag = false;
+}
+
+void USB_Host_Device_Manager___Port_Set_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)
+{
+	USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag = true;
 }
 
 
-uint8_t USB_Host_Device_Manager__Port_Is_New_Device_Connected(uint8_t port_Number)
+uint8_t USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)
 {
-	return(USB_Host_Device_Manager___Port[port_Number].port_Status.is_New_Device_Connected);
+	return(USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag);
 }
 
 
@@ -210,10 +204,10 @@ int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Nu
 		USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Allocate_Device();
 		if(USB_Host_Device_Manager___Port_Set_Device_To_Address(port_Number, 0, p_Device) == EXIT_SUCCESS)
 		{
-			USB_Host_Device_Manager___Device_Set_Port_Number			(port_Number, 0);
-			USB_Host_Device_Manager___Device_Set_Speed					(port_Number, 0, device_Speed);
-			USB_Host_Device_Manager___Device_Set_Is_Connected			(port_Number, 0, true);
-			USB_Host_Device_Manager___Port_Set_Is_New_Device_Connected	(port_Number);
+			USB_Host_Device_Manager___Device_Set_Port_Number							(port_Number, 0);
+			USB_Host_Device_Manager___Device_Set_Speed									(port_Number, 0, device_Speed);
+			USB_Host_Device_Manager___Device_Set_Is_Connected							(port_Number, 0, true);
+			USB_Host_Device_Manager___Port_Set_Device_Connected_Or_Disconnected_Flag	(port_Number);
 
 			return(EXIT_SUCCESS);
 		}
