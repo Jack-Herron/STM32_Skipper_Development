@@ -141,4 +141,5 @@ void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t 
 uint8_t USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number);
 void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number);
 void USB_Host_Device_Manager___Clear_Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address);
+void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
