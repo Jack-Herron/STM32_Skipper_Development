@@ -47,7 +47,10 @@ static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[
 		USB_Host_Device_Manager___Device_TypeDef* p_Device = NULL;
 
 		p_Device = (USB_Host_Device_Manager___Device_TypeDef*)malloc(sizeof(USB_Host_Device_Manager___Device_TypeDef));
-		p_Device -> is_Allocated = true;
+		if(p_Device != NULL)
+		{
+			p_Device -> is_Allocated = true;
+		}
 		return(p_Device);
 	}
 
