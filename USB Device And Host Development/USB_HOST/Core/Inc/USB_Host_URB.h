@@ -9,15 +9,18 @@
 #define CORE_INC_USB_HOST_URB_H_
 
 #include <stdint.h>
+#include "../Inc/USB_Host_Device_Manager.h"
 
 typedef struct{
-	uint8_t 							port_Number;
-	uint8_t 							transfer_Direction;
-	uint8_t 							device_Address;
-	uint8_t								transfer_Type;
-	uint32_t							transfer_Length;
-	uint8_t								control_Setup_Packet[8];
-}USB_Host_URB___URB;
+	uint8_t										is_Allocated;
+	USB_Host_Device_Manager___Device_TypeDef*	p_Device;
+	uint8_t 									transfer_Direction;
+	uint8_t										transfer_Type;
+	uint32_t									transfer_Length;
+	uint8_t										control_Setup_Packet[8];
+	uint8_t*									transfer_Buffer;
+	void(*URB_Callback)							(uint8_t, uint8_t);
+}USB_Host_URB___URB_TypeDef;
 
 
 
