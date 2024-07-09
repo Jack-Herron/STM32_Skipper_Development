@@ -37,6 +37,7 @@
 
 	void USB_Host_Transfers___Free_URB(uint8_t URB_ID)
 	{
+		USB_Host_Transfers___URB_Pointers[URB_ID] = NULL;
 		free(USB_Host_Transfers___URB_Pointers[URB_ID]);
 	}
 #else
