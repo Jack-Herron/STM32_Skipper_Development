@@ -5,8 +5,8 @@
  *      Author: Jack Herron
  */
 
-#ifndef CORE_INC_USB_HOST_URB_H_
-#define CORE_INC_USB_HOST_URB_H_
+#ifndef CORE_INC_USB_HOST_TRANSFERS_H_
+#define CORE_INC_USB_HOST_TRANSFERS_H_
 
 #include <stdint.h>
 #include "../Inc/USB_Host_Device_Manager.h"
@@ -20,8 +20,6 @@ typedef struct{
 	uint8_t										control_Setup_Packet[8];
 	uint8_t*									transfer_Buffer;
 	void(*URB_Callback)							(uint8_t, uint8_t);
-}USB_Host_URB___URB_TypeDef;
+}USB_Host_Transfers___URB_TypeDef;
 
-
-
-#endif /* CORE_INC_USB_HOST_URB_H_ */
+#endif /* CORE_INC_USB_HOST_TRANSFERS_H_ */
