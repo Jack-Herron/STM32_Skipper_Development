@@ -40,6 +40,11 @@
 		USB_Host_Transfers___URB_Pointers[URB_ID] = NULL;
 		free(USB_Host_Transfers___URB_Pointers[URB_ID]);
 	}
+
+	USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Get_URB(uint8_t URB_ID)
+	{
+		return(USB_Host_Transfers___URB_Pointers[URB_ID]);
+	}
 #else
 	static USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
 	static uint8_t USB_Host_Transfers___URB_Is_Allocated[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
@@ -60,6 +65,15 @@
 	void USB_Host_Transfers___Free_URB(uint8_t URB_ID)
 	{
 		USB_Host_Transfers___URB_Is_Allocated[URB_ID] = false;
+	}
+
+	USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Get_URB(uint8_t URB_ID)
+	{
+		if(USB_Host_Transfers___URB_Is_Allocated[URB_ID] == true)
+		{
+			return(&USB_Host_Transfers___URB_Pool[URB_ID]);
+		}
+		return(NULL);
 	}
 #endif
 
