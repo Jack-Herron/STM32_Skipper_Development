@@ -11,13 +11,15 @@
 #include <stdint.h>
 #include "../Inc/USB_Host_Device_Manager.h"
 
+#define USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH 		8
+
 typedef struct{
-	uint8_t										is_Allocated;
-	USB_Host_Device_Manager___Device_TypeDef*	p_Device;
+	uint16_t									URB_ID;
+	uint8_t										device_Address;
 	uint8_t 									transfer_Direction;
 	uint8_t										transfer_Type;
 	uint32_t									transfer_Length;
-	uint8_t										control_Setup_Packet[8];
+	uint8_t										control_Setup_Packet[USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH];
 	uint8_t*									transfer_Buffer;
 	void(*URB_Callback)							(uint8_t, uint8_t);
 }USB_Host_Transfers___URB_TypeDef;
