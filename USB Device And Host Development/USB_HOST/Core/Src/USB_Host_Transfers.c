@@ -45,3 +45,43 @@
 		p_URB -> is_Allocated = false;
 	}
 #endif
+
+int8_t USB_Host_Transfers___Isochronous_Transfer_Out()
+{
+	return(EXIT_FAILURE);
+}
+
+int8_t USB_Host_Transfers___Interrupt_Transfer_Out()
+{
+	return(EXIT_FAILURE);
+}
+
+int8_t USB_Host_Transfers___Bulk_Transfer_Out()
+{
+	return(EXIT_FAILURE);
+}
+
+int8_t USB_Host_Transfers___Control_Transfer_Out()
+{
+	return(EXIT_FAILURE);
+}
+
+int8_t USB_Host_Transfers___Isochronous_Transfer_In()
+{
+	return(EXIT_FAILURE);
+}
+
+int8_t USB_Host_Transfers___Interrupt_Transfer_In()
+{
+	return(EXIT_FAILURE);
+}
+
+int8_t USB_Host_Transfers___Bulk_Transfer_In()
+{
+	return(EXIT_FAILURE);
+}
+
+int8_t USB_Host_Transfers___Control_Transfer_In()
+{
+	return(EXIT_FAILURE);
+}
