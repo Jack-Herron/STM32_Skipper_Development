@@ -12,12 +12,27 @@
 #include "../Inc/USB_Host_Transfers.h"
 #include "../../Config/USB_Host_Config.h"
 
-#if USB_Host_Config___DYNAMICALLY_ALLOCATE_URB
+#if USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_REQUEST_BLOCKS
+	static USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___URB_Pointers[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
+
 	USB_Host_Transfers___URB_TypeDef* USB_Host_URB___Allocate_URB()
 	{
 		USB_Host_Transfers___URB_TypeDef* p_URB;
 		p_URB = (USB_Host_Transfers___URB_TypeDef*)malloc(sizeof(USB_Host_Transfers___URB_TypeDef));
-		return(p_URB);
+		if(p_URB != NULL)
+		{
+			for(uint32_t i = 0; i < USB_Host_Config___MAX_USB_REQUEST_BLOCKS; i++)
+			{
+				if(USB_Host_Transfers___URB_Pointers[i] != NULL)
+				{
+					USB_Host_Transfers___URB_Pointers[i] = p_URB;
+					p_URB -> URB_ID = i;
+					return(p_URB);
+				}
+			}
+			free(p_URB);
+		}
+		return(NULL);
 	}
 
 	void USB_Host_Transfers___Free_URB(USB_Host_Transfers___URB_TypeDef* p_URB)
@@ -26,23 +41,23 @@
 	}
 #else
 	static USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
-
+	static uint8_t USB_Host_Transfers___URB_Is_Allocated[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
 	USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Allocate_URB()
 	{
 		for(uint32_t i = 0; i < USB_Host_Config___MAX_USB_REQUEST_BLOCKS; i++)
 		{
-			if(!USB_Host_Transfers___URB_Pool[i].is_Allocated)
+			if(!USB_Host_Transfers___URB_Is_Allocated[i])
 			{
-				USB_Host_Transfers___URB_Pool[i].is_Allocated = true;
+				USB_Host_Transfers___URB_Is_Allocated[i] = true;
 				return(&USB_Host_Transfers___URB_Pool[i]);
 			}
 		}
 		return(NULL);
 	}
 
-	void USB_Host_Transfers___Free_URB(USB_Host_Transfers___URB_TypeDef* p_URB)
+	void USB_Host_Transfers___Free_URB(uint8_t URB_ID)
 	{
-		p_URB -> is_Allocated = false;
+		USB_Host_Transfers___URB_Is_Allocated[URB_ID] = false;
 	}
 #endif
 
