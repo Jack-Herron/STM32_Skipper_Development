@@ -25,11 +25,11 @@
 		free(p_URB);
 	}
 #else
-	static USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_Pool[USB_Host_Config___URB_POOL_SIZE];
+	static USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
 
 	USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Allocate_URB()
 	{
-		for(uint32_t i = 0; i < USB_Host_Config___URB_POOL_SIZE; i++)
+		for(uint32_t i = 0; i < USB_Host_Config___MAX_USB_REQUEST_BLOCKS; i++)
 		{
 			if(!USB_Host_Transfers___URB_Pool[i].is_Allocated)
 			{
