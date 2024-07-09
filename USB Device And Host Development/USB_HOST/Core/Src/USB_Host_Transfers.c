@@ -35,9 +35,9 @@
 		return(NULL);
 	}
 
-	void USB_Host_Transfers___Free_URB(USB_Host_Transfers___URB_TypeDef* p_URB)
+	void USB_Host_Transfers___Free_URB(uint8_t URB_ID)
 	{
-		free(p_URB);
+		free(USB_Host_Transfers___URB_Pointers[URB_ID]);
 	}
 #else
 	static USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
@@ -49,6 +49,7 @@
 			if(!USB_Host_Transfers___URB_Is_Allocated[i])
 			{
 				USB_Host_Transfers___URB_Is_Allocated[i] = true;
+				USB_Host_Transfers___URB_Pool[i].URB_ID = i;
 				return(&USB_Host_Transfers___URB_Pool[i]);
 			}
 		}
