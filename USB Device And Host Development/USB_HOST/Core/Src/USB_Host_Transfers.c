@@ -48,6 +48,7 @@
 #else
 	static USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
 	static uint8_t USB_Host_Transfers___URB_Is_Allocated[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
+
 	USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Allocate_URB()
 	{
 		for(uint32_t i = 0; i < USB_Host_Config___MAX_USB_REQUEST_BLOCKS; i++)
@@ -79,40 +80,80 @@
 
 int8_t USB_Host_Transfers___Isochronous_Transfer_Out()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
 
 int8_t USB_Host_Transfers___Interrupt_Transfer_Out()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
 
 int8_t USB_Host_Transfers___Bulk_Transfer_Out()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
 
 int8_t USB_Host_Transfers___Control_Transfer_Out()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
 
 int8_t USB_Host_Transfers___Isochronous_Transfer_In()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
 
 int8_t USB_Host_Transfers___Interrupt_Transfer_In()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
 
 int8_t USB_Host_Transfers___Bulk_Transfer_In()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
 
 int8_t USB_Host_Transfers___Control_Transfer_In()
 {
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	if(p_URB != NULL)
+	{
+
+	}
 	return(EXIT_FAILURE);
 }
