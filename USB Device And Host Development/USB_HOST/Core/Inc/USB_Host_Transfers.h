@@ -24,6 +24,7 @@
 #define USB_Host_Transfers___URB_DIRECTION_OUT				1
 
 typedef struct{
+	uint8_t												is_Allocated;
 	uint16_t											URB_ID;
 	uint8_t												device_Address;
 	uint8_t 											transfer_Direction;
