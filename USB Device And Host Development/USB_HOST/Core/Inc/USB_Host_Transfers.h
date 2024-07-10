@@ -11,21 +11,23 @@
 #include <stdint.h>
 #include "../Inc/USB_Host_Device_Manager.h"
 
-#define USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH 		8
-
-typedef enum
-{
-	URB_Transfer_Stage___SETUP,
-	URB_Transfer_Stage___DATA,
-	URB_Transfer_Stage___STATUS,
-	URB_Transfer_Stage___COMPLETE
-}USB_Host_Transfers___URB_Transfer_Stage_TypeDef;
+#define USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH 	8
+#define USB_Host_Transfers___URB_STAGE_SETUP				0
+#define USB_Host_Transfers___URB_STAGE_DATA					1
+#define USB_Host_Transfers___URB_STAGE_STATUS				2
+#define USB_Host_Transfers___URB_STAGE_COMPLETE				3
+#define USB_Host_Transfers___URB_TYPE_CONTROL				0
+#define USB_Host_Transfers___URB_TYPE_BULK					1
+#define USB_Host_Transfers___URB_TYPE_INTERRUPT				2
+#define USB_Host_Transfers___URB_TYPE_ISOCHRONOUS			3
+#define USB_Host_Transfers___URB_DIRECTION_IN				0
+#define USB_Host_Transfers___URB_DIRECTION_OUT				1
 
 typedef struct{
 	uint16_t											URB_ID;
 	uint8_t												device_Address;
 	uint8_t 											transfer_Direction;
-	USB_Host_Transfers___URB_Transfer_Stage_TypeDef		transfer_Stage;
+	uint8_t												transfer_Stage;
 	uint8_t 											busy;
 	uint8_t												transfer_Type;
 	uint32_t											transfer_Length;
