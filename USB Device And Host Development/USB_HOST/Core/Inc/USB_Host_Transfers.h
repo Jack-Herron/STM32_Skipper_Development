@@ -17,6 +17,7 @@ typedef struct{
 	uint16_t									URB_ID;
 	uint8_t										device_Address;
 	uint8_t 									transfer_Direction;
+	uint8_t										transfer_Stage;
 	uint8_t										transfer_Type;
 	uint32_t									transfer_Length;
 	uint8_t										control_Setup_Packet[USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH];
