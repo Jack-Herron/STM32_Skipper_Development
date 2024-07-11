@@ -22,10 +22,11 @@
 #define USB_Host_Transfers___URB_TYPE_ISOCHRONOUS			3
 #define USB_Host_Transfers___URB_DIRECTION_IN				0
 #define USB_Host_Transfers___URB_DIRECTION_OUT				1
+#define USB_Host_Transfers___URB_FIFO_QUEUE_LENGTH			USB_Host_Config___MAX_USB_REQUEST_BLOCKS
 
-typedef struct{
+struct USB_Host_Transfers___URB_TypeDef
+{
 	uint8_t												is_Allocated;
-	uint16_t											URB_ID;
 	uint8_t												device_Address;
 	uint8_t 											transfer_Direction;
 	uint8_t												transfer_Stage;
@@ -35,6 +36,15 @@ typedef struct{
 	uint8_t												control_Setup_Packet[USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH];
 	uint8_t*											transfer_Buffer;
 	void(*URB_Callback)									(uint8_t, uint8_t);
-}USB_Host_Transfers___URB_TypeDef;
+	struct USB_Host_Transfers___URB_TypeDef*					next_URB;
+};
+
+typedef struct USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_TypeDef;
+
+typedef struct{
+
+	uint16_t 								push_Index;
+	uint16_t								pull_Index;
+}USB_Host_Transfers___URB_Queue_TypeDef;
 
 #endif /* CORE_INC_USB_HOST_TRANSFERS_H_ */
