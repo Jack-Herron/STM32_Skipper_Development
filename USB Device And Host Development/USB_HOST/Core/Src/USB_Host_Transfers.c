@@ -14,43 +14,80 @@
 
 #if USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_REQUEST_BLOCKS
 
-	USB_Host_Transfers___URB_TypeDef* USB_Host_URB___Allocate_URB()
+	USB_Host_Transfers___URB_Node_TypeDef* USB_Host_URB___Allocate_URB_Node()
 	{
-		USB_Host_Transfers___URB_TypeDef* p_URB;
-		p_URB = (USB_Host_Transfers___URB_TypeDef*)malloc(sizeof(USB_Host_Transfers___URB_TypeDef));
-		return(p_URB);
+		USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node;
+		p_URB_Node = (USB_Host_Transfers___URB_Node_TypeDef*)malloc(sizeof(USB_Host_Transfers___URB_Node_TypeDef));
+		return(p_URB_Node);
 	}
 
-	void USB_Host_Transfers___Free_URB(USB_Host_Transfers___URB_TypeDef* p_URB)
+	void USB_Host_Transfers___Free_URB_Node(USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node)
 	{
-		free(p_URB);
+		free(p_URB_Node);
 	}
 
 #else
-	static USB_Host_Transfers___URB_TypeDef USB_Host_Transfers___URB_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
 
-	USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Allocate_URB()
+	static USB_Host_Transfers___URB_Node_TypeDef USB_Host_Transfers___URB_Node_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
+
+	USB_Host_Transfers___URB_Node_TypeDef* USB_Host_Transfers___Allocate_URB_Node()
 	{
 		for(uint32_t i = 0; i < USB_Host_Config___MAX_USB_REQUEST_BLOCKS; i++)
 		{
-			if(!USB_Host_Transfers___URB_Pool[i].is_Allocated)
+			if(!USB_Host_Transfers___URB_Node_Pool[i].is_Allocated)
 			{
-				USB_Host_Transfers___URB_Pool[i].is_Allocated = true;
-				return(&USB_Host_Transfers___URB_Pool[i]);
+				USB_Host_Transfers___URB_Node_Pool[i].is_Allocated = true;
+				return(&USB_Host_Transfers___URB_Node_Pool[i]);
 			}
 		}
 		return(NULL);
 	}
 
-	void USB_Host_Transfers___Free_URB(USB_Host_Transfers___URB_TypeDef* p_URB)
+	void USB_Host_Transfers___Free_URB_Node(USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node)
 	{
-		p_URB -> is_Allocated = false;
+		p_URB_Node -> is_Allocated = false;
 	}
 #endif
 
+static USB_Host_Transfers___URB_Queue_TypeDef URB_Queue;
+
+USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Create_URB()
+{
+	USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node = USB_Host_Transfers___Allocate_URB_Node();
+	p_URB_Node -> next_Node = NULL;
+	if(p_URB_Node != NULL)
+	{
+		if(URB_Queue.current_Node == NULL)
+		{
+			URB_Queue.current_Node = p_URB_Node;
+			URB_Queue.last_Node = p_URB_Node;
+		}
+		else
+		{
+			URB_Queue.last_Node -> next_Node = p_URB_Node;
+			URB_Queue.last_Node = p_URB_Node;
+		}
+	}
+	return(&p_URB_Node->URB);
+}
+
+void USB_Host_Transfers___Delete_URB(USB_Host_Transfers___URB_TypeDef* p_URB)
+{
+
+}
+
+USB_Host_Transfers___URB_TypeDef* USB_Host_Tranfers___Get_Current_URB()
+{
+	if(URB_Queue.current_Node != NULL)
+	{
+		return(&URB_Queue.current_Node->URB);
+	}
+	return(NULL);
+}
+
 int8_t USB_Host_Transfers___Isochronous_Transfer_Out(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_ISOCHRONOUS;
@@ -68,7 +105,7 @@ int8_t USB_Host_Transfers___Isochronous_Transfer_Out(uint8_t device_Address, uin
 
 int8_t USB_Host_Transfers___Interrupt_Transfer_Out(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_INTERRUPT;
@@ -86,7 +123,7 @@ int8_t USB_Host_Transfers___Interrupt_Transfer_Out(uint8_t device_Address, uint8
 
 int8_t USB_Host_Transfers___Bulk_Transfer_Out(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_BULK;
@@ -104,7 +141,7 @@ int8_t USB_Host_Transfers___Bulk_Transfer_Out(uint8_t device_Address, uint8_t* t
 
 int8_t USB_Host_Transfers___Control_Transfer_Out(uint8_t device_Address, uint8_t* setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_CONTROL;
@@ -127,7 +164,7 @@ int8_t USB_Host_Transfers___Control_Transfer_Out(uint8_t device_Address, uint8_t
 
 int8_t USB_Host_Transfers___Isochronous_Transfer_In(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_ISOCHRONOUS;
@@ -145,7 +182,7 @@ int8_t USB_Host_Transfers___Isochronous_Transfer_In(uint8_t device_Address, uint
 
 int8_t USB_Host_Transfers___Interrupt_Transfer_In(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_INTERRUPT;
@@ -163,7 +200,7 @@ int8_t USB_Host_Transfers___Interrupt_Transfer_In(uint8_t device_Address, uint8_
 
 int8_t USB_Host_Transfers___Bulk_Transfer_In(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type		= USB_Host_Transfers___URB_TYPE_BULK;
@@ -181,7 +218,7 @@ int8_t USB_Host_Transfers___Bulk_Transfer_In(uint8_t device_Address, uint8_t* tr
 
 int8_t USB_Host_Transfers___Control_Transfer_In(uint8_t device_Address, uint8_t* setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length)
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Allocate_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
 	if(p_URB != NULL)
 	{
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_CONTROL;
