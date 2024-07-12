@@ -76,6 +76,8 @@ typedef struct{
 	uint8_t 															start_Of_Frame_Polling_Counter;
 	uint8_t																current_USB_Address;
 	uint8_t																current_Configuration;
+	uint8_t																setup_Stage;
+	uint8_t 															current_Index;
 	uint8_t																connection_Flag;
 	uint8_t																is_Connected;
 	uint8_t																enumerated_Flag;
@@ -91,11 +93,6 @@ typedef struct {
 	int8_t 																(*device_Disconnected_Callback)			(uint8_t port_Number , uint8_t device_Address);
 	int8_t 																(*device_Enumerated_Callback)			(uint8_t port_Number , uint8_t device_Address);
 } USB_Host_Device_Manager___Device_Callbacks_TypeDef;
-
-typedef struct {
-	uint8_t																setup_Stage;
-	uint8_t 															current_Index;
-} USB_Host_Device_Manager___Device_Setup_Status_TypeDef;
 
 typedef struct {
 	uint8_t                           									configuration_Descriptor_Buffer			[USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS][USB_Host_Config___DEVICE_MAX_CONFIGURATION_DESCRIPTOR_LENGTH];
