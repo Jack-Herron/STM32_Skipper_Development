@@ -15,16 +15,24 @@
 #include "../../Config/USB_Host_Config.h"
 
 // Definitions
-#define USB_Host_Device_Manager___DEVICE_POOL_SIZE						USB_Host_Config___PORT_DEVICE_LIMIT * USB_Host_Config___NUMBER_OF_HOST_PORTS_USED
-#define USB_Host_Device_Manager___PORT_DEVICE_LIMIT						USB_Host_Config___PORT_DEVICE_LIMIT
+#define USB_Host_Device_Manager___DEVICE_POOL_SIZE									USB_Host_Config___PORT_DEVICE_LIMIT * USB_Host_Config___NUMBER_OF_HOST_PORTS_USED
+#define USB_Host_Device_Manager___PORT_DEVICE_LIMIT									USB_Host_Config___PORT_DEVICE_LIMIT
 
-#define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS				0x10
-#define USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS				0x10
+#define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS							0x10
+#define USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS							0x10
 
-#define USB_Host_Device_Manager___LOW_SPEED_DEVICE						0
-#define USB_Host_Device_Manager___FULL_SPEED_DEVICE						1
-#define USB_Host_Device_Manager___HIGH_SPEED_DEVICE						2
+#define USB_Host_Device_Manager___LOW_SPEED_DEVICE									0
+#define USB_Host_Device_Manager___FULL_SPEED_DEVICE									1
+#define USB_Host_Device_Manager___HIGH_SPEED_DEVICE									2
 
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR 	0
+#define USB_Host_Device_Manager___SETUP_STAGE_SET_ADDRESS 							1
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_DEVICE_DESCRIPTOR			2
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_STRING_DESCRIPTOR 			3
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_STRING_DESCRIPTOR 			4
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_CONFIGURATION_DESCRIPTOR 	5
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR		6
+#define USB_Host_Device_Manager___SETUP_STAGE_COMPLETE	 							7
 // Structures
 
 typedef struct{
@@ -139,4 +147,5 @@ uint8_t USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(u
 void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number);
 void USB_Host_Device_Manager___Clear_Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address);
 void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address);
+void USB_Host_Device_Manager___Device_Set_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
