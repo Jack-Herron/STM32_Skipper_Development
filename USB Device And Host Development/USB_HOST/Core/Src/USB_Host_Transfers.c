@@ -71,9 +71,14 @@ USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Create_URB()
 	return(&p_URB_Node->URB);
 }
 
-void USB_Host_Transfers___Delete_URB(USB_Host_Transfers___URB_TypeDef* p_URB)
+void USB_Host_Transfers___Delete_Current_URB()
 {
-
+	USB_Host_Transfers___URB_Node_TypeDef* p_Current_URB_Node = URB_Queue.current_Node;
+	if(p_Current_URB_Node != NULL)
+	{
+		URB_Queue.current_Node = p_Current_URB_Node -> next_Node;
+		USB_Host_Transfers___Free_URB_Node(p_Current_URB_Node);
+	}
 }
 
 USB_Host_Transfers___URB_TypeDef* USB_Host_Tranfers___Get_Current_URB()
@@ -245,4 +250,23 @@ int8_t USB_Host_Transfers___Control_Transfer_In(uint8_t device_Address, uint8_t*
 		return(EXIT_SUCCESS);
 	}
 	return(EXIT_FAILURE);
+}
+
+void USB_Host_Transfers___Process_URBs()
+{
+	if(URB_Queue.current_Node != NULL)
+	{
+		if(!URB_Queue.current_Node->URB.busy)
+		{
+			switch(URB_Queue.current_Node->URB)
+			{
+			case USB_Host_Transfers___URB_STAGE_SETUP:
+				break;
+			case USB_Host_Transfers___URB_STAGE_DATA:
+				break;
+			case USB_Host_Transfers___URB_STAGE_STATUS:
+				break;
+			}
+		}
+	}
 }
