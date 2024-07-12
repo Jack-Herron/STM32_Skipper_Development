@@ -61,6 +61,10 @@ static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[
 
 #endif // --------------------------------------------------------------------------------------------------------
 
+void USB_Host_Device_Manager___Device_Set_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage)
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.setup_Stage = setup_Stage;
+}
 
 void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address)
 {
