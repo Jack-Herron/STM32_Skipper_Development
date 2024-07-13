@@ -148,4 +148,7 @@ void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(
 void USB_Host_Device_Manager___Clear_Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address);
 void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address);
 void USB_Host_Device_Manager___Device_Set_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage);
+void USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size);
+void USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size);
+
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

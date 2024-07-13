@@ -66,6 +66,16 @@ void USB_Host_Device_Manager___Device_Set_Setup_Stage(uint8_t port_Number, uint8
 	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.setup_Stage = setup_Stage;
 }
 
+void USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size)
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->in_Endpoint_Status[endpoint_Number].max_Packet_Size = max_Packet_Size;
+}
+
+void USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size)
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->out_Endpoint_Status[endpoint_Number].max_Packet_Size = max_Packet_Size;
+}
+
 void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
