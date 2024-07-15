@@ -64,7 +64,7 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 
 void USB_Host___Process_Device_Connect(uint8_t port_Number, uint8_t device_Address)
 {
-
+	USB_Host_Enumerate___Enumerate_Device(port_Number, device_Address);
 }
 
 void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Address)
