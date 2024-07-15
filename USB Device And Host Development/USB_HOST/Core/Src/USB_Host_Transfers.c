@@ -14,7 +14,7 @@
 
 #if USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_REQUEST_BLOCKS
 
-	USB_Host_Transfers___URB_Node_TypeDef* USB_Host_URB___Allocate_URB_Node()
+	USB_Host_Transfers___URB_Node_TypeDef* USB_Host_Transfers___Allocate_URB_Node()
 	{
 		USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node;
 		p_URB_Node = (USB_Host_Transfers___URB_Node_TypeDef*)malloc(sizeof(USB_Host_Transfers___URB_Node_TypeDef));
