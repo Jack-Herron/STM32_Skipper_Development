@@ -12,11 +12,11 @@
 
 #define USB_Host_Config___NUMBER_OF_HOST_PORTS_USED						0x01
 
-#define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					false
-#define USB_Host_Config___PORT_DEVICE_LIMIT								0x08
+#define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					false		// highly recommended to leave this option false
+#define USB_Host_Config___PORT_DEVICE_LIMIT								0x4
 
-#define USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_REQUEST_BLOCKS		false
-#define USB_Host_Config___MAX_USB_REQUEST_BLOCKS						100
+#define USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_REQUEST_BLOCKS		false		// highly recommended to leave this option false
+#define USB_Host_Config___MAX_USB_REQUEST_BLOCKS						0x10
 
 #define USB_Host_Config___DEVICE_MANUFACTURER_STRING_MAX_LENGTH			0x40
 #define USB_Host_Config___DEVICE_PRODUCT_STRING_MAX_LENGTH				0x40
