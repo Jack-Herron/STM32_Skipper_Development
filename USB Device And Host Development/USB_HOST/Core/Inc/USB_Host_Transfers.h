@@ -76,7 +76,9 @@ typedef struct  __attribute__((packed))
 
 typedef struct USB_Host_Transfers___URB
 {
+	uint8_t											port_Number;
 	uint8_t											device_Address;
+	uint8_t 										endpoint_Number;
 	uint8_t 										transfer_Direction;
 	uint8_t											transfer_Stage;
 	uint8_t 										busy;
@@ -100,12 +102,14 @@ typedef struct
 	USB_Host_Transfers___URB_Node_TypeDef*			last_Node;
 }USB_Host_Transfers___URB_Queue_TypeDef;
 
-int8_t USB_Host_Transfers___Isochronous_Transfer_Out(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Isochronous_Transfer_In(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Interrupt_Transfer_Out(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Interrupt_Transfer_In(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Bulk_Transfer_Out(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Bulk_Transfer_In(uint8_t device_Address, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Control_Transfer_Out(uint8_t device_Address, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Control_Transfer_In(uint8_t device_Address, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Isochronous_Transfer_Out(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Isochronous_Transfer_In(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Interrupt_Transfer_Out(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Interrupt_Transfer_In(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Bulk_Transfer_Out(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Bulk_Transfer_In(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Control_Transfer_Out(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Control_Transfer_In(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+void USB_Host_Transfers___Process_URB();
+
 #endif /* CORE_INC_USB_HOST_TRANSFERS_H_ */

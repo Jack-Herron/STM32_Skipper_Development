@@ -44,7 +44,7 @@ void 		USB_LL_Host___Channel_Halt_And_Wait			(uint8_t port_Number, uint8_t chann
 uint8_t 	USB_LL_Host___Channel_Get_Current_PID		(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Channel_Set_Interrupts		(uint8_t port_Number, uint8_t channel_Number);
 int8_t 		USB_LL_Host___Channel_RX_POP				(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status);
-void 		USB_LL_Host___Channel_Set_Characteristics	(uint8_t port_Number, uint8_t channel_Number, uint32_t channel_Characteristics);
+void 		USB_LL_Host___Channel_Set_Characteristics(uint8_t port_Number, uint8_t channel_Number, uint16_t max_Packet_Size, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t low_Speed_Device, uint8_t endpoint_Type, uint8_t multi_Count, uint8_t device_Address, uint8_t odd_Frame);
 void 		USB_LL_Host___Channel_Load_HCTSIZ			(uint8_t port_Number, uint8_t channel_Number, uint32_t transfer_Size_In_Bytes, uint32_t packet_Count, uint8_t packet_ID);
 void 		USB_LL_Host___Reset_Port					(uint8_t port_Number);
 int8_t 		USB_LL_Host___Packet_Received				(uint8_t port_Number);

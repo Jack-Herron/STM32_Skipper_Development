@@ -22,7 +22,7 @@ void USB_Host_Enumerate___Get_Full_Device_Descriptor(uint8_t port_Number, uint8_
 	setup_Packet.wValue 		= 0x0100;
 	setup_Packet.wIndex 		= 0x0000;
 	setup_Packet.wLength 		= 0x0012;
-	USB_Host_Transfers___Control_Transfer_In(device_Address, setup_Packet, 0, 0, USB_Host_Enumerate___URB_Callback);
+	USB_Host_Transfers___Control_Transfer_In(port_Number, device_Address, 0, setup_Packet, 0, 0, USB_Host_Enumerate___URB_Callback);
 }
 
 void USB_Host_Enumerate___Get_First_Eight_Device_Descriptor(uint8_t port_Number, uint8_t device_Address)
@@ -33,7 +33,7 @@ void USB_Host_Enumerate___Get_First_Eight_Device_Descriptor(uint8_t port_Number,
 	setup_Packet.wValue 		= 0x0100;
 	setup_Packet.wIndex 		= 0x0000;
 	setup_Packet.wLength 		= 0x08;
-	USB_Host_Transfers___Control_Transfer_In(device_Address, setup_Packet, 0, 0, USB_Host_Enumerate___URB_Callback);
+	USB_Host_Transfers___Control_Transfer_In(port_Number, device_Address, 0, setup_Packet, 0, 0, USB_Host_Enumerate___URB_Callback);
 }
 
 void USB_Host_Enumerate___Do_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage)

@@ -128,9 +128,33 @@ void USB_LL_Host___Channel_Set_Interrupts(uint8_t port_Number,uint8_t channel_Nu
 	USB_Host_Channel 	-> HCINTMSK  = USB_LL_Host___CHANNEL_INTERRUPTS_MASK;
 }
 
-void USB_LL_Host___Channel_Set_Characteristics(uint8_t port_Number, uint8_t channel_Number, uint32_t channel_Characteristics)
+void USB_LL_Host___Channel_Set_Characteristics
+			(
+			uint8_t port_Number,
+			uint8_t channel_Number,
+			uint16_t max_Packet_Size,
+			uint8_t endpoint_Number,
+			uint8_t endpoint_Direction,
+			uint8_t low_Speed_Device,
+			uint8_t endpoint_Type,
+			uint8_t multi_Count,
+			uint8_t device_Address,
+			uint8_t odd_Frame
+			)
 {
 	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+
+	uint32_t channel_Characteristics =
+			(
+			max_Packet_Size 	<< USB_OTG_HCCHAR_MPSIZ_Pos |
+			endpoint_Number 	<< USB_OTG_HCCHAR_EPNUM_Pos |
+			endpoint_Direction 	<< USB_OTG_HCCHAR_EPDIR_Pos |
+			low_Speed_Device 	<< USB_OTG_HCCHAR_LSDEV_Pos |
+			endpoint_Type 		<< USB_OTG_HCCHAR_EPTYP_Pos |
+			multi_Count 		<< USB_OTG_HCCHAR_MC_Pos 	|
+			device_Address 		<< USB_OTG_HCCHAR_DAD_Pos 	|
+			odd_Frame 			<< USB_OTG_HCCHAR_ODDFRM_Pos
+			);
 	USB_Host_Channel -> HCCHAR = channel_Characteristics;
 }
 
