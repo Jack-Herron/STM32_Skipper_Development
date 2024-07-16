@@ -28,7 +28,7 @@ void USB_Host_Pipes___Free_Pipe(uint8_t port_Number, uint8_t channel_Number)
 	USB_Host_Pipes___Pipe[port_Number][channel_Number].is_Allocated = 0;
 }
 
-void USB_Host_Pipes___Create_Pipe
+uint8_t USB_Host_Pipes___Create_Pipe
 		(
 		uint8_t 	port_Number,
 		uint8_t 	device_Address,
@@ -58,9 +58,22 @@ void USB_Host_Pipes___Create_Pipe
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].is_Odd_Frame 			= is_Odd_Frame;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].is_Low_Speed 			= is_Low_Speed;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].multi_Count 			= multi_Count;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets				= transfer_Length + (max_Packet_Size-1) / max_Packet_Size;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets_Remaining 	= transfer_Length + (max_Packet_Size-1) / max_Packet_Size;
+	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets				= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
+	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets_Remaining 	= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
 
 	USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
 	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
+	USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
+
+	return(pipe_Number);
+}
+
+void USB_Host_Pipes___Enable_Pipe(uint8_t port_Number, uint8_t pipe_Number)
+{
+	USB_LL_Host___Channel_Enable( port_Number,  pipe_Number);
+}
+
+void USB_Host_Pipes___Push_Transfer(uint8_t port_Number, uint8_t pipe_Number, uint8_t* p_Buffer, uint32_t transfer_Size)
+{
+	USB_LL_Host___Channel_Push(port_Number, pipe_Number, p_Buffer, transfer_Size);
 }

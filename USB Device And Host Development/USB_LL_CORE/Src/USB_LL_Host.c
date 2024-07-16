@@ -164,5 +164,17 @@ void USB_LL_Host___Channel_Load_HCTSIZ(uint8_t port_Number, uint8_t channel_Numb
 	USB_Host_Channel -> HCTSIZ = (transfer_Size_In_Bytes << USB_OTG_HCTSIZ_XFRSIZ_Pos | packet_Count << USB_OTG_HCTSIZ_PKTCNT_Pos | packet_ID << USB_OTG_HCTSIZ_DPID_Pos);
 }
 
+void USB_LL_Host___Channel_Enable(uint8_t port_Number, uint8_t channel_Number)
+{
+	USB_OTG_HostChannelTypeDef *USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
+}
+
+void USB_LL_Host___Channel_Push(uint8_t port_Number, uint8_t channel_Number, uint8_t *p_Buffer, uint32_t transfer_Size)
+{
+	uint32_t* p_FIFO = USB_LL_Host___Channel_Get_Fifo_Pointer(port_Number, channel_Number);
+	USB_LL_Hardware___FIFO_Transfer_In(p_Buffer, p_FIFO, transfer_Size);
+
+}
 // -----------------------------------------------------------------------------------
 

@@ -144,4 +144,5 @@ void USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(uint8_t p
 void USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size);
 uint32_t USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number);
 uint32_t USB_Host_Device_Manager___Device_Get_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number);
+uint8_t USB_Host_Device_Manager___Device_Is_Low_Speed_Device(uint8_t port_Number, uint8_t device_Address);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

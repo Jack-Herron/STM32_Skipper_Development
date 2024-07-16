@@ -164,6 +164,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		switch(POSITION_VAL((USB_Host_Ch -> HCINT) & USB_LL_Host___CHANNEL_INTERRUPTS_MASK))
 		{
 		case USB_OTG_HCINT_XFRC_Pos: 								// XFER Complete received
+			uint8_t i = 0;
 			break;
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted

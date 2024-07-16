@@ -263,7 +263,8 @@ int8_t USB_Host_Transfers___Control_Transfer_In(uint8_t port_Number, uint8_t dev
 
 void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)
 {
-	USB_Host_Pipes___Create_Pipe
+	p_URB -> busy = true;
+	uint8_t pipe_Number = USB_Host_Pipes___Create_Pipe
 		(
 			p_URB->port_Number,
 			p_URB->device_Address,
@@ -272,13 +273,15 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeD
 			p_URB->transfer_Direction,
 			p_URB->endpoint_Number,
 			USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(p_URB->port_Number, p_URB->device_Address, p_URB->endpoint_Number),
-			p_URB->transfer_Buffer,
-			p_URB->transfer_Length,
+			NULL,
+			USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH,
 			0,
+			USB_Host_Device_Manager___Device_Is_Low_Speed_Device(p_URB->port_Number, p_URB->device_Address),
 			0,
-			0,
-			0
+			USB_Host_Pipes___PID_SETUP
 		);
+	USB_Host_Pipes___Enable_Pipe(p_URB->port_Number, pipe_Number);
+	USB_Host_Pipes___Push_Transfer(p_URB->port_Number, pipe_Number, (uint8_t*)&p_URB->control_Setup_Packet, USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH);
 }
 
 void USB_Host_Transfers___Process_URB_Data_Stage()

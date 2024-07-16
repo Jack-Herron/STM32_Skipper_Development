@@ -86,6 +86,11 @@ uint32_t USB_Host_Device_Manager___Device_Get_In_Endpoint_Max_Packet_Size(uint8_
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->in_Endpoint_Status[endpoint_Number].max_Packet_Size);
 }
 
+uint8_t USB_Host_Device_Manager___Device_Is_Low_Speed_Device(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.is_Low_Speed_Device);
+}
+
 void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
