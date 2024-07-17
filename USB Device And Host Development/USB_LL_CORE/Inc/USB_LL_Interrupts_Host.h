@@ -33,6 +33,7 @@ typedef struct {
 	uint8_t 											is_Root_Device_Connected;
 	uint8_t 											is_Root_Device_Disconnected;
 	uint8_t 											root_Device_Speed;
+	uint8_t												channel_Status_Change_Flag;
 	USB_LL_Interrupts_Host___Channel_Status_TypeDef		channel_Status[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
 } USB_LL_Interrupts_Host___Status_TypeDef;
 

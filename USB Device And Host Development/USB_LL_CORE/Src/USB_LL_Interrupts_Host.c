@@ -165,32 +165,45 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		{
 		case USB_OTG_HCINT_XFRC_Pos: 								// XFER Complete received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_XFRC_Msk;
+			host_Status[port_Number].channel_Status_Change_Flag = true;
+			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
+			host_Status[port_Number].channel_Status[channel_Number].p_Data = USB_LL_Host___Channel_Get_Buffer_Pointer(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].data_Length = USB_LL_Host___Channel_Get_Fill_Level(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___TRANSFER_COMPLETE;
 			break;
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_CHH_Msk;
+			host_Status[port_Number].channel_Status_Change_Flag = true;
+			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___HALT;
 			break;
 
 		case USB_OTG_HCINT_STALL_Pos: 								// channel Stall received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_STALL_Msk;
+			host_Status[port_Number].channel_Status_Change_Flag = true;
+			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___STALL;
 			break;
 
 		case USB_OTG_HCINT_NAK_Pos: 								// NAK received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_NAK_Msk;
+			host_Status[port_Number].channel_Status_Change_Flag = true;
+			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___NAK;
 			break;
 
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
+			host_Status[port_Number].channel_Status_Change_Flag = true;
+			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___ERROR;
 			break;
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
+			host_Status[port_Number].channel_Status_Change_Flag = true;
+			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___ERROR;
 			break;
 		}
