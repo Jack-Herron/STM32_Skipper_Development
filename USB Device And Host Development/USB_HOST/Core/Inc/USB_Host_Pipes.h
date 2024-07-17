@@ -37,5 +37,6 @@ typedef struct {
 
 uint8_t USB_Host_Pipes___Create_Pipe(uint8_t port_Number, uint8_t device_Address, uint8_t pipe_ID, uint8_t pipe_Type, uint8_t pipe_Direction, uint8_t endpoint_Number, uint32_t max_Packet_Size, uint8_t* p_Buffer, uint32_t transfer_Length, uint8_t is_Odd_Frame, uint8_t is_Low_Speed, uint8_t multi_Count, uint8_t packet_ID);
 void 	USB_Host_Pipes___Enable_Pipe(uint8_t port_Number, uint8_t pipe_Number);
-void USB_Host_Pipes___Push_Transfer(uint8_t port_Number, uint8_t pipe_Number, uint8_t* p_Buffer, uint32_t transfer_Size);
+void 	USB_Host_Pipes___Push_Transfer(uint8_t port_Number, uint8_t pipe_Number, uint8_t* p_Buffer, uint32_t transfer_Size);
+void 	USB_Host_Pipes___Process_Pipes(uint8_t port_Number);
 #endif /* CORE_INC_USB_HOST_PIPES_H_ */

@@ -77,3 +77,8 @@ void USB_Host_Pipes___Push_Transfer(uint8_t port_Number, uint8_t pipe_Number, ui
 {
 	USB_LL_Host___Channel_Push(port_Number, pipe_Number, p_Buffer, transfer_Size);
 }
+
+void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
+{
+
+}

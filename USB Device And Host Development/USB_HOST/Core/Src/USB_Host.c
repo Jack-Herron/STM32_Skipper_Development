@@ -15,6 +15,7 @@
 #include <USB_LL_Interrupts_Host.h>
 #include "../Inc/USB_Host_Device_Manager.h"
 #include "../Inc/USB_Host_Transfers.h"
+#include "../Inc/USB_Host_Pipes.h"
 #include "../Inc/USB_Host.h"
 
 void USB_Host___Init(uint8_t port_Number)
@@ -102,4 +103,5 @@ void USB_Host___Process(uint8_t port_Number)
 	USB_Host___Process_Host_Interrupts(port_Number);
 	USB_Host___Process_Device_Manager_Status(port_Number);
 	USB_Host_Transfers___Process_URB();
+	USB_Host_Pipes___Process_Pipes(port_Number);
 }
