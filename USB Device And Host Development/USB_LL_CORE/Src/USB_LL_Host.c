@@ -74,6 +74,11 @@ uint16_t USB_LL_Host___Get_Frame_Number(uint8_t port_Number)
 
 // ---------------------------- USB CHANNEL_CONTROL_SECTION --------------------------
 
+uint32_t USB_LL_Host___Channel_Get_Fill_Level(uint8_t port_Number, uint8_t channel_Number)
+{
+	return (USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].fill_Level);
+}
+
 int8_t USB_LL_Host___Channel_RX_POP(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status)
 {
 	uint32_t 	USB_offset 				= USB_LL_Hardware___Get_USB_BASE(port_Number);

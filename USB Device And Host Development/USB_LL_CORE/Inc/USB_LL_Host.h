@@ -55,5 +55,5 @@ void 		USB_LL_Host___Channel_Enable(uint8_t port_Number, uint8_t channel_Number)
 void 		USB_LL_Host___Reset_Port					(uint8_t port_Number);
 int8_t 		USB_LL_Host___Packet_Received				(uint8_t port_Number);
 void 		USB_LL_Host___Channel_Push(uint8_t port_Number, uint8_t channel_Number, uint8_t *p_Buffer, uint32_t transfer_Size);
-
+uint32_t 	USB_LL_Host___Channel_Get_Fill_Level(uint8_t port_Number, uint8_t channel_Number);
 #endif /* INC_USB_LL_HOST_H_ */
