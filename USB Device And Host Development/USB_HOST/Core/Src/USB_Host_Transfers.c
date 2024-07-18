@@ -263,7 +263,12 @@ int8_t USB_Host_Transfers___Control_Transfer_In(uint8_t port_Number, uint8_t dev
 
 void pipe_Callback(USB_Host_Pipes___Callback_Parameters)
 {
-	uint8_t i = 0;
+	USB_Host_Transfers___URB_TypeDef* p_URB = (USB_Host_Transfers___URB_TypeDef*)context;
+	if(status == 0)
+	{
+		p_URB -> transfer_Stage++;
+		p_URB -> busy = false;
+	}
 }
 
 void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)
@@ -273,7 +278,7 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeD
 		(
 			p_URB->port_Number,
 			p_URB->device_Address,
-			0,	//			p_URB->pipe_ID
+			(void*)p_URB,
 			p_URB->transfer_Type,
 			p_URB->transfer_Direction,
 			p_URB->endpoint_Number,
@@ -289,9 +294,30 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeD
 	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
 }
 
-void USB_Host_Transfers___Process_URB_Data_Stage()
+void USB_Host_Transfers___Process_URB_Data_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)
 {
+	p_URB -> busy = true;
+	uint8_t pipe_Number;
 
+	pipe_Number = USB_Host_Pipes___Create_Pipe
+	(
+		p_URB->port_Number,
+		p_URB->device_Address,
+		(void*)p_URB,
+		p_URB->transfer_Type,
+		p_URB->transfer_Direction,
+		p_URB->endpoint_Number,
+		USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(p_URB->port_Number, p_URB->device_Address, p_URB->endpoint_Number),
+		p_URB->transfer_Buffer,
+		p_URB->transfer_Length,
+		0,
+		USB_Host_Device_Manager___Device_Is_Low_Speed_Device(p_URB->port_Number, p_URB->device_Address),
+		0,
+		USB_Host_Device_Manager___Device_Get_Endpoint_Current_Packet_ID(p_URB->port_Number, p_URB->device_Address, p_URB->transfer_Direction, p_URB->endpoint_Number),
+		pipe_Callback
+	);
+
+	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
 }
 
 void USB_Host_Transfers___Process_URB_Status_Stage()
@@ -311,7 +337,7 @@ void USB_Host_Transfers___Process_URB()
 				USB_Host_Transfers___Process_URB_Setup_Stage(&URB_Queue.current_Node->URB);
 				break;
 			case USB_Host_Transfers___URB_STAGE_DATA:
-				USB_Host_Transfers___Process_URB_Data_Stage();
+				USB_Host_Transfers___Process_URB_Data_Stage(&URB_Queue.current_Node->URB);
 				break;
 			case USB_Host_Transfers___URB_STAGE_STATUS:
 				USB_Host_Transfers___Process_URB_Status_Stage();

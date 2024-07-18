@@ -55,7 +55,7 @@ void USB_LL_Interrupts_Host___Clear_All_Channels_Status_Change_Flag(uint8_t port
 	host_Status[port_Number].all_Channels_Status_Change_Flag = false;
 }
 
-USB_LL_Interrupts_Host___Channel_Status_Enum USB_LL_Interrupts_Host___Get_Channel_Status(uint8_t port_Number, uint8_t channel_Number)
+uint8_t USB_LL_Interrupts_Host___Get_Channel_Status(uint8_t port_Number, uint8_t channel_Number)
 {
 	return(host_Status[port_Number].channel_Status[channel_Number].status);
 }
@@ -63,6 +63,11 @@ USB_LL_Interrupts_Host___Channel_Status_Enum USB_LL_Interrupts_Host___Get_Channe
 uint8_t USB_LL_Interrupts_Host___Get_Channel_Status_Change_Flag(uint8_t port_Number, uint8_t channel_Number)
 {
 	return (host_Status[port_Number].channel_Status[channel_Number].status_Change_Flag);
+}
+
+void USB_LL_Interrupts_Host___Clear_Channel_Status_Change_Flag(uint8_t port_Number,  uint8_t channel_Number)
+{
+	host_Status[port_Number].channel_Status[channel_Number].status_Change_Flag = false;
 }
 
 void USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(uint8_t port_Number, uint8_t channel_Number)
@@ -186,21 +191,21 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_XFRC_Msk;
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___TRANSFER_COMPLETE;
+			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE;
 			break;
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_CHH_Msk;
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___HALT;
+			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_CHANNEL_HALTED;
 			break;
 
 		case USB_OTG_HCINT_STALL_Pos: 								// channel Stall received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_STALL_Msk;
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___STALL;
+			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_STALL;
 			break;
 
 		case USB_OTG_HCINT_NAK_Pos: 								// NAK received
@@ -220,7 +225,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			{
 				USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 				host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-				host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___NAK;
+				host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK;
 			}
 			break;
 
@@ -233,14 +238,14 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___ERROR;
+			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR;
 			break;
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			host_Status[port_Number].channel_Status[channel_Number].status = Channel_Status_Enum___ERROR;
+			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR;
 			break;
 		}
 	}

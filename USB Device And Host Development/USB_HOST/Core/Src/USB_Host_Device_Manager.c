@@ -86,6 +86,30 @@ uint32_t USB_Host_Device_Manager___Device_Get_In_Endpoint_Max_Packet_Size(uint8_
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->in_Endpoint_Status[endpoint_Number].max_Packet_Size);
 }
 
+uint8_t USB_Host_Device_Manager___Device_Get_Endpoint_Current_Packet_ID(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Direction, uint8_t endpoint_Number)
+{
+	if (endpoint_Direction == USB_Host___TRANSFER_DIRECTION_IN)
+	{
+		return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->out_Endpoint_Status[endpoint_Number].current_Packet_ID);
+	}
+	else
+	{
+		return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->in_Endpoint_Status[endpoint_Number].current_Packet_ID);
+	}
+}
+
+void USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t Packet_ID)
+{
+	if (endpoint_Direction == USB_Host___TRANSFER_DIRECTION_IN)
+	{
+		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->out_Endpoint_Status[endpoint_Number].current_Packet_ID = Packet_ID;
+	}
+	else
+	{
+		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->in_Endpoint_Status[endpoint_Number].current_Packet_ID = Packet_ID;
+	}
+}
+
 uint8_t USB_Host_Device_Manager___Device_Is_Low_Speed_Device(uint8_t port_Number, uint8_t device_Address)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.is_Low_Speed_Device);

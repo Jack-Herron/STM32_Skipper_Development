@@ -9,12 +9,15 @@
 #define CORE_INC_USB_HOST_H_
 
 #include <USB_LL_Definitions.h>
+#include <USB_LL_Host.h>
 
 #define USB_Host___DEVICE_DESCRIPTOR_LENGTH			0x12
 #define USB_Host___CONFIGURATION_DESCRIPTOR_LENGTH	0x09
 #define USB_Host___INTERFACE_DESCRIPTOR_LENGTH		0x09
 #define USB_Host___ENDPOINT_DESCRIPTOR_LENGTH		0x07
 #define USB_Host___NUMBER_OF_PORTS					USB_LL_Definitions___NUMBER_OF_PORTS
+#define USB_Host___TRANSFER_DIRECTION_OUT			USB_LL_Host___TRANSFER_DIRECTION_OUT
+#define USB_Host___TRANSFER_DIRECTION_IN			USB_LL_Host___TRANSFER_DIRECTION_IN
 
 typedef struct __attribute__((packed)) {
   uint8_t   bLength;

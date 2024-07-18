@@ -242,9 +242,10 @@ void USB_LL_Host___Channel_Begin_Transfer_Out(uint8_t port_Number, uint8_t chann
 void USB_LL_Host___Channel_Packet_Acknowledged(uint8_t port_Number, uint8_t channel_Number)
 {
 	uint32_t  transfer_Size_Remaining 	= USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number);
-	uint16_t  transfer_Size 			= USB_LL_Host___GET_MAX(transfer_Size_Remaining, USB_LL_Host___Channel_Get_Packet_Size(port_Number, channel_Number));
-	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress += transfer_Size;
-	if(transfer_Size_Remaining > 0)
+	uint16_t  size_Transfered 			= USB_LL_Host___GET_MAX(transfer_Size_Remaining, USB_LL_Host___Channel_Get_Packet_Size(port_Number, channel_Number));
+	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress += size_Transfered;
+
+	if(transfer_Size_Remaining-size_Transfered > 0)
 	{
 		USB_LL_Host___Transfer_Next_Packet(port_Number, channel_Number);
 	}

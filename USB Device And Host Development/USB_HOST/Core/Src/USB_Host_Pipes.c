@@ -6,6 +6,7 @@
  */
 
 #include "../Inc/USB_Host_Pipes.h"
+#include <stdlib.h>
 #include <USB_LL_Definitions.h>
 #include <USB_LL_Host.h>
 #include <USB_LL_Interrupts_Host.h>
@@ -33,7 +34,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 		(
 		uint8_t 	port_Number,
 		uint8_t 	device_Address,
-		uint8_t 	pipe_ID,
+		void*		context,
 		uint8_t 	pipe_Type,
 		uint8_t 	pipe_Direction,
 		uint8_t 	endpoint_Number,
@@ -49,7 +50,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 {
 	uint8_t pipe_Number = USB_Host_Pipes___Allocate_Pipe(port_Number);
 
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].ID 						= pipe_ID;
+	USB_Host_Pipes___Pipe[port_Number][pipe_Number].context					= context;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Type 				= pipe_Type;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Direction 			= pipe_Direction;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].device_Address 			= device_Address;
@@ -62,6 +63,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].multi_Count 			= multi_Count;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets				= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets_Remaining 	= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
+	USB_Host_Pipes___Pipe[port_Number][pipe_Number].callback 				= callback;
 
 	USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
 	USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
@@ -80,11 +82,20 @@ void 	USB_Host_Pipes___Process_Pipes	(uint8_t port_Number)
 {
 	if(USB_LL_Interrupts_Host___Get_All_Channels_Status_Change_Flag(port_Number))
 	{
+		USB_LL_Interrupts_Host___Clear_All_Channels_Status_Change_Flag(port_Number);
 		for(uint8_t i = 0; i < USB_Host_Pipes___NUMBER_OF_PIPES; i++)
 		{
 			if(USB_LL_Interrupts_Host___Get_Channel_Status_Change_Flag(port_Number, i))
 			{
-				uint8_t i = 0;
+				USB_LL_Interrupts_Host___Clear_Channel_Status_Change_Flag(port_Number, i);
+				uint8_t channel_Status = USB_LL_Interrupts_Host___Get_Channel_Status(port_Number, i);
+				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
+				{
+					if(USB_Host_Pipes___Pipe[port_Number][i].callback != NULL)
+					{
+						USB_Host_Pipes___Pipe[port_Number][i].callback(port_Number, i, USB_Host_Pipes___Pipe[port_Number][i].context, channel_Status, USB_Host_Pipes___Pipe[port_Number][i].p_Buffer, USB_Host_Pipes___Pipe[port_Number][i].transfer_Length);
+					}
+				}
 			}
 		}
 	}
