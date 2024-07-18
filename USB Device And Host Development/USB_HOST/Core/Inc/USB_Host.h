@@ -18,6 +18,22 @@
 #define USB_Host___NUMBER_OF_PORTS					USB_LL_Definitions___NUMBER_OF_PORTS
 #define USB_Host___TRANSFER_DIRECTION_OUT			USB_LL_Host___TRANSFER_DIRECTION_OUT
 #define USB_Host___TRANSFER_DIRECTION_IN			USB_LL_Host___TRANSFER_DIRECTION_IN
+#define USB_Host___ENDPOINT_ZERO					0x00
+#define USB_Host___ENDPOINT_ONE						0x01
+#define USB_Host___ENDPOINT_TWO						0x02
+#define USB_Host___ENDPOINT_THREE					0x03
+#define USB_Host___ENDPOINT_FOUR					0x04
+#define USB_Host___ENDPOINT_FIVE					0x05
+#define USB_Host___ENDPOINT_SIX						0x06
+#define USB_Host___ENDPOINT_SEVEN					0x07
+#define USB_Host___ENDPOINT_EIGHT					0x08
+#define USB_Host___ENDPOINT_NINE					0x09
+#define USB_Host___ENDPOINT_TEN						0x0a
+#define USB_Host___ENDPOINT_ELEVEN					0x0b
+#define USB_Host___ENDPOINT_TWELVE					0x0c
+#define USB_Host___ENDPOINT_THIRTEEN				0x0d
+#define USB_Host___ENDPOINT_FOURTEEN				0x0e
+#define USB_Host___ENDPOINT_FIFTEEN					0x0f
 
 typedef struct __attribute__((packed)) {
   uint8_t   bLength;
