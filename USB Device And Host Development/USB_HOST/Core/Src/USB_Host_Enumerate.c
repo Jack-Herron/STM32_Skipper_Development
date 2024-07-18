@@ -42,6 +42,18 @@ void USB_Host_Enumerate___Get_First_Eight_Device_Descriptor(uint8_t port_Number,
 	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, 0x08, USB_Host_Enumerate___URB_Callback);
 }
 
+void USB_Host_Enumerate___Set_Address(uint8_t port_Number, uint8_t device_Address, uint8_t new_Address)
+{
+	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_HOST_TO_DEVICE;
+	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_SET_ADDRESS;
+	setup_Packet.wValue 		= new_Address;
+	setup_Packet.wIndex 		= 0x0000;
+	setup_Packet.wLength 		= 0x0000;
+
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Enumerate___URB_Callback);
+}
+
 void USB_Host_Enumerate___Do_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage)
 {
 	switch(setup_Stage)
