@@ -10,6 +10,7 @@
 
 #define USB_LL_Host___QUICK_DIV_ROOF(number, diviser) 			((number + (diviser-1)) / diviser)
 #define USB_LL_Host___GET_MAX(a,b)								(((a) > (b)) ? (a) : (b))
+#define USB_LL_Host___GET_MIN(a,b)								(((a) > (b)) ? (b) : (a))
 
 #define USB_LL_Host___MAX_NUMBER_OF_CHANNELS					0x0c
 #define USB_LL_Host___NON_PERIODIC_TX_FIFO						0x00
@@ -66,6 +67,9 @@ void 		USB_LL_Host___Channel_Begin_Transfer_Out		(uint8_t port_Number, uint8_t c
 uint16_t 	USB_LL_Host___Channel_Get_Retries_Remaining		(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Channel_Retry_Transfer_Out		(uint8_t port_Number, uint8_t channel_Number);
 uint8_t 	USB_LL_Host___Channel_Get_Transfer_Direction	(uint8_t port_Number, uint8_t channel_Number);
-void 		USB_LL_Host___Channel_Packet_Acknowledged		(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Out_Packet_Acknowledged	(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_In_Packet_Acknowledged	(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Channel_Setup_Buffer				(uint8_t port_Number, uint8_t channel_Number, uint8_t *buffer_Pointer, uint32_t transfer_Size);
+void 		USB_LL_Host___Channel_Begin_Transfer_In			(uint8_t port_Number, uint8_t channel_Number);
+uint8_t 	USB_LL_Host___Channel_Get_Current_Packet_ID		(uint8_t port_Number, uint8_t channel_Number);
 #endif /* INC_USB_LL_HOST_H_ */

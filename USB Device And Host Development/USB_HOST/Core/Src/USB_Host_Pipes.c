@@ -10,6 +10,8 @@
 #include <USB_LL_Definitions.h>
 #include <USB_LL_Host.h>
 #include <USB_LL_Interrupts_Host.h>
+#include "../Inc/USB_Host.h"
+
 static USB_Host_Pipes___Pipe_TypeDef USB_Host_Pipes___Pipe[USB_LL_Definitions___NUMBER_OF_PORTS][USB_Host_Pipes___NUMBER_OF_PIPES];
 
 uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number)
@@ -38,7 +40,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 		uint8_t 	pipe_Type,
 		uint8_t 	pipe_Direction,
 		uint8_t 	endpoint_Number,
-		uint32_t 	max_Packet_Size,
+		uint16_t 	max_Packet_Size,
 		uint8_t*	p_Buffer,
 		uint32_t 	transfer_Length,
 		uint8_t		is_Odd_Frame,
@@ -65,6 +67,11 @@ uint8_t USB_Host_Pipes___Create_Pipe
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets_Remaining 	= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].callback 				= callback;
 
+	if(USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets == 0)
+	{
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets = 1;
+	}
+
 	USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
 	USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
 	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
@@ -73,9 +80,26 @@ uint8_t USB_Host_Pipes___Create_Pipe
 	return(pipe_Number);
 }
 
+uint8_t USB_Host_Pipes___Get_Pipe_Direction(uint8_t port_Number, uint8_t pipe_Number)
+{
+	USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Direction;
+}
+
+uint8_t USB_Host_Pipes___Get_Current_Packet_ID(uint8_t port_Number, uint8_t pipe_Number)
+{
+	return(USB_LL_Host___Channel_Get_Current_Packet_ID(port_Number, pipe_Number));
+}
+
 void USB_Host_Pipes___Begin_Transfer(uint8_t port_Number, uint8_t pipe_Number)
 {
-	USB_LL_Host___Channel_Begin_Transfer_Out(port_Number,  pipe_Number);
+	if(USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Direction == USB_Host___TRANSFER_DIRECTION_OUT)
+	{
+		USB_LL_Host___Channel_Begin_Transfer_Out(port_Number,  pipe_Number);
+	}
+	else
+	{
+		USB_LL_Host___Channel_Begin_Transfer_In(port_Number,  pipe_Number);
+	}
 }
 
 void 	USB_Host_Pipes___Process_Pipes	(uint8_t port_Number)

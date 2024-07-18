@@ -230,8 +230,15 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_HCINT_ACK_Pos: 										// ACK received
-			USB_LL_Host___Channel_Packet_Acknowledged(port_Number, channel_Number);
 			USB_Host_Ch->HCINT = USB_OTG_HCINT_ACK_Msk;
+			if(USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
+			{
+				USB_LL_Host___Channel_Out_Packet_Acknowledged(port_Number, channel_Number);
+			}
+			else
+			{
+				USB_LL_Host___Channel_In_Packet_Acknowledged(port_Number, channel_Number);
+			}
 			break;
 
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
