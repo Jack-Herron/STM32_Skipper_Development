@@ -270,6 +270,25 @@ uint8_t USB_Host_Device_Manager___Port_Get_Root_Device_Address(uint8_t port_Numb
 	return(0);
 }
 
+void USB_Host_Device_Manager___Device_Initialize_Buffers(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef *p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
+	if (p_Device != NULL)
+	{
+		p_Device -> descriptors.p_Device_Descriptor = (USB_Host___Device_Descriptor_TypeDef*)(p_Device -> descriptor_Buffers.device_Descriptor_Buffer);
+	}
+}
+
+void USB_Host_Device_Manager___Initialize_Device(uint8_t port_Number, uint8_t device_Address, uint8_t is_Root_Device, uint8_t device_Speed)
+{
+	USB_Host_Device_Manager___Device_Set_Is_Root_Device							(port_Number, device_Address, is_Root_Device);
+	USB_Host_Device_Manager___Device_Initialize_Buffers							(port_Number, device_Address);
+	USB_Host_Device_Manager___Device_Set_Port_Number							(port_Number, 0);
+	USB_Host_Device_Manager___Device_Set_Speed									(port_Number, 0, device_Speed);
+	USB_Host_Device_Manager___Device_Connected									(port_Number, 0);
+}
+
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device)
 {
 	if(USB_Host_Device_Manager___Port[port_Number].p_Device[0] == NULL)
@@ -277,9 +296,7 @@ int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Nu
 		USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Allocate_Device();
 		if(USB_Host_Device_Manager___Port_Set_Device_To_Address(port_Number, 0, p_Device) == EXIT_SUCCESS)
 		{
-			USB_Host_Device_Manager___Device_Set_Port_Number							(port_Number, 0);
-			USB_Host_Device_Manager___Device_Set_Speed									(port_Number, 0, device_Speed);
-			USB_Host_Device_Manager___Device_Connected									(port_Number, 0);
+			USB_Host_Device_Manager___Initialize_Device(port_Number, 0, is_Root_Device, device_Speed);
 
 			return(EXIT_SUCCESS);
 		}

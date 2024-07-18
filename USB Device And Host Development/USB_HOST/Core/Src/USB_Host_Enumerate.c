@@ -39,7 +39,7 @@ void USB_Host_Enumerate___Get_First_Eight_Device_Descriptor(uint8_t port_Number,
 
 	uint8_t* p_Buffer = USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(port_Number, device_Address);
 
-	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, 8, USB_Host_Enumerate___URB_Callback);
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, 0x08, USB_Host_Enumerate___URB_Callback);
 }
 
 void USB_Host_Enumerate___Do_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage)
