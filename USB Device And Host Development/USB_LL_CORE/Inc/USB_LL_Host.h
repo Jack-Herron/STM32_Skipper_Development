@@ -9,6 +9,7 @@
 #define INC_USB_LL_HOST_H_
 
 #define USB_LL_Host___QUICK_DIV_ROOF(number, diviser) 			((number + (diviser-1)) / diviser)
+#define USB_LL_Host___GET_MAX(a,b)								(((a) > (b)) ? (a) : (b))
 
 #define USB_LL_Host___MAX_NUMBER_OF_CHANNELS					0x0c
 #define USB_LL_Host___NON_PERIODIC_TX_FIFO						0x00
@@ -23,16 +24,21 @@
 #define USB_LL_Host___EXIT_SUCCESS								 (0x01)
 #define USB_LL_Host___EXIT_FAILURE_BUFFER_OVERFLOW				-(0x02)
 #define USB_LL_Host___PORT_INTERRUPTS_MASK						0x000a
-#define USB_LL_Host___CHANNEL_INTERRUPTS_MASK					0x029b
+#define USB_LL_Host___CHANNEL_INTERRUPTS_MASK					0x02bb
 #define USB_LL_Host___CHANNEL_PACKET_ID_DATA_ZERO				0x00
 #define USB_LL_Host___CHANNEL_PACKET_ID_DATA_ONE				0x02
 #define USB_LL_Host___CHANNEL_PACKET_ID_DATA_TWO				0x01
 #define USB_LL_Host___CHANNEL_PACKET_ID_SETUP					0x03
+#define USB_LL_Host___TRANSFER_DIRECTION_OUT					0x00
+#define USB_LL_Host___TRANSFER_DIRECTION_IN						0x01
 
 
 typedef struct {
-	uint32_t 									size;
-	uint32_t 									fill_Level;
+	uint32_t 									transfer_Size;
+	uint32_t 									transfer_Progress;
+	uint16_t									packet_Size;
+	uint16_t									retries_Remaining;
+	uint8_t										transfer_Direction;
 	uint8_t* 									p_Buffer;
 } USB_LL_Host___Host_Channel_Buffer_TypeDef;
 
@@ -40,21 +46,26 @@ typedef struct {
 	USB_LL_Host___Host_Channel_Buffer_TypeDef			channel_Buffer[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
 } USB_LL_Host___Host_Port_TypeDef;
 
-uint16_t 	USB_LL_Host___Host_Get_Frame_Number			(uint8_t port_Number);
-uint32_t 	USB_LL_Host___Host_Get_FIFO_Space_Available	(uint8_t port_Number, uint8_t FIFO_Type);
-void 		USB_LL_Host___Host_Set_FIFO_Size			(uint8_t port_Number, uint32_t RX_FIFO_Depth, uint32_t non_Periodic_TX_FIFO_Depth, uint32_t periodic_TX_FIFO_Depth);
-uint32_t* 	USB_LL_Host___Channel_Get_Fifo_Pointer		(uint8_t port_Number, uint8_t channel_Number);
-void 		USB_LL_Host___Channel_Halt					(uint8_t port_Number, uint8_t channel_Number);
-void 		USB_LL_Host___Channel_Halt_And_Wait			(uint8_t port_Number, uint8_t channel_Number);
-uint8_t 	USB_LL_Host___Channel_Get_Current_PID		(uint8_t port_Number, uint8_t channel_Number);
-void 		USB_LL_Host___Channel_Set_Interrupts		(uint8_t port_Number, uint8_t channel_Number);
-int8_t 		USB_LL_Host___Channel_RX_POP				(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status);
-void 		USB_LL_Host___Channel_Set_Characteristics(uint8_t port_Number, uint8_t channel_Number, uint16_t max_Packet_Size, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t low_Speed_Device, uint8_t endpoint_Type, uint8_t multi_Count, uint8_t device_Address, uint8_t odd_Frame);
-void 		USB_LL_Host___Channel_Load_HCTSIZ			(uint8_t port_Number, uint8_t channel_Number, uint32_t transfer_Size_In_Bytes, uint32_t packet_Count, uint8_t packet_ID);
-void 		USB_LL_Host___Channel_Enable(uint8_t port_Number, uint8_t channel_Number);
-void 		USB_LL_Host___Reset_Port					(uint8_t port_Number);
-int8_t 		USB_LL_Host___Packet_Received				(uint8_t port_Number);
-void 		USB_LL_Host___Channel_Push(uint8_t port_Number, uint8_t channel_Number, uint8_t *p_Buffer, uint32_t transfer_Size);
-uint32_t 	USB_LL_Host___Channel_Get_Fill_Level(uint8_t port_Number, uint8_t channel_Number);
-uint8_t* USB_LL_Host___Channel_Get_Buffer_Pointer(uint8_t port_Number, uint8_t channel_Number);
+uint16_t 	USB_LL_Host___Host_Get_Frame_Number				(uint8_t port_Number);
+uint32_t 	USB_LL_Host___Host_Get_FIFO_Space_Available		(uint8_t port_Number, uint8_t FIFO_Type);
+void 		USB_LL_Host___Host_Set_FIFO_Size				(uint8_t port_Number, uint32_t RX_FIFO_Depth, uint32_t non_Periodic_TX_FIFO_Depth, uint32_t periodic_TX_FIFO_Depth);
+uint32_t* 	USB_LL_Host___Channel_Get_Fifo_Pointer			(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Halt						(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Halt_And_Wait				(uint8_t port_Number, uint8_t channel_Number);
+uint8_t 	USB_LL_Host___Channel_Get_Current_PID			(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Set_Interrupts			(uint8_t port_Number, uint8_t channel_Number);
+int8_t 		USB_LL_Host___Channel_RX_POP					(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status);
+void 		USB_LL_Host___Channel_Set_Characteristics		(uint8_t port_Number, uint8_t channel_Number, uint16_t max_Packet_Size, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t low_Speed_Device, uint8_t endpoint_Type, uint8_t multi_Count, uint8_t device_Address, uint8_t odd_Frame);
+void 		USB_LL_Host___Channel_Load_HCTSIZ				(uint8_t port_Number, uint8_t channel_Number, uint32_t transfer_Size_In_Bytes, uint32_t packet_Count, uint8_t packet_ID);
+void 		USB_LL_Host___Channel_Enable					(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Reset_Port						(uint8_t port_Number);
+int8_t 		USB_LL_Host___Packet_Received					(uint8_t port_Number);
+uint32_t 	USB_LL_Host___Channel_Get_Transfer_Progress		(uint8_t port_Number, uint8_t channel_Number);
+uint8_t* 	USB_LL_Host___Channel_Get_Buffer_Pointer		(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Begin_Transfer_Out		(uint8_t port_Number, uint8_t channel_Number);
+uint16_t 	USB_LL_Host___Channel_Get_Retries_Remaining		(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Retry_Transfer_Out		(uint8_t port_Number, uint8_t channel_Number);
+uint8_t 	USB_LL_Host___Channel_Get_Transfer_Direction	(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Packet_Acknowledged		(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Setup_Buffer				(uint8_t port_Number, uint8_t channel_Number, uint8_t *buffer_Pointer, uint32_t transfer_Size);
 #endif /* INC_USB_LL_HOST_H_ */

@@ -8,6 +8,7 @@
 #include "../Inc/USB_Host_Pipes.h"
 #include <USB_LL_Definitions.h>
 #include <USB_LL_Host.h>
+#include <USB_LL_Interrupts_Host.h>
 static USB_Host_Pipes___Pipe_TypeDef USB_Host_Pipes___Pipe[USB_LL_Definitions___NUMBER_OF_PORTS][USB_Host_Pipes___NUMBER_OF_PIPES];
 
 uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number)
@@ -42,7 +43,8 @@ uint8_t USB_Host_Pipes___Create_Pipe
 		uint8_t		is_Odd_Frame,
 		uint8_t		is_Low_Speed,
 		uint8_t 	multi_Count,
-		uint8_t 	packet_ID
+		uint8_t 	packet_ID,
+		void		callback(USB_Host_Pipes___Callback_Parameters)
 		)
 {
 	uint8_t pipe_Number = USB_Host_Pipes___Allocate_Pipe(port_Number);
@@ -62,23 +64,28 @@ uint8_t USB_Host_Pipes___Create_Pipe
 	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets_Remaining 	= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
 
 	USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
+	USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
 	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
 	USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
 
 	return(pipe_Number);
 }
 
-void USB_Host_Pipes___Enable_Pipe(uint8_t port_Number, uint8_t pipe_Number)
+void USB_Host_Pipes___Begin_Transfer(uint8_t port_Number, uint8_t pipe_Number)
 {
-	USB_LL_Host___Channel_Enable( port_Number,  pipe_Number);
+	USB_LL_Host___Channel_Begin_Transfer_Out(port_Number,  pipe_Number);
 }
 
-void USB_Host_Pipes___Push_Transfer(uint8_t port_Number, uint8_t pipe_Number, uint8_t* p_Buffer, uint32_t transfer_Size)
+void 	USB_Host_Pipes___Process_Pipes	(uint8_t port_Number)
 {
-	USB_LL_Host___Channel_Push(port_Number, pipe_Number, p_Buffer, transfer_Size);
-}
-
-void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
-{
-
+	if(USB_LL_Interrupts_Host___Get_All_Channels_Status_Change_Flag(port_Number))
+	{
+		for(uint8_t i = 0; i < USB_Host_Pipes___NUMBER_OF_PIPES; i++)
+		{
+			if(USB_LL_Interrupts_Host___Get_Channel_Status_Change_Flag(port_Number, i))
+			{
+				uint8_t i = 0;
+			}
+		}
+	}
 }
