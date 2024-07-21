@@ -66,6 +66,67 @@ uint8_t* USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(uint8_t port_Num
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.device_Descriptor_Buffer);
 }
 
+
+uint16_t* USB_Host_Device_Manager___Get_Language_ID_List(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.p_Language_ID_List);
+}
+
+uint16_t* USB_Host_Device_Manager___Get_Manufacturer_String(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.p_Manufacturer_String);
+}
+
+uint16_t* USB_Host_Device_Manager___Get_Product_String(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.p_Product_String);
+}
+
+uint16_t* USB_Host_Device_Manager___Get_Serial_Number_String(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.p_Serial_Number_String);
+}
+
+uint8_t USB_Host_Device_Manager___Get_Serial_Number_String_Length(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.serial_Number_String_Length);
+}
+
+uint8_t USB_Host_Device_Manager___Get_Manufacturer_String_Length(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.manufacturer_String_Length);
+}
+
+uint8_t USB_Host_Device_Manager___Get_Product_String_Length(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.product_String_Length);
+}
+
+uint8_t USB_Host_Device_Manager___Get_Language_ID_List_Length(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.language_ID_List_Length);
+}
+
+uint8_t* USB_Host_Device_Manager___Get_Language_ID_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.language_ID_Descriptor_Buffer);
+}
+
+uint8_t* USB_Host_Device_Manager___Device_Get_Manufacturer_String_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.manufacturer_String_Descriptor_Buffer);
+}
+
+uint8_t* USB_Host_Device_Manager___Device_Get_Product_String_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.product_String_Descriptor_Buffer);
+}
+
+uint8_t* USB_Host_Device_Manager___Device_Get_Serial_Number_String_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer);
+}
+
 USB_Host___Device_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Device_Descriptor(uint8_t port_Number, uint8_t device_Address)
 {
 	return (*(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor));

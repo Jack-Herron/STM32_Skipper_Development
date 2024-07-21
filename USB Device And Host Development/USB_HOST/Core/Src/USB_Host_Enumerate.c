@@ -41,10 +41,12 @@ void USB_Host_Enumerate___Setup_Stage_Completed(uint8_t port_Number, uint8_t dev
 		break;
 	}
 	case USB_Host_Device_Manager___SETUP_STAGE_SET_ADDRESS:
-	{
 		USB_Host_Device_Manager___Device_Update_Current_USB_Address(port_Number, device_Address);
 		break;
-	}
+	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_DEVICE_DESCRIPTOR:
+
+		break;
+
 	}
 }
 
@@ -103,6 +105,46 @@ void USB_Host_Enumerate___Set_Address(uint8_t port_Number, uint8_t device_Addres
 	setup_Packet.wLength 		= 0x0000;
 
 	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Enumerate___URB_Set_Address_Callback);
+}
+
+uint8_t USB_Host_Enumerate___Get_Next_String_Descriptor_Type(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host___Device_Descriptor_TypeDef device_Descriptor = USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
+
+	if(
+	(	(device_Descriptor.iManufacturer 	!= 0) 	||
+		(device_Descriptor.iProduct 		!= 0) 	||
+		(device_Descriptor.iSerialNumber 	!= 0))	&&
+		USB_Host_Device_Manager___Get_Language_ID_List_Length(port_Number, device_Address) < 0
+	)
+	{
+		return(USB_Host_Enumerate___STRING_TYPE_LANGUAGE);
+	}
+	else if (
+		device_Descriptor.iManufacturer != 0 	&&
+		USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address) < 0
+	)
+	{
+		return USB_Host_Enumerate___STRING_TYPE_MANUFACTURER;
+	}
+	else if (
+		device_Descriptor.iProduct != 0 &&
+		USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address) < 0
+	)
+	{
+		return (USB_Host_Enumerate___STRING_TYPE_PRODUCT);
+	}
+	else if (
+		device_Descriptor.iSerialNumber != 0 &&
+		USB_Host_Device_Manager___Get_Serial_Number_String_Length(port_Number, device_Address) < 0
+	)
+	{
+		return (USB_Host_Enumerate___STRING_TYPE_SERIAL_NUMBER);
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void USB_Host_Enumerate___Do_Setup_Stage(uint8_t port_Number, uint8_t device_Address)

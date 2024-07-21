@@ -165,4 +165,16 @@ uint8_t 								USB_Host_Device_Manager___Reserve_New_Device_Address							(uint
 uint8_t 								USB_Host_Device_Manager___Device_Get_Setup_Stage								(uint8_t port_Number, uint8_t device_Address);
 USB_Host___Device_Descriptor_TypeDef 	USB_Host_Device_Manager___Device_Get_Device_Descriptor							(uint8_t port_Number, uint8_t device_Address);
 void 									USB_Host_Device_Manager___Device_Update_Current_USB_Address						(uint8_t port_Number, uint8_t device_Address);
+uint8_t* 								USB_Host_Device_Manager___Get_Language_ID_Descriptor_Buffer						(uint8_t port_Number, uint8_t device_Address);
+uint8_t* 								USB_Host_Device_Manager___Device_Get_Manufacturer_String_Descriptor_Buffer		(uint8_t port_Number, uint8_t device_Address);
+uint8_t* 								USB_Host_Device_Manager___Device_Get_Product_String_Descriptor_Buffer			(uint8_t port_Number, uint8_t device_Address);
+uint8_t* 								USB_Host_Device_Manager___Device_Get_Serial_Number_String_Descriptor_Buffer		(uint8_t port_Number, uint8_t device_Address);
+uint16_t* 								USB_Host_Device_Manager___Get_Language_ID_List									(uint8_t port_Number, uint8_t device_Address);
+uint16_t* 								USB_Host_Device_Manager___Get_Manufacturer_String								(uint8_t port_Number, uint8_t device_Address);
+uint16_t*				 				USB_Host_Device_Manager___Get_Product_String									(uint8_t port_Number, uint8_t device_Address);
+uint16_t* 								USB_Host_Device_Manager___Get_Serial_Number_String								(uint8_t port_Number, uint8_t device_Address);
+uint8_t 								USB_Host_Device_Manager___Get_Serial_Number_String_Length						(uint8_t port_Number, uint8_t device_Address);
+uint8_t						 			USB_Host_Device_Manager___Get_Manufacturer_String_Length						(uint8_t port_Number, uint8_t device_Address);
+uint8_t 								USB_Host_Device_Manager___Get_Product_String_Length								(uint8_t port_Number, uint8_t device_Address);
+uint8_t 								USB_Host_Device_Manager___Get_Language_ID_List_Length							(uint8_t port_Number, uint8_t device_Address);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
