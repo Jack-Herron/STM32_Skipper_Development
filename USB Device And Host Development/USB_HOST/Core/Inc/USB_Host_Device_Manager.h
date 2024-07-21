@@ -55,7 +55,7 @@ typedef struct{
 }USB_Host_Device_Manager___Configuration_Descriptor_Info_TypeDef;
 
 typedef struct{
-	uint16_t*                                       					p_Manufaturer_String;
+	uint16_t*                                       					p_Manufacturer_String;
 	uint16_t*                                       					p_Product_String;
 	uint16_t*                                       					p_Serial_Number_String;
 	uint16_t*                                       					p_Language_ID_List;

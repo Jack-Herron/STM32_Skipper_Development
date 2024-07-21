@@ -324,7 +324,11 @@ void USB_Host_Device_Manager___Device_Initialize_Buffers(uint8_t port_Number, ui
 
 	if (p_Device != NULL)
 	{
-		p_Device -> descriptors.p_Device_Descriptor = (USB_Host___Device_Descriptor_TypeDef*)(p_Device -> descriptor_Buffers.device_Descriptor_Buffer);
+		p_Device -> descriptors.p_Device_Descriptor = (USB_Host___Device_Descriptor_TypeDef*)	(p_Device -> descriptor_Buffers.device_Descriptor_Buffer);
+		p_Device -> strings.p_Language_ID_List 		= (uint16_t*)								(p_Device -> descriptor_Buffers.language_ID_Descriptor_Buffer);
+		p_Device -> strings.p_Manufacturer_String 	= (uint16_t*)								(p_Device -> descriptor_Buffers.manufacturer_String_Descriptor_Buffer);
+		p_Device -> strings.p_Product_String 		= (uint16_t*)								(p_Device -> descriptor_Buffers.product_String_Descriptor_Buffer);
+		p_Device -> strings.p_Serial_Number_String 	= (uint16_t*)								(p_Device -> descriptor_Buffers.serial_Number_String_Descriptor_Buffer);
 	}
 }
 
