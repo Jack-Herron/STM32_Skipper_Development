@@ -25,7 +25,7 @@ struct USB_Host_Transfers___URB;
 #define USB_Host_Transfers___URB_DIRECTION_IN													USB_Host___TRANSFER_DIRECTION_IN
 #define USB_Host_Transfers___URB_DIRECTION_OUT													USB_Host___TRANSFER_DIRECTION_OUT
 #define USB_Host_Transfers___URB_FIFO_QUEUE_LENGTH												USB_Host_Config___MAX_USB_REQUEST_BLOCKS
-#define USB_Host_Transfers___URB_CALLBACK_PARAMETERS											uint8_t port_Number, struct USB_Host_Transfers___URB URB
+#define USB_Host_Transfers___URB_CALLBACK_PARAMETERS											struct USB_Host_Transfers___URB URB
 
 #define USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_DEVICE_TO_HOST			0X80
 #define USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_INTERFACE_TO_HOST		0X81

@@ -25,6 +25,16 @@
 #define USB_Host_Device_Manager___FULL_SPEED_DEVICE									1
 #define USB_Host_Device_Manager___HIGH_SPEED_DEVICE									2
 
+#define USB_Host_Device_Manager___SETUP_STAGE_IDLE									0
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR 	1
+#define USB_Host_Device_Manager___SETUP_STAGE_SET_ADDRESS 							2
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_DEVICE_DESCRIPTOR			3
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_STRING_DESCRIPTOR 			4
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_STRING_DESCRIPTOR 			5
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_CONFIGURATION_DESCRIPTOR 	6
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR		7
+#define USB_Host_Device_Manager___SETUP_STAGE_COMPLETE	 							8
+
 // Structures
 
 typedef struct{
@@ -125,28 +135,34 @@ typedef struct {
 }USB_Host_Device_Manager___Port_Status_TypeDef;
 
 typedef struct {
-	USB_Host_Device_Manager___Device_TypeDef*							p_Device[USB_Host_Device_Manager___PORT_DEVICE_LIMIT];
+	USB_Host_Device_Manager___Device_TypeDef*							p_Device[USB_Host_Device_Manager___PORT_DEVICE_LIMIT+1];
 	uint8_t 															number_Of_Devices_Connected;
 	USB_Host_Device_Manager___Port_Status_TypeDef						port_Status;
 } USB_Host_Device_Manager___Port_TypeDef;
 
-int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device);
-uint8_t USB_Host_Device_Manager___Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address);
-uint8_t USB_Host_Device_Manager___Is_Device_Connected(uint8_t port_Number, uint8_t device_Address);
-uint8_t USB_Host_Device_Manager___Port_Get_Root_Device_Address(uint8_t port_Number);
-void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t device_Address);
-uint8_t USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number);
-void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number);
-void USB_Host_Device_Manager___Clear_Device_Connection_Flag(uint8_t port_Number, uint8_t device_Address);
-void USB_Host_Device_Manager___Port_Remove_Device(uint8_t port_Number, uint8_t device_Address);
-void USB_Host_Device_Manager___Device_Set_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage);
-void USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size);
-void USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size);
-uint32_t USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number);
-uint32_t USB_Host_Device_Manager___Device_Get_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number);
-uint8_t USB_Host_Device_Manager___Device_Is_Low_Speed_Device(uint8_t port_Number, uint8_t device_Address);
-void USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t Packet_ID);
-uint8_t USB_Host_Device_Manager___Device_Get_Endpoint_Current_Packet_ID(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Direction, uint8_t endpoint_Number);
-uint8_t* USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address);
-
+int8_t 									USB_Host_Device_Manager___Allocate_Device_At_Address_Zero						(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device);
+uint8_t 								USB_Host_Device_Manager___Device_Connection_Flag								(uint8_t port_Number, uint8_t device_Address);
+uint8_t 								USB_Host_Device_Manager___Is_Device_Connected									(uint8_t port_Number, uint8_t device_Address);
+uint8_t 								USB_Host_Device_Manager___Port_Get_Root_Device_Address							(uint8_t port_Number);
+void 									USB_Host_Device_Manager___Device_Disconnected									(uint8_t port_Number, uint8_t device_Address);
+uint8_t 								USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag			(uint8_t port_Number);
+void 									USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag		(uint8_t port_Number);
+void 									USB_Host_Device_Manager___Clear_Device_Connection_Flag							(uint8_t port_Number, uint8_t device_Address);
+void 									USB_Host_Device_Manager___Port_Remove_Device									(uint8_t port_Number, uint8_t device_Address);
+void									USB_Host_Device_Manager___Device_Set_Setup_Stage								(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage);
+void 									USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size				(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size);
+void 									USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size				(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size);
+uint32_t								USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size				(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number);
+uint32_t 								USB_Host_Device_Manager___Device_Get_In_Endpoint_Max_Packet_Size				(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number);
+uint8_t 								USB_Host_Device_Manager___Device_Is_Low_Speed_Device							(uint8_t port_Number, uint8_t device_Address);
+void 									USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID					(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t Packet_ID);
+uint8_t 								USB_Host_Device_Manager___Device_Get_Endpoint_Current_Packet_ID					(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Direction, uint8_t endpoint_Number);
+uint8_t* 								USB_Host_Device_Manager___Get_Device_Descriptor_Buffer							(uint8_t port_Number, uint8_t device_Address);
+uint8_t 								USB_Host_Device_Manager___Port_Get_Free_Device_Address							(uint8_t port_Number);
+void 									USB_Host_Device_Manager___Port_remove_Device_From_Address						(uint8_t port_Number, uint8_t device_Address);
+void 									USB_Host_Device_Manager___Port_Copy_Device_To_Address							(uint8_t port_Number, uint8_t device_Address, uint8_t new_Device_Address);
+uint8_t 								USB_Host_Device_Manager___Reserve_New_Device_Address							(uint8_t port_Number, uint8_t current_Device_Address);
+uint8_t 								USB_Host_Device_Manager___Device_Get_Setup_Stage								(uint8_t port_Number, uint8_t device_Address);
+USB_Host___Device_Descriptor_TypeDef 	USB_Host_Device_Manager___Device_Get_Device_Descriptor							(uint8_t port_Number, uint8_t device_Address);
+void 									USB_Host_Device_Manager___Device_Update_Current_USB_Address						(uint8_t port_Number, uint8_t device_Address);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

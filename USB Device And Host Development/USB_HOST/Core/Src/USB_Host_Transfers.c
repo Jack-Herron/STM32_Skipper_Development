@@ -199,7 +199,8 @@ void USB_Host_Transfers___Set_Next_URB_Transfer_Stage(USB_Host_Transfers___URB_T
 		}
 		else if(p_URB -> transfer_Stage == USB_Host_Transfers___URB_STAGE_STATUS)
 		{
-			uint8_t i = 0;
+			p_URB -> URB_Callback(*p_URB);
+			USB_Host_Transfers___Delete_Current_URB();
 		}
 	}
 }

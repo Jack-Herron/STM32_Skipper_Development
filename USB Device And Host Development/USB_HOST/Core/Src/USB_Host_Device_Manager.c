@@ -66,10 +66,21 @@ uint8_t* USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(uint8_t port_Num
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.device_Descriptor_Buffer);
 }
 
+USB_Host___Device_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Device_Descriptor(uint8_t port_Number, uint8_t device_Address)
+{
+	return (*(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor));
+}
+
 void USB_Host_Device_Manager___Device_Set_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage)
 {
 	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.setup_Stage = setup_Stage;
 }
+
+uint8_t USB_Host_Device_Manager___Device_Get_Setup_Stage(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.setup_Stage);
+}
+
 
 void USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size)
 {
@@ -145,6 +156,43 @@ int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number,
 	}
 
 	return(EXIT_FAILURE);
+}
+
+uint8_t USB_Host_Device_Manager___Port_Get_Free_Device_Address(uint8_t port_Number)
+{
+	for (uint8_t i = 1; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT+1; i++)
+	{
+		if (USB_Host_Device_Manager___Port[port_Number].p_Device[i] == NULL)
+		{
+			return (i);
+		}
+	}
+	return (0);
+}
+
+void USB_Host_Device_Manager___Port_Copy_Device_To_Address(uint8_t port_Number, uint8_t device_Address, uint8_t new_Device_Address)
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[new_Device_Address] = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+}
+
+uint8_t USB_Host_Device_Manager___Reserve_New_Device_Address(uint8_t port_Number, uint8_t current_Device_Address)
+{
+	uint8_t new_Address = USB_Host_Device_Manager___Port_Get_Free_Device_Address(port_Number);
+	if (new_Address != 0)
+	{
+		USB_Host_Device_Manager___Port_Copy_Device_To_Address(port_Number, current_Device_Address, new_Address);
+	}
+	return (new_Address);
+}
+
+void USB_Host_Device_Manager___Device_Update_Current_USB_Address(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.current_USB_Address = device_Address;
+}
+
+void USB_Host_Device_Manager___Port_remove_Device_From_Address(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] = NULL;
 }
 
 void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)
