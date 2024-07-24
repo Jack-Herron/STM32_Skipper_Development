@@ -5,11 +5,55 @@
  *      Author: Jack Herron
  */
 
+
+#include <stdlib.h>
 #include "../Inc/USB_Host_Enumerate.h"
 #include "../Inc/USB_Host_Device_Manager.h"
 #include "../Inc/USB_Host_Transfers.h"
 
 void USB_Host_Enumerate___Do_Setup_Stage(uint8_t port_Number, uint8_t device_Address);
+
+static USB_Host_Enumerate___Enumerator_TypeDef USB_Host_Enumerate___Enumerators[USB_Host_Config___MAX_USB_ENUMERATORS];
+
+uint8_t USB_Host_Enumerate___Get_Next_String_Descriptor_Type(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host___Device_Descriptor_TypeDef device_Descriptor = USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
+
+	if(
+	(	(device_Descriptor.iManufacturer 	!= 0) 	||
+		(device_Descriptor.iProduct 		!= 0) 	||
+		(device_Descriptor.iSerialNumber 	!= 0))	&&
+		USB_Host_Device_Manager___Get_Language_ID_List_Length(port_Number, device_Address) < 0
+	)
+	{
+		return(USB_Host_Enumerate___STRING_TYPE_LANGUAGE);
+	}
+	else if (
+		device_Descriptor.iManufacturer != 0 	&&
+		USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address) < 0
+	)
+	{
+		return USB_Host_Enumerate___STRING_TYPE_MANUFACTURER;
+	}
+	else if (
+		device_Descriptor.iProduct != 0 &&
+		USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address) < 0
+	)
+	{
+		return (USB_Host_Enumerate___STRING_TYPE_PRODUCT);
+	}
+	else if (
+		device_Descriptor.iSerialNumber != 0 &&
+		USB_Host_Device_Manager___Get_Serial_Number_String_Length(port_Number, device_Address) < 0
+	)
+	{
+		return (USB_Host_Enumerate___STRING_TYPE_SERIAL_NUMBER);
+	}
+	else
+	{
+		return 0;
+	}
+}
 
 void USB_Host_Enumerate___Set_Next_Setup_Stage(uint8_t port_Number, uint8_t device_Address)
 {
@@ -23,6 +67,19 @@ void USB_Host_Enumerate___Set_Next_Setup_Stage(uint8_t port_Number, uint8_t devi
 	case USB_Host_Device_Manager___SETUP_STAGE_SET_ADDRESS:
 	{
 		USB_Host_Device_Manager___Device_Set_Setup_Stage(port_Number, device_Address, USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_DEVICE_DESCRIPTOR);
+		break;
+	}
+	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_DEVICE_DESCRIPTOR:
+	{
+		uint8_t next_String_Type = USB_Host_Enumerate___Get_Next_String_Descriptor_Type(port_Number, device_Address);
+		if(next_String_Type != 0)
+		{
+			USB_Host_Device_Manager___Device_Set_Setup_Stage(port_Number, device_Address, USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_STRING_DESCRIPTOR);
+		}
+		else
+		{
+			USB_Host_Device_Manager___Device_Set_Setup_Stage(port_Number, device_Address, USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_CONFIGURATION_DESCRIPTOR);
+		}
 		break;
 	}
 	}
@@ -107,46 +164,6 @@ void USB_Host_Enumerate___Set_Address(uint8_t port_Number, uint8_t device_Addres
 	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Enumerate___URB_Set_Address_Callback);
 }
 
-uint8_t USB_Host_Enumerate___Get_Next_String_Descriptor_Type(uint8_t port_Number, uint8_t device_Address)
-{
-	USB_Host___Device_Descriptor_TypeDef device_Descriptor = USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
-
-	if(
-	(	(device_Descriptor.iManufacturer 	!= 0) 	||
-		(device_Descriptor.iProduct 		!= 0) 	||
-		(device_Descriptor.iSerialNumber 	!= 0))	&&
-		USB_Host_Device_Manager___Get_Language_ID_List_Length(port_Number, device_Address) < 0
-	)
-	{
-		return(USB_Host_Enumerate___STRING_TYPE_LANGUAGE);
-	}
-	else if (
-		device_Descriptor.iManufacturer != 0 	&&
-		USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address) < 0
-	)
-	{
-		return USB_Host_Enumerate___STRING_TYPE_MANUFACTURER;
-	}
-	else if (
-		device_Descriptor.iProduct != 0 &&
-		USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address) < 0
-	)
-	{
-		return (USB_Host_Enumerate___STRING_TYPE_PRODUCT);
-	}
-	else if (
-		device_Descriptor.iSerialNumber != 0 &&
-		USB_Host_Device_Manager___Get_Serial_Number_String_Length(port_Number, device_Address) < 0
-	)
-	{
-		return (USB_Host_Enumerate___STRING_TYPE_SERIAL_NUMBER);
-	}
-	else
-	{
-		return 0;
-	}
-}
-
 void USB_Host_Enumerate___Do_Setup_Stage(uint8_t port_Number, uint8_t device_Address)
 {
 	switch(USB_Host_Device_Manager___Device_Get_Setup_Stage(port_Number, device_Address))
@@ -190,10 +207,34 @@ void USB_Host_Enumerate___Do_Setup_Stage(uint8_t port_Number, uint8_t device_Add
 	}
 }
 
-void USB_Host_Enumerate___Enumerate_Device(uint8_t port_Number, uint8_t device_Address)
+void USB_Host_Enumerate___Process(uint8_t port_Number)
 {
-	USB_Host_Device_Manager___Device_Set_Setup_Stage(port_Number, device_Address, USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR);
-	USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(port_Number, device_Address, 0, USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE);
-	USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(port_Number, device_Address, 0, USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE);
-	USB_Host_Enumerate___Do_Setup_Stage(port_Number, device_Address);
+	if(2);
 }
+
+uint8_t USB_Host_Enumerate___Enumerate_Device(uint8_t port_Number, uint8_t device_Address)
+{
+	for(uint8_t i = 0; i < USB_Host_Config___MAX_USB_ENUMERATORS; i++)
+	{
+		if (!USB_Host_Enumerate___Enumerators[i].is_Allocated)
+		{
+			USB_Host_Enumerate___Enumerator_TypeDef new_Enumerator;
+			new_Enumerator.is_Allocated = true;
+			new_Enumerator.port_Number = port_Number;
+			new_Enumerator.device_Address = device_Address;
+			new_Enumerator.current_String_Descriptor_Type = 0;
+			new_Enumerator.is_Busy = 0;
+			new_Enumerator.setup_Stage = USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR;
+			USB_Host_Enumerate___Enumerators[i] = new_Enumerator;
+
+			USB_Host_Device_Manager___Device_Set_Setup_Stage(port_Number, device_Address, USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR);
+			USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(port_Number, device_Address, 0, USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE);
+			USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(port_Number, device_Address, 0, USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE);
+			USB_Host_Enumerate___Do_Setup_Stage(port_Number, device_Address);
+
+			return(EXIT_SUCCESS);
+		}
+	}
+	return(EXIT_FAILURE);
+}
+

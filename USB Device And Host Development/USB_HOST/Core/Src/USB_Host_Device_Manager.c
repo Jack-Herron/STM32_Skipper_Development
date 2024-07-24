@@ -66,7 +66,6 @@ uint8_t* USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(uint8_t port_Num
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.device_Descriptor_Buffer);
 }
 
-
 uint16_t* USB_Host_Device_Manager___Get_Language_ID_List(uint8_t port_Number, uint8_t device_Address)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.p_Language_ID_List);
