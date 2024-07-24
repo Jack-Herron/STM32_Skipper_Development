@@ -50,50 +50,50 @@
 	}
 #endif
 
-static USB_Host_Transfers___URB_Queue_TypeDef URB_Queue;
+static USB_Host_Transfers___URB_Queue_TypeDef URB_Queue[USB_Host___NUMBER_OF_PORTS];
 
-USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Create_URB()
+USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Create_URB(uint8_t port_Number)
 {
 	USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node = USB_Host_Transfers___Allocate_URB_Node();
 	p_URB_Node -> next_Node = NULL;
 	if(p_URB_Node != NULL)
 	{
-		if(URB_Queue.current_Node == NULL)
+		if(URB_Queue[port_Number].current_Node == NULL)
 		{
-			URB_Queue.current_Node = p_URB_Node;
-			URB_Queue.last_Node = p_URB_Node;
+			URB_Queue[port_Number].current_Node = p_URB_Node;
+			URB_Queue[port_Number].last_Node = p_URB_Node;
 		}
 		else
 		{
-			URB_Queue.last_Node -> next_Node = p_URB_Node;
-			URB_Queue.last_Node = p_URB_Node;
+			URB_Queue[port_Number].last_Node -> next_Node = p_URB_Node;
+			URB_Queue[port_Number].last_Node = p_URB_Node;
 		}
 	}
 	return(&p_URB_Node->URB);
 }
 
-void USB_Host_Transfers___Delete_Current_URB()
+void USB_Host_Transfers___Delete_Current_URB(uint8_t port_Number)
 {
-	USB_Host_Transfers___URB_Node_TypeDef* p_Current_URB_Node = URB_Queue.current_Node;
+	USB_Host_Transfers___URB_Node_TypeDef* p_Current_URB_Node = URB_Queue[port_Number].current_Node;
 	if(p_Current_URB_Node != NULL)
 	{
-		URB_Queue.current_Node = p_Current_URB_Node -> next_Node;
+		URB_Queue[port_Number].current_Node = p_Current_URB_Node -> next_Node;
 		USB_Host_Transfers___Free_URB_Node(p_Current_URB_Node);
 	}
 }
 
-USB_Host_Transfers___URB_TypeDef* USB_Host_Tranfers___Get_Current_URB()
+USB_Host_Transfers___URB_TypeDef* USB_Host_Tranfers___Get_Current_URB(uint8_t port_Number)
 {
-	if(URB_Queue.current_Node != NULL)
+	if(URB_Queue[port_Number].current_Node != NULL)
 	{
-		return(&URB_Queue.current_Node->URB);
+		return(&URB_Queue[port_Number].current_Node->URB);
 	}
 	return(NULL);
 }
 
 int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
 	{
 		p_URB -> port_Number 		= port_Number;
@@ -114,7 +114,7 @@ int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t de
 
 int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
 	{
 		p_URB -> port_Number 		= port_Number;
@@ -135,7 +135,7 @@ int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t devi
 
 int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
 	{
 		p_URB -> port_Number 		= port_Number;
@@ -156,7 +156,7 @@ int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Ad
 
 int8_t USB_Host_Transfers___Control_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
-	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB();
+	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
 	{
 		p_URB -> port_Number 			= port_Number;
@@ -200,7 +200,7 @@ void USB_Host_Transfers___Set_Next_URB_Transfer_Stage(USB_Host_Transfers___URB_T
 		else if(p_URB -> transfer_Stage == USB_Host_Transfers___URB_STAGE_STATUS)
 		{
 			p_URB -> URB_Callback(*p_URB);
-			USB_Host_Transfers___Delete_Current_URB();
+			USB_Host_Transfers___Delete_Current_URB(p_URB->port_Number);
 		}
 	}
 }
@@ -294,22 +294,22 @@ void USB_Host_Transfers___Process_URB_Status_Stage(USB_Host_Transfers___URB_Type
 	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
 }
 
-void USB_Host_Transfers___Process_URB()
+void USB_Host_Transfers___Process_URB(uint8_t port_Number)
 {
-	if(URB_Queue.current_Node != NULL)
+	if(URB_Queue[port_Number].current_Node != NULL)
 	{
-		if(!URB_Queue.current_Node->URB.busy)
+		if(!URB_Queue[port_Number].current_Node->URB.busy)
 		{
-			switch(URB_Queue.current_Node->URB.transfer_Stage)
+			switch(URB_Queue[port_Number].current_Node->URB.transfer_Stage)
 			{
 			case USB_Host_Transfers___URB_STAGE_SETUP:
-				USB_Host_Transfers___Process_URB_Setup_Stage(&URB_Queue.current_Node->URB);
+				USB_Host_Transfers___Process_URB_Setup_Stage(&URB_Queue[port_Number].current_Node->URB);
 				break;
 			case USB_Host_Transfers___URB_STAGE_DATA:
-				USB_Host_Transfers___Process_URB_Data_Stage(&URB_Queue.current_Node->URB);
+				USB_Host_Transfers___Process_URB_Data_Stage(&URB_Queue[port_Number].current_Node->URB);
 				break;
 			case USB_Host_Transfers___URB_STAGE_STATUS:
-				USB_Host_Transfers___Process_URB_Status_Stage(&URB_Queue.current_Node->URB);
+				USB_Host_Transfers___Process_URB_Status_Stage(&URB_Queue[port_Number].current_Node->URB);
 				break;
 			}
 		}
