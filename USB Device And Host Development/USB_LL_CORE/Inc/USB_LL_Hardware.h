@@ -8,6 +8,7 @@
 #ifndef INC_USB_LL_HARDWARE_H_
 #define INC_USB_LL_HARDWARE_H_
 
+#define USB_LL_Hardware___QUICK_DIV_ROOF(number, diviser) 			((number + (diviser-1)) / diviser)
 #define USB_LL_Hardware___GET_BIT_SEGMENT(word, mask, pos)			((word & mask) >> pos)
 #define USB_LL_Hardware___PORT_0									0
 #define USB_LL_Hardware___PORT_1									1
@@ -23,7 +24,7 @@
 #define USB_LL_Hardware___GPIO_Alt_FUNCTION_10						0x0a
 #define USB_LL_Hardware___GPIO_Alt_FUNCTION_12						0x0c
 #define USB_LL_Hardware___NUMBER_OF_BYTES_IN_WORD_32				0x04
-#define USB_LL_Hardware___NUMBER_OF_BITS_IN_BYTE					0x20
+#define USB_LL_Hardware___NUMBER_OF_BITS_IN_BYTE					0x08
 
 typedef struct
 {

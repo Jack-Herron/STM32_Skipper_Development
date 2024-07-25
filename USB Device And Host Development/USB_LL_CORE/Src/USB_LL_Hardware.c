@@ -176,11 +176,24 @@ void USB_LL_Hardware___FIFO_Transfer_In(uint8_t* Source, uint32_t* Destination, 
 	}
 }
 
-void USB_LL_Hardware___FIFO_Transfer_Out(uint32_t* Source, uint8_t* Destination, uint32_t size)
+void USB_LL_Hardware___FIFO_Transfer_Out(uint32_t* Source, uint8_t* Destination, uint32_t transfer_Size)
 {
-	for(uint32_t i = 0; i<size; i++)
+	uint32_t 	full_Copies 	= 	transfer_Size / USB_LL_Hardware___NUMBER_OF_BYTES_IN_WORD_32;
+	uint8_t 	remainder 		= 	transfer_Size % USB_LL_Hardware___NUMBER_OF_BYTES_IN_WORD_32;
+
+	for(uint32_t i = 0; i < full_Copies; i++)
 	{
 		((uint32_t*)Destination)[i] = Source[i];
+	}
+
+	if (remainder > 0)
+	{
+		uint32_t final32 = Source[full_Copies];
+
+		for (uint8_t i = 0; i < remainder; i++)
+		{
+			Destination[transfer_Size - (remainder - i)] = (final32 >> (i * USB_LL_Hardware___NUMBER_OF_BITS_IN_BYTE)) & 0xff;
+		}
 	}
 }
 
