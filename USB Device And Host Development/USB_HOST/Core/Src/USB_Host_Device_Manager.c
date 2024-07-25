@@ -131,17 +131,6 @@ USB_Host___Device_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Device
 	return (*(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor));
 }
 
-void USB_Host_Device_Manager___Device_Set_Setup_Stage(uint8_t port_Number, uint8_t device_Address, uint8_t setup_Stage)
-{
-	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.setup_Stage = setup_Stage;
-}
-
-uint8_t USB_Host_Device_Manager___Device_Get_Setup_Stage(uint8_t port_Number, uint8_t device_Address)
-{
-	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.setup_Stage);
-}
-
-
 void USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint16_t max_Packet_Size)
 {
 	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->in_Endpoint_Status[endpoint_Number].max_Packet_Size = max_Packet_Size;

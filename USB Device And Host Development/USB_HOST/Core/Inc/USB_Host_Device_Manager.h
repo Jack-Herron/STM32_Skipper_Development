@@ -86,8 +86,6 @@ typedef struct{
 	uint8_t 															start_Of_Frame_Polling_Counter;
 	uint8_t																current_USB_Address;
 	uint8_t																current_Configuration;
-	uint8_t																setup_Stage;
-	uint8_t 															current_Index;
 	uint8_t																connection_Flag;
 	uint8_t																is_Connected;
 	uint8_t																enumerated_Flag;
