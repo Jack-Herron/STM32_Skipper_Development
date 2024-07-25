@@ -175,4 +175,6 @@ uint8_t 								USB_Host_Device_Manager___Get_Serial_Number_String_Length						(
 uint8_t						 			USB_Host_Device_Manager___Get_Manufacturer_String_Length						(uint8_t port_Number, uint8_t device_Address);
 uint8_t 								USB_Host_Device_Manager___Get_Product_String_Length								(uint8_t port_Number, uint8_t device_Address);
 uint8_t 								USB_Host_Device_Manager___Get_Language_ID_List_Length							(uint8_t port_Number, uint8_t device_Address);
+void 									USB_Host_Device_Manager___Update_Strings_Length									(uint8_t port_Number, uint8_t device_Address);
+uint16_t 								USB_Host_Device_Manager___Device_Get_Language_ID								(uint8_t port_Number, uint8_t device_Address, uint8_t language_Index);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

@@ -25,6 +25,8 @@ typedef struct {
 	uint8_t current_USB_Device_Address;
 	uint8_t setup_Stage;
 	uint8_t current_String_Descriptor_Type;
+	uint8_t current_String_Descriptor_Length;
+	uint16_t current_String_Descriptor_Language_ID;
 } USB_Host_Enumerate___Enumerator_TypeDef;
 
 typedef struct USB_Host_Enumerate___Enumerator_Node {

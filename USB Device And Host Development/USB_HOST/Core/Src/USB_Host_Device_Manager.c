@@ -126,6 +126,19 @@ uint8_t* USB_Host_Device_Manager___Device_Get_Serial_Number_String_Descriptor_Bu
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer);
 }
 
+void USB_Host_Device_Manager___Update_Strings_Length(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.serial_Number_String_Length 	= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer[0];
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.product_String_Length 		= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.product_String_Descriptor_Buffer[0];
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.manufacturer_String_Length 	= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.manufacturer_String_Descriptor_Buffer[0];
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.language_ID_List_Length 		= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.language_ID_Descriptor_Buffer[0];
+}
+
+uint16_t USB_Host_Device_Manager___Device_Get_Language_ID(uint8_t port_Number, uint8_t device_Address, uint8_t language_Index)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.p_Language_ID_List[language_Index]);
+}
+
 USB_Host___Device_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Device_Descriptor(uint8_t port_Number, uint8_t device_Address)
 {
 	return (*(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor));
@@ -374,10 +387,10 @@ void USB_Host_Device_Manager___Device_Initialize_Buffers(uint8_t port_Number, ui
 	if (p_Device != NULL)
 	{
 		p_Device -> descriptors.p_Device_Descriptor = (USB_Host___Device_Descriptor_TypeDef*)	(p_Device -> descriptor_Buffers.device_Descriptor_Buffer);
-		p_Device -> strings.p_Language_ID_List 		= (uint16_t*)								(p_Device -> descriptor_Buffers.language_ID_Descriptor_Buffer);
-		p_Device -> strings.p_Manufacturer_String 	= (uint16_t*)								(p_Device -> descriptor_Buffers.manufacturer_String_Descriptor_Buffer);
-		p_Device -> strings.p_Product_String 		= (uint16_t*)								(p_Device -> descriptor_Buffers.product_String_Descriptor_Buffer);
-		p_Device -> strings.p_Serial_Number_String 	= (uint16_t*)								(p_Device -> descriptor_Buffers.serial_Number_String_Descriptor_Buffer);
+		p_Device -> strings.p_Language_ID_List 		= (uint16_t*)								&(p_Device -> descriptor_Buffers.language_ID_Descriptor_Buffer[2]);
+		p_Device -> strings.p_Manufacturer_String 	= (uint16_t*)								&(p_Device -> descriptor_Buffers.manufacturer_String_Descriptor_Buffer[2]);
+		p_Device -> strings.p_Product_String 		= (uint16_t*)								&(p_Device -> descriptor_Buffers.product_String_Descriptor_Buffer[2]);
+		p_Device -> strings.p_Serial_Number_String 	= (uint16_t*)								&(p_Device -> descriptor_Buffers.serial_Number_String_Descriptor_Buffer[2]);
 	}
 }
 
