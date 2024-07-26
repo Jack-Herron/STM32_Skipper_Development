@@ -536,7 +536,8 @@ void USB_Host_Enumerate___Do_Setup_Stage(USB_Host_Enumerate___Enumerator_Node_Ty
 		break;
 	}
 	case USB_Host_Device_Manager___SETUP_STAGE_COMPLETE:
-		uint8_t i = 0;
+		USB_Host___Device_Enumerated(port_Number, device_Address);
+		USB_Host_Enumerate___Delete_Enumerator_Node(port_Number, p_Enumerator_Node);
 		break;
 	}
 }

@@ -150,13 +150,16 @@ void USB_Host_Device_Manager___Device_Update_Configuration_Descriptor(uint8_t po
 		{
 		case USB_Host___CONFIGURATION_DESCRIPTOR_TYPE:
 			USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor = (USB_Host___Configuration_Descriptor_TypeDef*)p_Current_Position;
+			USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].configuration_Buffer_Index = i;
 			break;
 		case USB_Host___INTERFACE_DESCRIPTOR_TYPE:
-			USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number].p_Interface_Descriptor = (USB_Host___Interface_Descriptor_TypeDef*)p_Current_Position;
+			USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number].p_Interface_Descriptor 		= (USB_Host___Interface_Descriptor_TypeDef*)p_Current_Position;
+			USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number].configuration_Buffer_Index 	= i;
 			interface_Descriptor_Number++;
 			break;
 		case USB_Host___ENDPOINT_DESCRIPTOR_TYPE:
-            USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number-1].endpoint[endpoint_Descriptor_Number].p_Endpoint_Descriptor = (USB_Host___Endpoint_Descriptor_TypeDef*)p_Current_Position;
+            USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number-1].endpoint[endpoint_Descriptor_Number].p_Endpoint_Descriptor 		= (USB_Host___Endpoint_Descriptor_TypeDef*)p_Current_Position;
+            USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number-1].endpoint[endpoint_Descriptor_Number].configuration_Buffer_Index 	= i;
             endpoint_Descriptor_Number++;
             break;
 		}

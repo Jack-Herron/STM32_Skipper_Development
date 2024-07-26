@@ -93,4 +93,5 @@ typedef struct __attribute__((packed)) {
 
 void USB_Host___Init(uint8_t port_Number);
 void USB_Host___Process(uint8_t port_Number);
+void USB_Host___Device_Enumerated(uint8_t port_Number, uint8_t device_Address);
 #endif /* CORE_INC_USB_HOST_H_ */
