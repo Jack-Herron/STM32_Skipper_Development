@@ -106,6 +106,70 @@ uint8_t USB_Host_Device_Manager___Get_Language_ID_List_Length(uint8_t port_Numbe
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.language_ID_List_Length);
 }
 
+uint8_t USB_Host_Device_Manager___Get_String_Descriptor_Length(uint8_t port_Number, uint8_t device_Address, uint8_t string_Type)
+{
+	switch (string_Type)
+	{
+	case USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID:
+	{
+		return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.language_ID_Descriptor_Buffer[0]);
+	}
+	case USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER:
+	{
+		return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.manufacturer_String_Descriptor_Buffer[0]);
+	}
+	case USB_Host_Device_Manager___STRING_TYPE_PRODUCT:
+	{
+		return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.product_String_Descriptor_Buffer[0]);
+	}
+	case USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER:
+	{
+		return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer[0]);
+	}
+	}
+}
+
+uint16_t USB_Host_Device_Manager___Device_Get_Configuration_Descriptor_Total_Length(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor->wTotalLength);
+}
+
+void USB_Host_Device_Manager___Device_Update_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
+{
+	uint16_t total_Length 				= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor->wTotalLength;
+	uint16_t i 							= 0;
+	uint8_t interface_Descriptor_Number	= 0;
+	uint8_t endpoint_Descriptor_Number  = 0;
+	while(i <  total_Length)
+	{
+		uint8_t descriptor_Type 	= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.configuration_Descriptor_Buffer[configuration_Index][i+1];
+		uint8_t descriptor_Length 	= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.configuration_Descriptor_Buffer[configuration_Index][i];
+		uint8_t* p_Current_Position = &(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.configuration_Descriptor_Buffer[configuration_Index][i]);
+
+		switch (descriptor_Type)
+		{
+		case USB_Host___CONFIGURATION_DESCRIPTOR_TYPE:
+			USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor = (USB_Host___Configuration_Descriptor_TypeDef*)p_Current_Position;
+			break;
+		case USB_Host___INTERFACE_DESCRIPTOR_TYPE:
+			USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number].p_Interface_Descriptor = (USB_Host___Interface_Descriptor_TypeDef*)p_Current_Position;
+			interface_Descriptor_Number++;
+			break;
+		case USB_Host___ENDPOINT_DESCRIPTOR_TYPE:
+            USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Descriptor_Number-1].endpoint[endpoint_Descriptor_Number].p_Endpoint_Descriptor = (USB_Host___Endpoint_Descriptor_TypeDef*)p_Current_Position;
+            endpoint_Descriptor_Number++;
+            break;
+		}
+
+		i += descriptor_Length;
+	}
+}
+
+uint8_t* USB_Host_Device_Manager___Get_Configuration_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Idex)
+{
+	return(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.configuration_Descriptor_Buffer[configuration_Idex]);
+}
+
 uint8_t* USB_Host_Device_Manager___Get_Language_ID_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.language_ID_Descriptor_Buffer);
@@ -126,12 +190,51 @@ uint8_t* USB_Host_Device_Manager___Device_Get_Serial_Number_String_Descriptor_Bu
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer);
 }
 
-void USB_Host_Device_Manager___Update_Strings_Length(uint8_t port_Number, uint8_t device_Address)
+void USB_Host_Device_Manager___Update_String_Length(uint8_t port_Number, uint8_t device_Address, uint8_t string_Type)
 {
-	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.serial_Number_String_Length 	= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer[0];
-	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.product_String_Length 		= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.product_String_Descriptor_Buffer[0];
-	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.manufacturer_String_Length 	= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.manufacturer_String_Descriptor_Buffer[0];
-	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.language_ID_List_Length 		= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.language_ID_Descriptor_Buffer[0];
+	switch(string_Type)
+	{
+	case USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID:
+	{
+		uint8_t string_Length = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.language_ID_Descriptor_Buffer[0];
+		if(string_Length != 0)
+		{
+			string_Length = (string_Length -2)/2;
+		}
+		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.language_ID_List_Length = string_Length;
+		break;
+	}
+	case USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER:
+	{
+		uint8_t string_Length = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.manufacturer_String_Descriptor_Buffer[0];
+		if(string_Length != 0)
+		{
+			string_Length = (string_Length -2)/2;
+		}
+		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.manufacturer_String_Length = string_Length;
+		break;
+	}
+	case USB_Host_Device_Manager___STRING_TYPE_PRODUCT:
+	{
+		uint8_t string_Length = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.product_String_Descriptor_Buffer[0];
+		if(string_Length != 0)
+		{
+			string_Length = (string_Length -2)/2;
+		}
+		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.product_String_Length = string_Length;
+		break;
+	}
+	case USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER:
+	{
+		uint8_t string_Length = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer[0];
+		if(string_Length != 0)
+		{
+			string_Length = (string_Length -2)/2;
+		}
+		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->strings.serial_Number_String_Length = string_Length;
+		break;
+	}
+	}
 }
 
 uint16_t USB_Host_Device_Manager___Device_Get_Language_ID(uint8_t port_Number, uint8_t device_Address, uint8_t language_Index)
@@ -391,6 +494,10 @@ void USB_Host_Device_Manager___Device_Initialize_Buffers(uint8_t port_Number, ui
 		p_Device -> strings.p_Manufacturer_String 	= (uint16_t*)								&(p_Device -> descriptor_Buffers.manufacturer_String_Descriptor_Buffer[2]);
 		p_Device -> strings.p_Product_String 		= (uint16_t*)								&(p_Device -> descriptor_Buffers.product_String_Descriptor_Buffer[2]);
 		p_Device -> strings.p_Serial_Number_String 	= (uint16_t*)								&(p_Device -> descriptor_Buffers.serial_Number_String_Descriptor_Buffer[2]);
+		for(uint8_t i = 0; i < USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS; i++)
+		{
+			p_Device -> descriptors.configuration[i].p_Configuration_Descriptor = (USB_Host___Configuration_Descriptor_TypeDef*) (p_Device -> descriptor_Buffers.configuration_Descriptor_Buffer[i]);
+		}
 	}
 }
 

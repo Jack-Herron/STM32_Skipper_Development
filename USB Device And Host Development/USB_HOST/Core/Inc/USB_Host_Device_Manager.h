@@ -21,19 +21,24 @@
 #define USB_Host_Device_Manager___DEVICE_MAX_IN_ENDPOINTS							0x10
 #define USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS							0x10
 
-#define USB_Host_Device_Manager___LOW_SPEED_DEVICE									0
-#define USB_Host_Device_Manager___FULL_SPEED_DEVICE									1
-#define USB_Host_Device_Manager___HIGH_SPEED_DEVICE									2
+#define USB_Host_Device_Manager___LOW_SPEED_DEVICE									0x00
+#define USB_Host_Device_Manager___FULL_SPEED_DEVICE									0x01
+#define USB_Host_Device_Manager___HIGH_SPEED_DEVICE									0x02
 
-#define USB_Host_Device_Manager___SETUP_STAGE_IDLE									0
-#define USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR 	1
-#define USB_Host_Device_Manager___SETUP_STAGE_SET_ADDRESS 							2
-#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_DEVICE_DESCRIPTOR			3
-#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_STRING_DESCRIPTOR 			4
-#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_STRING_DESCRIPTOR 			5
-#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_CONFIGURATION_DESCRIPTOR 	6
-#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR		7
-#define USB_Host_Device_Manager___SETUP_STAGE_COMPLETE	 							8
+#define USB_Host_Device_Manager___SETUP_STAGE_IDLE									0x00
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR 	0x01
+#define USB_Host_Device_Manager___SETUP_STAGE_SET_ADDRESS 							0x02
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_DEVICE_DESCRIPTOR			0x03
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_STRING_DESCRIPTOR 			0x04
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_STRING_DESCRIPTOR 			0x05
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_CONFIGURATION_DESCRIPTOR 	0x06
+#define USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR		0x07
+#define USB_Host_Device_Manager___SETUP_STAGE_COMPLETE	 							0x08
+
+#define USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID							0x01
+#define USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER							0x02
+#define USB_Host_Device_Manager___STRING_TYPE_PRODUCT								0x03
+#define USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER							0x04
 
 // Structures
 
@@ -175,6 +180,10 @@ uint8_t 								USB_Host_Device_Manager___Get_Serial_Number_String_Length						(
 uint8_t						 			USB_Host_Device_Manager___Get_Manufacturer_String_Length						(uint8_t port_Number, uint8_t device_Address);
 uint8_t 								USB_Host_Device_Manager___Get_Product_String_Length								(uint8_t port_Number, uint8_t device_Address);
 uint8_t 								USB_Host_Device_Manager___Get_Language_ID_List_Length							(uint8_t port_Number, uint8_t device_Address);
-void 									USB_Host_Device_Manager___Update_Strings_Length									(uint8_t port_Number, uint8_t device_Address);
+void 									USB_Host_Device_Manager___Update_String_Length									(uint8_t port_Number, uint8_t device_Address, uint8_t string_Type);
 uint16_t 								USB_Host_Device_Manager___Device_Get_Language_ID								(uint8_t port_Number, uint8_t device_Address, uint8_t language_Index);
+uint8_t 								USB_Host_Device_Manager___Get_String_Descriptor_Length							(uint8_t port_Number, uint8_t device_Address, uint8_t string_Type);
+uint8_t* 								USB_Host_Device_Manager___Get_Configuration_Descriptor_Buffer					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Idex);
+uint16_t 								USB_Host_Device_Manager___Device_Get_Configuration_Descriptor_Total_Length		(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
+void 									USB_Host_Device_Manager___Device_Update_Configuration_Descriptor				(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

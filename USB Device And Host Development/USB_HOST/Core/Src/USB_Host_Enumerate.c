@@ -151,28 +151,28 @@ uint8_t USB_Host_Enumerate___Get_Next_String_Descriptor_Type(uint8_t port_Number
 		USB_Host_Device_Manager___Get_Language_ID_List_Length(port_Number, device_Address) == 0
 	)
 	{
-		return(USB_Host_Enumerate___STRING_TYPE_LANGUAGE);
+		return(USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID);
 	}
 	else if (
 		device_Descriptor.iManufacturer != 0 	&&
 		USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address) == 0
 	)
 	{
-		return USB_Host_Enumerate___STRING_TYPE_MANUFACTURER;
+		return USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER;
 	}
 	else if (
 		device_Descriptor.iProduct != 0 &&
 		USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address) == 0
 	)
 	{
-		return (USB_Host_Enumerate___STRING_TYPE_PRODUCT);
+		return (USB_Host_Device_Manager___STRING_TYPE_PRODUCT);
 	}
 	else if (
 		device_Descriptor.iSerialNumber != 0 &&
 		USB_Host_Device_Manager___Get_Serial_Number_String_Length(port_Number, device_Address) == 0
 	)
 	{
-		return (USB_Host_Enumerate___STRING_TYPE_SERIAL_NUMBER);
+		return (USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER);
 	}
 	else
 	{
@@ -199,20 +199,41 @@ uint8_t USB_Host_Enumerate___Get_Current_String_Descriptor_Index(USB_Host_Enumer
 
 	switch (p_Enumerator_Node->enumerator.current_String_Descriptor_Type)
 	{
-	case USB_Host_Enumerate___STRING_TYPE_LANGUAGE:
+	case USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID:
 		return 0;
 		break;
-	case USB_Host_Enumerate___STRING_TYPE_MANUFACTURER:
+	case USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER:
 		return device_Descriptor.iManufacturer;
 		break;
-	case USB_Host_Enumerate___STRING_TYPE_PRODUCT:
+	case USB_Host_Device_Manager___STRING_TYPE_PRODUCT:
 		return device_Descriptor.iProduct;
 		break;
-	case USB_Host_Enumerate___STRING_TYPE_SERIAL_NUMBER:
+	case USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER:
 		return device_Descriptor.iSerialNumber;
 		break;
 	}
 	return 0;
+}
+
+uint8_t USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Index(USB_Host_Enumerate___Enumerator_Node_TypeDef *p_Enumerator_Node)
+{
+	return(p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index);
+}
+
+void USB_Host_Enumerate___Set_Current_Configuration_Descriptor_Index(USB_Host_Enumerate___Enumerator_Node_TypeDef *p_Enumerator_Node, uint8_t index)
+{
+	p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index = index;
+}
+
+uint8_t* USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Buffer(USB_Host_Enumerate___Enumerator_Node_TypeDef *p_Enumerator_Node)
+{
+	uint8_t index = p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index;
+	return(USB_Host_Device_Manager___Get_Configuration_Descriptor_Buffer(p_Enumerator_Node->enumerator.port_Number, p_Enumerator_Node->enumerator.current_USB_Device_Address, index));
+}
+
+uint16_t USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Length(USB_Host_Enumerate___Enumerator_Node_TypeDef *p_Enumerator_Node)
+{
+	return (USB_Host_Device_Manager___Device_Get_Configuration_Descriptor_Total_Length(p_Enumerator_Node->enumerator.port_Number, p_Enumerator_Node->enumerator.current_USB_Device_Address, p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index));
 }
 
 uint8_t* USB_Host_Enumerate___Get_Current_String_Descriptor_Buffer(USB_Host_Enumerate___Enumerator_Node_TypeDef *p_Enumerator_Node)
@@ -222,16 +243,16 @@ uint8_t* USB_Host_Enumerate___Get_Current_String_Descriptor_Buffer(USB_Host_Enum
 
 	switch (p_Enumerator_Node->enumerator.current_String_Descriptor_Type)
 	{
-	case USB_Host_Enumerate___STRING_TYPE_LANGUAGE:
+	case USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID:
 		return USB_Host_Device_Manager___Get_Language_ID_Descriptor_Buffer(port_Number, device_Address);
 		break;
-	case USB_Host_Enumerate___STRING_TYPE_MANUFACTURER:
+	case USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER:
 		return USB_Host_Device_Manager___Device_Get_Manufacturer_String_Descriptor_Buffer(port_Number, device_Address);
 		break;
-	case USB_Host_Enumerate___STRING_TYPE_PRODUCT:
+	case USB_Host_Device_Manager___STRING_TYPE_PRODUCT:
 		return USB_Host_Device_Manager___Device_Get_Product_String_Descriptor_Buffer(port_Number, device_Address);
 		break;
-	case USB_Host_Enumerate___STRING_TYPE_SERIAL_NUMBER:
+	case USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER:
 		return USB_Host_Device_Manager___Device_Get_Serial_Number_String_Descriptor_Buffer(port_Number, device_Address);
 		break;
 	}
@@ -245,21 +266,7 @@ uint8_t USB_Host_Enumerate___Get_Current_String_Descriptor_Length(USB_Host_Enume
 		uint8_t port_Number = p_Enumerator_Node -> enumerator.port_Number;
 		uint8_t device_Address = p_Enumerator_Node -> enumerator.current_USB_Device_Address;
 
-		switch (p_Enumerator_Node->enumerator.current_String_Descriptor_Type)
-		{
-		case USB_Host_Enumerate___STRING_TYPE_LANGUAGE:
-			return USB_Host_Device_Manager___Get_Language_ID_List_Length(port_Number, device_Address);
-			break;
-		case USB_Host_Enumerate___STRING_TYPE_MANUFACTURER:
-			return USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address);
-			break;
-		case USB_Host_Enumerate___STRING_TYPE_PRODUCT:
-			return USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address);
-			break;
-		case USB_Host_Enumerate___STRING_TYPE_SERIAL_NUMBER:
-			return USB_Host_Device_Manager___Get_Serial_Number_String_Length(port_Number, device_Address);
-			break;
-		}
+		return(USB_Host_Device_Manager___Get_String_Descriptor_Length(port_Number, device_Address, p_Enumerator_Node->enumerator.current_String_Descriptor_Type));
 	}
 	return 0;
 }
@@ -272,7 +279,7 @@ uint16_t USB_Host_Enumerate___Get_Current_String_Descriptor_Language_ID(USB_Host
 	{
 		switch (p_Enumerator_Node->enumerator.current_String_Descriptor_Type)
 		{
-		case USB_Host_Enumerate___STRING_TYPE_LANGUAGE:
+		case USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID:
 			return 0;
 			break;
 		default:
@@ -334,12 +341,20 @@ void USB_Host_Enumerate___Set_Next_Setup_Stage(USB_Host_Enumerate___Enumerator_N
 		break;
 	}
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_CONFIGURATION_DESCRIPTOR:
-
+		USB_Host_Enumerate___Set_Setup_Stage(p_Enumerator_Node, USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR);
 		break;
 
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR:
-
+	{
+		USB_Host___Device_Descriptor_TypeDef device_Descriptor = USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
+		uint8_t current_Configuration_Index = USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Index(p_Enumerator_Node);
+		if((device_Descriptor.bNumConfigurations-1) > current_Configuration_Index)
+		{
+			USB_Host_Enumerate___Set_Current_Configuration_Descriptor_Index(p_Enumerator_Node, current_Configuration_Index+1);
+		}
+		USB_Host_Enumerate___Set_Setup_Stage(p_Enumerator_Node, USB_Host_Device_Manager___SETUP_STAGE_COMPLETE);
 		break;
+	}
 	}
 }
 
@@ -368,7 +383,7 @@ void USB_Host_Enumerate___Setup_Stage_Completed(USB_Host_Enumerate___Enumerator_
 		break;
 
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_STRING_DESCRIPTOR:
-		USB_Host_Device_Manager___Update_Strings_Length(port_Number, device_Address);
+		USB_Host_Device_Manager___Update_String_Length(port_Number, device_Address, p_Enumerator_Node->enumerator.current_String_Descriptor_Type);
 		break;
 
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_STRING_DESCRIPTOR:
@@ -380,7 +395,7 @@ void USB_Host_Enumerate___Setup_Stage_Completed(USB_Host_Enumerate___Enumerator_
 		break;
 
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR:
-
+		USB_Host_Device_Manager___Device_Update_Configuration_Descriptor(port_Number, device_Address, p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index);
 		break;
 
 	}
@@ -450,6 +465,19 @@ void USB_Host_Enumerate___Get_String_Descriptor(uint8_t port_Number, uint8_t dev
 	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, string_Length, USB_Host_Enumerate___URB_Callback);
 }
 
+void USB_Host_Enumerate___Get_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t* p_Buffer, uint8_t configuration_Index, uint16_t configuration_Length)
+{
+	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_DEVICE_TO_HOST;
+	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
+	setup_Packet.wValue 		= (0x02 << 0x08) | configuration_Index;
+	setup_Packet.wIndex 		= 0;
+	setup_Packet.wLength 		= configuration_Length;
+
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, configuration_Length, USB_Host_Enumerate___URB_Callback);
+}
+
+
 void USB_Host_Enumerate___Do_Setup_Stage(USB_Host_Enumerate___Enumerator_Node_TypeDef* p_Enumerator_Node)
 {
 	uint8_t port_Number = p_Enumerator_Node -> enumerator.port_Number;
@@ -477,31 +505,38 @@ void USB_Host_Enumerate___Do_Setup_Stage(USB_Host_Enumerate___Enumerator_Node_Ty
 
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_STRING_DESCRIPTOR:
 	{
-		uint8_t string_Descriptor_Index = USB_Host_Enumerate___Get_Current_String_Descriptor_Index(p_Enumerator_Node);
-		uint8_t* string_Descriptor_Buffer = USB_Host_Enumerate___Get_Current_String_Descriptor_Buffer(p_Enumerator_Node);
-		uint16_t string_Descriptor_Language_ID = USB_Host_Enumerate___Get_Current_String_Descriptor_Language_ID(p_Enumerator_Node);
+		uint8_t string_Descriptor_Index 		= USB_Host_Enumerate___Get_Current_String_Descriptor_Index(p_Enumerator_Node);
+		uint8_t* string_Descriptor_Buffer 		= USB_Host_Enumerate___Get_Current_String_Descriptor_Buffer(p_Enumerator_Node);
+		uint16_t string_Descriptor_Language_ID 	= USB_Host_Enumerate___Get_Current_String_Descriptor_Language_ID(p_Enumerator_Node);
 		USB_Host_Enumerate___Get_String_Descriptor(port_Number, device_Address, string_Descriptor_Buffer, string_Descriptor_Language_ID, string_Descriptor_Index, 0X02);
 		break;
 	}
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_STRING_DESCRIPTOR:
 	{
-		uint8_t string_Descriptor_Index = USB_Host_Enumerate___Get_Current_String_Descriptor_Index(p_Enumerator_Node);
-		uint8_t* string_Descriptor_Buffer = USB_Host_Enumerate___Get_Current_String_Descriptor_Buffer(p_Enumerator_Node);
-		uint16_t string_Descriptor_Language_ID = USB_Host_Enumerate___Get_Current_String_Descriptor_Language_ID(p_Enumerator_Node);
-		uint8_t string_Length = USB_Host_Enumerate___Get_Current_String_Descriptor_Length(p_Enumerator_Node);
+		uint8_t 	string_Descriptor_Index 		= USB_Host_Enumerate___Get_Current_String_Descriptor_Index(p_Enumerator_Node);
+		uint8_t* 	string_Descriptor_Buffer 		= USB_Host_Enumerate___Get_Current_String_Descriptor_Buffer(p_Enumerator_Node);
+		uint16_t 	string_Descriptor_Language_ID 	= USB_Host_Enumerate___Get_Current_String_Descriptor_Language_ID(p_Enumerator_Node);
+		uint8_t 	string_Length 					= USB_Host_Enumerate___Get_Current_String_Descriptor_Length(p_Enumerator_Node);
 		USB_Host_Enumerate___Get_String_Descriptor(port_Number, device_Address, string_Descriptor_Buffer, string_Descriptor_Language_ID, string_Descriptor_Index, string_Length);
 		break;
 	}
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_SHORT_CONFIGURATION_DESCRIPTOR:
-
+	{
+		uint8_t 	configuration_Index				= USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Index(p_Enumerator_Node);
+		uint8_t* 	configuration_Descriptor_Buffer = USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Buffer(p_Enumerator_Node);
+		USB_Host_Enumerate___Get_Configuration_Descriptor(port_Number, device_Address, configuration_Descriptor_Buffer, configuration_Index, 0x09);
 		break;
-
+	}
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR:
-
+	{
+		uint8_t 	configuration_Index				= USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Index(p_Enumerator_Node);
+		uint8_t* 	configuration_Descriptor_Buffer = USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Buffer(p_Enumerator_Node);
+		uint16_t   	configuration_Descriptor_Length = USB_Host_Enumerate___Get_Current_Configuration_Descriptor_Length(p_Enumerator_Node);
+		USB_Host_Enumerate___Get_Configuration_Descriptor(port_Number, device_Address, configuration_Descriptor_Buffer, configuration_Index, configuration_Descriptor_Length);
 		break;
-
+	}
 	case USB_Host_Device_Manager___SETUP_STAGE_COMPLETE:
-
+		uint8_t i = 0;
 		break;
 	}
 }
