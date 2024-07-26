@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "../Inc/USB_Host_Device_Manager.h"
 #define USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE							8
-
+#define USB_Host_Enumerate___STANDARD_NUMBER_OF_RETRIES							0xffff
 typedef struct {
 	uint8_t is_Allocated;
 	uint8_t is_Busy;

@@ -72,4 +72,6 @@ void 		USB_LL_Host___Channel_In_Packet_Acknowledged	(uint8_t port_Number, uint8_
 void 		USB_LL_Host___Channel_Setup_Buffer				(uint8_t port_Number, uint8_t channel_Number, uint8_t *buffer_Pointer, uint32_t transfer_Size);
 void 		USB_LL_Host___Channel_Begin_Transfer_In			(uint8_t port_Number, uint8_t channel_Number);
 uint8_t 	USB_LL_Host___Channel_Get_Current_Packet_ID		(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Set_Number_Of_Retries		(uint8_t port_Number, uint8_t channel_Number, uint16_t number_Of_Retries);
+void 		USB_LL_Host___Channel_Retry_Transfer_In			(uint8_t port_Number, uint8_t channel_Number);
 #endif /* INC_USB_LL_HOST_H_ */

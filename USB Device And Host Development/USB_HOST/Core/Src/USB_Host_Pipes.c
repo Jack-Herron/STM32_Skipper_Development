@@ -43,6 +43,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 		uint16_t 	max_Packet_Size,
 		uint8_t*	p_Buffer,
 		uint32_t 	transfer_Length,
+		uint16_t 	number_Of_Retries,
 		uint8_t		is_Odd_Frame,
 		uint8_t		is_Low_Speed,
 		uint8_t 	multi_Count,
@@ -74,6 +75,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 
 	USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
 	USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
+	USB_LL_Host___Channel_Set_Number_Of_Retries(port_Number, pipe_Number, number_Of_Retries);
 	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
 	USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
 
@@ -82,7 +84,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 
 uint8_t USB_Host_Pipes___Get_Pipe_Direction(uint8_t port_Number, uint8_t pipe_Number)
 {
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Direction;
+	return(USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Direction);
 }
 
 uint8_t USB_Host_Pipes___Get_Current_Packet_ID(uint8_t port_Number, uint8_t pipe_Number)

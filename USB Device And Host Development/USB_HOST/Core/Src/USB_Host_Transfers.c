@@ -91,7 +91,7 @@ USB_Host_Transfers___URB_TypeDef* USB_Host_Tranfers___Get_Current_URB(uint8_t po
 	return(NULL);
 }
 
-int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
@@ -105,6 +105,7 @@ int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t de
 		p_URB -> device_Address 	= device_Address;
 		p_URB -> transfer_Buffer 	= transfer_Buffer;
 		p_URB -> transfer_Length 	= transfer_Length;
+		p_URB -> num_Retries		= number_Of_Retries;
 		p_URB -> URB_Callback		= URB_Callback;
 
 		return(EXIT_SUCCESS);
@@ -112,7 +113,7 @@ int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t de
 	return(EXIT_FAILURE);
 }
 
-int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
@@ -126,6 +127,7 @@ int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t devi
 		p_URB -> device_Address 	= device_Address;
 		p_URB -> transfer_Buffer 	= transfer_Buffer;
 		p_URB -> transfer_Length 	= transfer_Length;
+		p_URB -> num_Retries		= number_Of_Retries;
 		p_URB -> URB_Callback		= URB_Callback;
 
 		return(EXIT_SUCCESS);
@@ -133,7 +135,7 @@ int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t devi
 	return(EXIT_FAILURE);
 }
 
-int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
@@ -147,6 +149,7 @@ int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Ad
 		p_URB -> device_Address 	= device_Address;
 		p_URB -> transfer_Buffer 	= transfer_Buffer;
 		p_URB -> transfer_Length 	= transfer_Length;
+		p_URB -> num_Retries		= number_Of_Retries;
 		p_URB -> URB_Callback		= URB_Callback;
 
 		return(EXIT_SUCCESS);
@@ -154,7 +157,7 @@ int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Ad
 	return(EXIT_FAILURE);
 }
 
-int8_t USB_Host_Transfers___Control_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+int8_t USB_Host_Transfers___Control_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
@@ -168,6 +171,7 @@ int8_t USB_Host_Transfers___Control_Transfer(uint8_t port_Number, uint8_t device
 		p_URB -> device_Address 		= device_Address;
 		p_URB -> transfer_Buffer 		= transfer_Buffer;
 		p_URB -> transfer_Length 		= transfer_Length;
+		p_URB -> num_Retries			= number_Of_Retries;
 		p_URB -> URB_Callback			= URB_Callback;
 		p_URB -> control_Setup_Packet	= setup_Packet;
 
@@ -233,6 +237,7 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeD
 		USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(p_URB->port_Number, p_URB->device_Address, p_URB->endpoint_Number),
 		(uint8_t*)&p_URB->control_Setup_Packet,
 		USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH,
+		p_URB->num_Retries,
 		0,
 		USB_Host_Device_Manager___Device_Is_Low_Speed_Device(p_URB->port_Number, p_URB->device_Address),
 		0,
@@ -258,6 +263,7 @@ void USB_Host_Transfers___Process_URB_Data_Stage(USB_Host_Transfers___URB_TypeDe
 		USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(p_URB->port_Number, p_URB->device_Address, p_URB->endpoint_Number),
 		p_URB->transfer_Buffer,
 		p_URB->transfer_Length,
+		p_URB->num_Retries,
 		0,
 		USB_Host_Device_Manager___Device_Is_Low_Speed_Device(p_URB->port_Number, p_URB->device_Address),
 		0,
@@ -284,6 +290,7 @@ void USB_Host_Transfers___Process_URB_Status_Stage(USB_Host_Transfers___URB_Type
 		USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(p_URB->port_Number, p_URB->device_Address, p_URB->endpoint_Number),
 		0,
 		0,
+		p_URB->num_Retries,
 		0,
 		USB_Host_Device_Manager___Device_Is_Low_Speed_Device(p_URB->port_Number, p_URB->device_Address),
 		0,

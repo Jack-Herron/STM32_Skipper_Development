@@ -174,6 +174,11 @@ void USB_LL_Host___Channel_Set_Interrupts(uint8_t port_Number,uint8_t channel_Nu
 	USB_Host_Channel 	-> HCINTMSK  = USB_LL_Host___CHANNEL_INTERRUPTS_MASK;
 }
 
+void USB_LL_Host___Channel_Set_Number_Of_Retries(uint8_t port_Number, uint8_t channel_Number, uint16_t number_Of_Retries)
+{
+	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retries_Remaining = number_Of_Retries;
+}
+
 void USB_LL_Host___Channel_Set_Characteristics
 			(
 			uint8_t port_Number,
@@ -273,6 +278,11 @@ void USB_LL_Host___Channel_Retry_Transfer_Out(uint8_t port_Number, uint8_t chann
 	USB_LL_Host___Channel_Halt_And_Wait(port_Number, channel_Number);
 
 	USB_LL_Host___Transfer_Next_Packet(port_Number, channel_Number);
+}
+
+void USB_LL_Host___Channel_Retry_Transfer_In(uint8_t port_Number, uint8_t channel_Number)
+{
+	USB_LL_Host___Channel_Begin_Transfer_In(port_Number, channel_Number);
 }
 
 // -----------------------------------------------------------------------------------
