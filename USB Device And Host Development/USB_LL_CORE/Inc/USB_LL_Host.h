@@ -39,6 +39,7 @@ typedef struct {
 	uint32_t 									transfer_Progress;
 	uint16_t									packet_Size;
 	uint16_t									retries_Remaining;
+	uint8_t  									retry_After_Halt;
 	uint8_t										transfer_Direction;
 	uint8_t* 									p_Buffer;
 } USB_LL_Host___Host_Channel_Buffer_TypeDef;
@@ -74,4 +75,6 @@ void 		USB_LL_Host___Channel_Begin_Transfer_In			(uint8_t port_Number, uint8_t c
 uint8_t 	USB_LL_Host___Channel_Get_Current_Packet_ID		(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Channel_Set_Number_Of_Retries		(uint8_t port_Number, uint8_t channel_Number, uint16_t number_Of_Retries);
 void 		USB_LL_Host___Channel_Retry_Transfer_In			(uint8_t port_Number, uint8_t channel_Number);
+uint8_t 	USB_LL_Host___Channel_Get_Retry_After_Halt		(uint8_t port_Number, uint8_t channel_Number);
+void 		USB_LL_Host___Channel_Set_Retry_After_Halt		(uint8_t port_Number, uint8_t channel_Number, uint8_t value);
 #endif /* INC_USB_LL_HOST_H_ */

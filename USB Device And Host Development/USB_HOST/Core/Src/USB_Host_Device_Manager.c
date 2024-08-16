@@ -353,14 +353,11 @@ uint8_t USB_Host_Device_Manager___Reserve_New_Device_Address(uint8_t port_Number
 	return (new_Address);
 }
 
-void USB_Host_Device_Manager___Device_Update_Current_USB_Address(uint8_t port_Number, uint8_t device_Address)
+void USB_Host_Device_Manager___Device_Change_Current_USB_Address(uint8_t port_Number, uint8_t current_Device_Address, uint8_t new_Device_Address)
 {
-	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.current_USB_Address = device_Address;
-}
-
-void USB_Host_Device_Manager___Port_remove_Device_From_Address(uint8_t port_Number, uint8_t device_Address)
-{
-	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] = NULL;
+	USB_Host_Device_Manager___Port[port_Number].p_Device[new_Device_Address] = USB_Host_Device_Manager___Port[port_Number].p_Device[current_Device_Address];
+	USB_Host_Device_Manager___Port[port_Number].p_Device[current_Device_Address] = NULL;
+	USB_Host_Device_Manager___Port[port_Number].p_Device[new_Device_Address]->status.current_USB_Address = new_Device_Address;
 }
 
 void USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)

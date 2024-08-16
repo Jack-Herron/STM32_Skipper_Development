@@ -196,9 +196,14 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_CHH_Msk;
-			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
-			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_CHANNEL_HALTED;
+			if(USB_LL_Host___Channel_Get_Retry_After_Halt(port_Number, channel_Number))
+			{
+				USB_LL_Host___Channel_Retry_Transfer_Out(port_Number, channel_Number);
+				USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, false);
+			}
+			//USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
+			//host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
+			//host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_CHANNEL_HALTED;
 			break;
 
 		case USB_OTG_HCINT_STALL_Pos: 								// channel Stall received
@@ -214,7 +219,8 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			{
 				if(USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
 				{
-					USB_LL_Host___Channel_Retry_Transfer_Out(port_Number, channel_Number);
+					USB_LL_Host___Channel_Halt(port_Number, channel_Number);
+					USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, true);
 				}
 				else
 				{

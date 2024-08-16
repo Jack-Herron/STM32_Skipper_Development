@@ -162,12 +162,11 @@ void 									USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID			
 uint8_t 								USB_Host_Device_Manager___Device_Get_Endpoint_Current_Packet_ID					(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Direction, uint8_t endpoint_Number);
 uint8_t* 								USB_Host_Device_Manager___Get_Device_Descriptor_Buffer							(uint8_t port_Number, uint8_t device_Address);
 uint8_t 								USB_Host_Device_Manager___Port_Get_Free_Device_Address							(uint8_t port_Number);
-void 									USB_Host_Device_Manager___Port_remove_Device_From_Address						(uint8_t port_Number, uint8_t device_Address);
 void 									USB_Host_Device_Manager___Port_Copy_Device_To_Address							(uint8_t port_Number, uint8_t device_Address, uint8_t new_Device_Address);
 uint8_t 								USB_Host_Device_Manager___Reserve_New_Device_Address							(uint8_t port_Number, uint8_t current_Device_Address);
 uint8_t 								USB_Host_Device_Manager___Device_Get_Setup_Stage								(uint8_t port_Number, uint8_t device_Address);
 USB_Host___Device_Descriptor_TypeDef 	USB_Host_Device_Manager___Device_Get_Device_Descriptor							(uint8_t port_Number, uint8_t device_Address);
-void 									USB_Host_Device_Manager___Device_Update_Current_USB_Address						(uint8_t port_Number, uint8_t device_Address);
+void 									USB_Host_Device_Manager___Device_Change_Current_USB_Address						(uint8_t port_Number, uint8_t current_Device_Address, uint8_t new_Device_Address);
 uint8_t* 								USB_Host_Device_Manager___Get_Language_ID_Descriptor_Buffer						(uint8_t port_Number, uint8_t device_Address);
 uint8_t* 								USB_Host_Device_Manager___Device_Get_Manufacturer_String_Descriptor_Buffer		(uint8_t port_Number, uint8_t device_Address);
 uint8_t* 								USB_Host_Device_Manager___Device_Get_Product_String_Descriptor_Buffer			(uint8_t port_Number, uint8_t device_Address);

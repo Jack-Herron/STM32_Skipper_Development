@@ -374,7 +374,7 @@ void USB_Host_Enumerate___Setup_Stage_Completed(USB_Host_Enumerate___Enumerator_
 		break;
 	}
 	case USB_Host_Device_Manager___SETUP_STAGE_SET_ADDRESS:
-		USB_Host_Device_Manager___Device_Update_Current_USB_Address(port_Number, device_Address);
+		USB_Host_Device_Manager___Device_Change_Current_USB_Address(port_Number, device_Address, p_Enumerator_Node->enumerator.pending_USB_Device_Address);
 		USB_Host_Enumerate___Set_Current_USB_Address_To_Pending_USB_Address(p_Enumerator_Node);
 		break;
 

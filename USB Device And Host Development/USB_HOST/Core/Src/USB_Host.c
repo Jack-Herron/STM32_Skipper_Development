@@ -51,6 +51,8 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 	{
 		if(USB_LL_Interrupts_Host___Is_Root_Device_Connected(port_Number))
 		{
+			Skipper_Clock___Delay_ms(50);
+
 			uint8_t USB_LL_Interrupts_Host_Speed = USB_LL_Interrupts_Host___Get_Root_Device_Speed(port_Number);
 
 			uint8_t device_Manager_Speed = USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manager_Speed(USB_LL_Interrupts_Host_Speed);

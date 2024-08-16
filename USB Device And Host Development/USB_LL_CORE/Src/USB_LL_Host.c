@@ -79,6 +79,10 @@ uint16_t USB_LL_Host___Channel_Get_Retries_Remaining(uint8_t port_Number, uint8_
 	return (USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retries_Remaining);
 }
 
+uint8_t USB_LL_Host___Channel_Get_Retry_After_Halt(uint8_t port_Number, uint8_t channel_Number)
+{
+	return (USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retry_After_Halt);
+}
 
 uint32_t USB_LL_Host___Channel_Get_Transfer_Size(uint8_t port_Number, uint8_t channel_Number)
 {
@@ -151,13 +155,6 @@ void USB_LL_Host___Channel_Halt(uint8_t port_Number, uint8_t channel_Number)
 {
 	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
 	USB_Host_Channel -> HCCHAR |= (USB_OTG_HCCHAR_CHDIS | USB_OTG_HCCHAR_CHENA);
-}
-
-void USB_LL_Host___Channel_Halt_And_Wait(uint8_t port_Number, uint8_t channel_Number)
-{
-	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
-	USB_Host_Channel -> HCCHAR |= (USB_OTG_HCCHAR_CHDIS);
-	while(USB_Host_Channel -> HCCHAR & USB_OTG_HCCHAR_CHENA);
 }
 
 uint8_t USB_LL_Host___Channel_Get_Current_Packet_ID(uint8_t port_Number, uint8_t channel_Number)
@@ -273,11 +270,14 @@ void USB_LL_Host___Channel_In_Packet_Acknowledged(uint8_t port_Number, uint8_t c
 	}
 }
 
+void USB_LL_Host___Channel_Set_Retry_After_Halt(uint8_t port_Number, uint8_t channel_Number, uint8_t value)
+{
+	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retry_After_Halt = value;
+}
+
 void USB_LL_Host___Channel_Retry_Transfer_Out(uint8_t port_Number, uint8_t channel_Number)
 {
-	USB_LL_Host___Channel_Halt_And_Wait(port_Number, channel_Number);
-
-	USB_LL_Host___Transfer_Next_Packet(port_Number, channel_Number);
+	USB_LL_Host___Channel_Begin_Transfer_Out(port_Number, channel_Number);
 }
 
 void USB_LL_Host___Channel_Retry_Transfer_In(uint8_t port_Number, uint8_t channel_Number)
