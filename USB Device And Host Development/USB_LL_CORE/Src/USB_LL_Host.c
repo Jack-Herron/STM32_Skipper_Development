@@ -138,6 +138,13 @@ uint8_t USB_LL_Host___Channel_Get_Transfer_Direction(uint8_t port_Number, uint8_
 	return (USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Direction);
 }
 
+void USB_LL_Host___Flush_RX_FIFO(uint8_t port_Number)
+{
+	USB_OTG_GlobalTypeDef *USB = USB_LL_Hardware___Get_USB(port_Number);
+	USB -> GRSTCTL = USB_OTG_GRSTCTL_RXFFLSH;
+	while(USB -> GRSTCTL & USB_OTG_GRSTCTL_RXFFLSH);
+}
+
 int8_t USB_LL_Host___Channel_RX_POP(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status)
 {
 	uint32_t 	USB_offset 				= USB_LL_Hardware___Get_USB_BASE(port_Number);
@@ -252,7 +259,6 @@ void USB_LL_Host___Channel_Begin_Transfer_In(uint8_t port_Number, uint8_t channe
 	USB_OTG_HostChannelTypeDef *USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
 	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
 }
-
 
 void USB_LL_Host___Channel_Begin_Transfer_Out(uint8_t port_Number, uint8_t channel_Number)
 {

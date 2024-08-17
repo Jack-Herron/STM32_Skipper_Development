@@ -22,6 +22,7 @@ void USB_Host___Init(uint8_t port_Number)
 {
 	USB_LL_Hardware___GPIO_Init(port_Number);
 	USB_LL_Hardware___Init(port_Number, USB_LL_Hardware___HOST_MODE);
+	USB_LL_Host___Set_FIFO_Size(port_Number, 0x80, 0x80, 0x40);
 }
 
 uint8_t USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manager_Speed(uint8_t USB_Interrupts_Host_Speed)

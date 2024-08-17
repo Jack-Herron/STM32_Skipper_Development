@@ -11,7 +11,7 @@
 #include <USB_LL_Host.h>
 #include <USB_LL_Interrupts_Host.h>
 #include "../Inc/USB_Host.h"
-
+#include <Skipper_Clock.h>
 static USB_Host_Pipes___Pipe_TypeDef USB_Host_Pipes___Pipe[USB_LL_Definitions___NUMBER_OF_PORTS][USB_Host_Pipes___NUMBER_OF_PIPES];
 
 uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number)

@@ -78,4 +78,6 @@ void 		USB_LL_Host___Channel_Set_Number_Of_Retries		(uint8_t port_Number, uint8_
 void 		USB_LL_Host___Channel_Retry_Transfer_In			(uint8_t port_Number, uint8_t channel_Number);
 uint8_t 	USB_LL_Host___Channel_Get_Retry_After_Halt		(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Channel_Set_Retry_After_Halt		(uint8_t port_Number, uint8_t channel_Number, uint8_t value);
+void 		USB_LL_Host___Set_FIFO_Size						(uint8_t port_Number, uint32_t RX_FIFO_Depth, uint32_t non_Periodic_TX_FIFO_Depth, uint32_t periodic_TX_FIFO_Depth);
+void 		USB_LL_Host___Channel_Disable					(uint8_t port_Number, uint8_t channel_Number);
 #endif /* INC_USB_LL_HOST_H_ */
