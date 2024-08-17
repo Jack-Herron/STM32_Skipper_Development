@@ -105,6 +105,11 @@ void USB_LL_Host___Channel_Reset_Transfer_Progress(uint8_t port_Number, uint8_t 
 
 }
 
+void USB_LL_Host___Channel_Reset_Buffer_Fill_Level(uint8_t port_Number, uint8_t channel_Number)
+{
+	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].buffer_Fill_Level =	0;
+
+}
 uint32_t USB_LL_Host___Channel_Get_Transfer_Size_Remaining(uint8_t port_Number, uint8_t channel_Number)
 {
 	uint32_t transfer_Size = USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Size;
@@ -138,12 +143,12 @@ int8_t USB_LL_Host___Channel_RX_POP(uint8_t port_Number, uint8_t channel_Number,
 	uint32_t 	USB_offset 				= USB_LL_Hardware___Get_USB_BASE(port_Number);
 	uint32_t 	transfer_Size 			= USB_LL_Hardware___GET_BIT_SEGMENT(RX_Status,USB_OTG_GRXSTSP_BCNT_Msk,USB_OTG_GRXSTSP_BCNT_Pos);
 	uint32_t* 	fifo 					= (uint32_t*)(USB_offset + USB_OTG_FIFO_BASE + (USB_OTG_FIFO_SIZE * channel_Number));
-	uint8_t* 	p_Buffer	  			= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].p_Buffer + USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress;
+	uint8_t* 	p_Buffer	  			= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].p_Buffer + USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].buffer_Fill_Level;
 
-	if((USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress + transfer_Size) <= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Size)
+	if((USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].buffer_Fill_Level + transfer_Size) <= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Size)
 	{
 		USB_LL_Hardware___FIFO_Transfer_Out(fifo, p_Buffer, transfer_Size);
-		//USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress += transfer_Size;
+		USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].buffer_Fill_Level += transfer_Size;
 	}
 	else
 	{
@@ -223,6 +228,7 @@ void USB_LL_Host___Channel_Setup_Buffer(uint8_t port_Number, uint8_t channel_Num
 	USB_LL_Host___Channel_Set_Buffer_Pointer(port_Number, channel_Number, buffer_Pointer);
 	USB_LL_Host___Channel_Set_Transfer_Size(port_Number, channel_Number, transfer_Size);
 	USB_LL_Host___Channel_Reset_Transfer_Progress(port_Number, channel_Number);
+	USB_LL_Host___Channel_Reset_Buffer_Fill_Level(port_Number, channel_Number);
 }
 
 void USB_LL_Host___Channel_Load_HCTSIZ(uint8_t port_Number, uint8_t channel_Number, uint32_t transfer_Size_In_Bytes, uint32_t packet_Count, uint8_t packet_ID)

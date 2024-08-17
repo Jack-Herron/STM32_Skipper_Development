@@ -42,7 +42,7 @@ uint8_t USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manag
 
 void USB_Host___Device_Enumerated(uint8_t port_Number, uint8_t device_Address)
 {
-	uint8_t i = 0;
+	GPIOD->ODR |= (1<<4);			// set PD4 HIGH
 }
 
 void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
@@ -78,7 +78,7 @@ void USB_Host___Process_Device_Connect(uint8_t port_Number, uint8_t device_Addre
 
 void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Address)
 {
-
+	GPIOD->ODR &= ~(1<<4);			// set PD4 HIGH
 }
 
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
@@ -86,7 +86,7 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 	if(USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(port_Number))
 	{
 		USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(port_Number);
-		for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT; i++)
+		for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT +1; i++)
 		{
 			if(USB_Host_Device_Manager___Device_Connection_Flag(port_Number, i))
 			{

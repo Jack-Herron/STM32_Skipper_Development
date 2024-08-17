@@ -355,6 +355,10 @@ uint8_t USB_Host_Device_Manager___Reserve_New_Device_Address(uint8_t port_Number
 
 void USB_Host_Device_Manager___Device_Change_Current_USB_Address(uint8_t port_Number, uint8_t current_Device_Address, uint8_t new_Device_Address)
 {
+	if(current_Device_Address == USB_Host_Device_Manager___Port[port_Number].port_Status.root_Device_Address)
+	{
+		USB_Host_Device_Manager___Port[port_Number].port_Status.root_Device_Address = new_Device_Address;
+	}
 	USB_Host_Device_Manager___Port[port_Number].p_Device[new_Device_Address] = USB_Host_Device_Manager___Port[port_Number].p_Device[current_Device_Address];
 	USB_Host_Device_Manager___Port[port_Number].p_Device[current_Device_Address] = NULL;
 	USB_Host_Device_Manager___Port[port_Number].p_Device[new_Device_Address]->status.current_USB_Address = new_Device_Address;
@@ -469,18 +473,7 @@ void USB_Host_Device_Manager___Device_Set_Speed(uint8_t port_Number, uint8_t dev
 
 uint8_t USB_Host_Device_Manager___Port_Get_Root_Device_Address(uint8_t port_Number)
 {
-	for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT; i++)
-	{
-		USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[i];
-		if(p_Device != NULL)
-		{
-			if(p_Device -> status.is_Root_Device)
-			{
-				return(i);
-			}
-		}
-	}
-	return(0);
+	return(USB_Host_Device_Manager___Port[port_Number].port_Status.root_Device_Address);
 }
 
 void USB_Host_Device_Manager___Device_Initialize_Buffers(uint8_t port_Number, uint8_t device_Address)

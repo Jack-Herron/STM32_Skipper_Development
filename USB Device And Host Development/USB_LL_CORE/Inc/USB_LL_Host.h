@@ -42,6 +42,7 @@ typedef struct {
 	uint8_t  									retry_After_Halt;
 	uint8_t										transfer_Direction;
 	uint8_t* 									p_Buffer;
+	uint32_t 									buffer_Fill_Level;
 } USB_LL_Host___Host_Channel_Buffer_TypeDef;
 
 typedef struct {
