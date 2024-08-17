@@ -105,6 +105,14 @@ void USB_LL_Host___Channel_Reset_Transfer_Progress(uint8_t port_Number, uint8_t 
 
 }
 
+uint32_t USB_LL_Host___Channel_Get_Transfer_Size_Remaining(uint8_t port_Number, uint8_t channel_Number)
+{
+	uint32_t transfer_Size = USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Size;
+	uint32_t transfer_Progress = USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress;
+
+	return (transfer_Size - transfer_Progress);
+}
+
 uint8_t* USB_LL_Host___Channel_Get_Buffer_Pointer(uint8_t port_Number, uint8_t channel_Number)
 {
 	return (USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].p_Buffer);
@@ -130,12 +138,12 @@ int8_t USB_LL_Host___Channel_RX_POP(uint8_t port_Number, uint8_t channel_Number,
 	uint32_t 	USB_offset 				= USB_LL_Hardware___Get_USB_BASE(port_Number);
 	uint32_t 	transfer_Size 			= USB_LL_Hardware___GET_BIT_SEGMENT(RX_Status,USB_OTG_GRXSTSP_BCNT_Msk,USB_OTG_GRXSTSP_BCNT_Pos);
 	uint32_t* 	fifo 					= (uint32_t*)(USB_offset + USB_OTG_FIFO_BASE + (USB_OTG_FIFO_SIZE * channel_Number));
-	uint8_t* 	p_Buffer	  			= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].p_Buffer;
+	uint8_t* 	p_Buffer	  			= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].p_Buffer + USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress;
 
 	if((USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress + transfer_Size) <= USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Size)
 	{
 		USB_LL_Hardware___FIFO_Transfer_Out(fifo, p_Buffer, transfer_Size);
-		USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress += transfer_Size;
+		//USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress += transfer_Size;
 	}
 	else
 	{
@@ -250,11 +258,14 @@ void USB_LL_Host___Channel_Begin_Transfer_Out(uint8_t port_Number, uint8_t chann
 
 void USB_LL_Host___Channel_Out_Packet_Acknowledged(uint8_t port_Number, uint8_t channel_Number)
 {
-	uint32_t  transfer_Size_Remaining 	= USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number);
-	uint16_t  size_Transfered 			= USB_LL_Host___GET_MIN(transfer_Size_Remaining, USB_LL_Host___Channel_Get_Packet_Size(port_Number, channel_Number));
+	uint16_t  packet_Size 				= USB_LL_Host___Channel_Get_Packet_Size(port_Number, channel_Number);
+	uint16_t  size_Transfered 			= USB_LL_Host___GET_MIN(packet_Size, (USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number)));
+
 	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress += size_Transfered;
 
-	if(transfer_Size_Remaining-size_Transfered > 0)
+	uint16_t  transfer_Size_Remaining 	= USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number);
+
+	if(transfer_Size_Remaining > 0)
 	{
 		USB_LL_Host___Transfer_Next_Packet(port_Number, channel_Number);
 	}
@@ -262,11 +273,16 @@ void USB_LL_Host___Channel_Out_Packet_Acknowledged(uint8_t port_Number, uint8_t 
 
 void USB_LL_Host___Channel_In_Packet_Acknowledged(uint8_t port_Number, uint8_t channel_Number)
 {
-	uint32_t  transfer_Size_Remaining 	= USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number);
+	uint16_t  packet_Size 				= USB_LL_Host___Channel_Get_Packet_Size(port_Number, channel_Number);
+	uint16_t  size_Transfered 			= USB_LL_Host___GET_MIN(packet_Size, (USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number)));
+
+	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].transfer_Progress += size_Transfered;
+
+	uint16_t  transfer_Size_Remaining 	= USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number);
 
 	if(transfer_Size_Remaining > 0)
 	{
-		//USB_LL_Host___Request_Next_Packet(port_Number, channel_Number);
+		USB_LL_Host___Channel_Begin_Transfer_In(port_Number, channel_Number);
 	}
 }
 
