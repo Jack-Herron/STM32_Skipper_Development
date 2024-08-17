@@ -143,41 +143,40 @@ void USB_Host_Enumerate___Do_Setup_Stage(USB_Host_Enumerate___Enumerator_Node_Ty
 uint8_t USB_Host_Enumerate___Get_Next_String_Descriptor_Type(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host___Device_Descriptor_TypeDef device_Descriptor = USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
-
-	if(
-	(	(device_Descriptor.iManufacturer 	!= 0) 	||
-		(device_Descriptor.iProduct 		!= 0) 	||
-		(device_Descriptor.iSerialNumber 	!= 0))	&&
-		USB_Host_Device_Manager___Get_Language_ID_List_Length(port_Number, device_Address) == 0
-	)
+	if(USB_Host_Config___GET_STRINGS)
 	{
-		return(USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID);
+		if(
+		(	(device_Descriptor.iManufacturer 	!= 0) 	||
+			(device_Descriptor.iProduct 		!= 0) 	||
+			(device_Descriptor.iSerialNumber 	!= 0))	&&
+			USB_Host_Device_Manager___Get_Language_ID_List_Length(port_Number, device_Address) == 0
+		)
+		{
+			return(USB_Host_Device_Manager___STRING_TYPE_LANGUAGE_ID);
+		}
+		else if (
+			device_Descriptor.iManufacturer != 0 	&&
+			USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address) == 0
+		)
+		{
+			return USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER;
+		}
+		else if (
+			device_Descriptor.iProduct != 0 &&
+			USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address) == 0
+		)
+		{
+			return (USB_Host_Device_Manager___STRING_TYPE_PRODUCT);
+		}
+		else if (
+			device_Descriptor.iSerialNumber != 0 &&
+			USB_Host_Device_Manager___Get_Serial_Number_String_Length(port_Number, device_Address) == 0
+		)
+		{
+			return (USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER);
+		}
 	}
-	else if (
-		device_Descriptor.iManufacturer != 0 	&&
-		USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address) == 0
-	)
-	{
-		return USB_Host_Device_Manager___STRING_TYPE_MANUFACTURER;
-	}
-	else if (
-		device_Descriptor.iProduct != 0 &&
-		USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address) == 0
-	)
-	{
-		return (USB_Host_Device_Manager___STRING_TYPE_PRODUCT);
-	}
-	else if (
-		device_Descriptor.iSerialNumber != 0 &&
-		USB_Host_Device_Manager___Get_Serial_Number_String_Length(port_Number, device_Address) == 0
-	)
-	{
-		return (USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER);
-	}
-	else
-	{
-		return 0;
-	}
+	return 0;
 }
 
 void USB_Host_Enumerate___Set_Current_String_Descriptor_Type(USB_Host_Enumerate___Enumerator_Node_TypeDef *p_Enumerator_Node, uint8_t string_Descriptor_Type)

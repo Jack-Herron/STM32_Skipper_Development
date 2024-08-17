@@ -14,6 +14,9 @@
 #include "USB_Host.h"
 #include "../../Config/USB_Host_Config.h"
 
+#define USB_Host_Device_Manager___GET_MIN(a,b)											(((a) > (b)) ? (b) : (a))
+
+
 // Definitions
 #define USB_Host_Device_Manager___DEVICE_POOL_SIZE									USB_Host_Config___PORT_DEVICE_LIMIT * USB_Host_Config___NUMBER_OF_HOST_PORTS_USED
 #define USB_Host_Device_Manager___PORT_DEVICE_LIMIT									USB_Host_Config___PORT_DEVICE_LIMIT
