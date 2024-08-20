@@ -13,6 +13,7 @@
 #include <USB_LL_Hardware.h>
 #include <USB_LL_Host.h>
 #include <USB_LL_Interrupts_Host.h>
+#include "../Inc/USB_Host_Hub.h"
 #include "../Inc/USB_Host_Device_Manager.h"
 #include "../Inc/USB_Host_Transfers.h"
 #include "../Inc/USB_Host_Pipes.h"
@@ -43,7 +44,16 @@ uint8_t USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manag
 
 void USB_Host___Device_Enumerated(uint8_t port_Number, uint8_t device_Address)
 {
-	GPIOD->ODR |= (1<<4);			// set PD4 HIGH
+	uint8_t device_Class = USB_Host_Device_Manager___Get_Device_Class(port_Number, device_Address);
+
+	if(device_Class == USB_Host_Hub___HUB_DEVICE_CLASS)
+	{
+		USB_Host_Hub___Initiate_Hub(port_Number, device_Address);
+	}
+	else
+	{
+		uint8_t i =0;
+	}
 }
 
 void USB_Host___Process_Host_Interrupts(uint8_t port_Number)

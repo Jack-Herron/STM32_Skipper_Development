@@ -61,6 +61,11 @@ static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[
 
 #endif // --------------------------------------------------------------------------------------------------------
 
+uint8_t USB_Host_Device_Manager___Get_Device_Class(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bDeviceClass);
+}
+
 uint8_t* USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.device_Descriptor_Buffer);

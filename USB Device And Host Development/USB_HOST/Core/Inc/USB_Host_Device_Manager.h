@@ -188,4 +188,6 @@ uint8_t 								USB_Host_Device_Manager___Get_String_Descriptor_Length							(ui
 uint8_t* 								USB_Host_Device_Manager___Get_Configuration_Descriptor_Buffer					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Idex);
 uint16_t 								USB_Host_Device_Manager___Device_Get_Configuration_Descriptor_Total_Length		(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 void 									USB_Host_Device_Manager___Device_Update_Configuration_Descriptor				(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
+uint8_t 								USB_Host_Device_Manager___Get_Device_Class										(uint8_t port_Number, uint8_t device_Address);
+
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
