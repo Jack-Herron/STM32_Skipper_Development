@@ -43,6 +43,19 @@
 #define USB_Host_Device_Manager___STRING_TYPE_PRODUCT								0x03
 #define USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER							0x04
 
+#if USB_Host_Config___GET_STRINGS
+	#define USB_Host_Device_Manager___DEVICE_MANUFACTURER_STRING_MAX_LENGTH				USB_Host_Config___DEVICE_MANUFACTURER_STRING_MAX_LENGTH
+	#define USB_Host_Device_Manager___DEVICE_PRODUCT_STRING_MAX_LENGTH					USB_Host_Config___DEVICE_PRODUCT_STRING_MAX_LENGTH
+	#define USB_Host_Device_Manager___DEVICE_SERIAL_NUMBER_STRING_MAX_LENGTH			USB_Host_Config___DEVICE_SERIAL_NUMBER_STRING_MAX_LENGTH
+	#define USB_Host_Device_Manager___DEVICE_LANGUAGE_ID_STRING_MAX_LENGTH				USB_Host_Config___DEVICE_LANGUAGE_ID_STRING_MAX_LENGTH
+#else
+	#define USB_Host_Device_Manager___DEVICE_MANUFACTURER_STRING_MAX_LENGTH				0x00
+    #define USB_Host_Device_Manager___DEVICE_PRODUCT_STRING_MAX_LENGTH					0x00
+    #define USB_Host_Device_Manager___DEVICE_SERIAL_NUMBER_STRING_MAX_LENGTH			0x00
+    #define USB_Host_Device_Manager___DEVICE_LANGUAGE_ID_STRING_MAX_LENGTH				0x00
+#endif
+
+
 // Structures
 
 typedef struct{
@@ -113,10 +126,10 @@ typedef struct {
 typedef struct {
 	uint8_t                           									configuration_Descriptor_Buffer			[USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS][USB_Host_Config___DEVICE_MAX_CONFIGURATION_DESCRIPTOR_LENGTH];
 	uint8_t 															device_Descriptor_Buffer				[USB_Host___DEVICE_DESCRIPTOR_LENGTH];
-	uint8_t																manufacturer_String_Descriptor_Buffer	[USB_Host_Config___DEVICE_MANUFACTURER_STRING_MAX_LENGTH];
-	uint8_t																product_String_Descriptor_Buffer		[USB_Host_Config___DEVICE_PRODUCT_STRING_MAX_LENGTH];
-	uint8_t																serial_Number_String_Descriptor_Buffer	[USB_Host_Config___DEVICE_SERIAL_NUMBER_STRING_MAX_LENGTH];
-	uint8_t																language_ID_Descriptor_Buffer			[USB_Host_Config___DEVICE_LANGUAGE_ID_STRING_MAX_LENGTH];
+	uint8_t																manufacturer_String_Descriptor_Buffer	[USB_Host_Device_Manager___DEVICE_MANUFACTURER_STRING_MAX_LENGTH];
+	uint8_t																product_String_Descriptor_Buffer		[USB_Host_Device_Manager___DEVICE_PRODUCT_STRING_MAX_LENGTH];
+	uint8_t																serial_Number_String_Descriptor_Buffer	[USB_Host_Device_Manager___DEVICE_SERIAL_NUMBER_STRING_MAX_LENGTH];
+	uint8_t																language_ID_Descriptor_Buffer			[USB_Host_Device_Manager___DEVICE_LANGUAGE_ID_STRING_MAX_LENGTH];
 } USB_Host_Device_Manager___Device_Descriptor_Buffers_TypeDef;
 
 struct USB_Host_Device_Manager___Device_TypeDef{
