@@ -15,16 +15,9 @@
 #include "../Inc/USB_LL_Interrupts_Device.h"
 #include "../Inc/USB_LL_Interrupts_Host.h"
 
-static USB_LL_Interrupts___Status_TypeDef USB_LL_Interrupts___Port_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
-
-USB_LL_Interrupts___Status_TypeDef* USB_LL_Interrupts___Get_Status(uint8_t port_Number)
-{
-	return(&USB_LL_Interrupts___Port_Status[port_Number]);
-}
-
 void USB_LL_Interrupts___Start_Of_Frame_Reveived(uint8_t port_Number)
 {
-	USB_LL_Interrupts___Port_Status[port_Number].start_Of_Frame = 1;
+	USB_LL_Interrupts_Host___Start_Of_Frame_Interrupt_Received(port_Number);
 }
 
 void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)

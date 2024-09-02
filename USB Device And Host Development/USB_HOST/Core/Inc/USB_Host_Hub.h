@@ -91,10 +91,15 @@ typedef struct __attribute__((__packed__)){
 }USB_Host_Hub___Hub_Descriptor_TypeDef;
 
 typedef struct{
+	uint8_t 		is_Powered;
+}USB_Host_Hub___Hub_Port_Typedef;
+
+typedef struct{
 	uint8_t                                 port_Number;
 	uint8_t 								device_Address;
 	USB_Host_Hub___Hub_Descriptor_TypeDef 	descriptor;
 	uint8_t 								setup_Stage;
+	USB_Host_Hub___Hub_Port_Typedef			port[USB_Host_Config___MAX_HUB_PORTS];
 }USB_Host_Hub___Hub_TypeDef;
 
 typedef struct USB_Host_Hub___Hub_Node

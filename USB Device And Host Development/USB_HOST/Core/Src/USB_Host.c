@@ -18,6 +18,7 @@
 #include "../Inc/USB_Host_Transfers.h"
 #include "../Inc/USB_Host_Pipes.h"
 #include "../Inc/USB_Host.h"
+#include "../Inc/USB_Host_Enumerate.h"
 
 void USB_Host___Init(uint8_t port_Number)
 {
@@ -79,6 +80,11 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 			USB_Host_Device_Manager___Device_Disconnected(port_Number, root_Device_Address);
 			USB_LL_Interrupts_Host___Clear_Connection_Status_Change(port_Number);
 		}
+	}
+	if(USB_LL_Interrupts_Host___Is_Start_Of_Frame(port_Number))
+	{
+		USB_Host_Device_Manager___Handle_Start_Of_Frame(port_Number);
+		USB_LL_Interrupts_Host___Clear_Start_Of_Frame(port_Number);
 	}
 }
 

@@ -114,9 +114,9 @@ USB_Host_Hub___Hub_Node_TypeDef* USB_Host_Hub___Get_Hub_Node_From_Device_Address
 	return(NULL);
 }
 
-void USB_Host_Hub___URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS);
+void USB_Host_Hub___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS);
 
-void USB_Host_Hub___Set_Configuration(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
+void USB_Host_Hub___Set_Configuration(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
 
@@ -126,10 +126,10 @@ void USB_Host_Hub___Set_Configuration(uint8_t port_Number, uint8_t device_Addres
 	setup_Packet.wIndex 		= 0;
 	setup_Packet.wLength 		= 0;
 
-	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Hub___STANDARD_NUMBER_OF_RETRIES, USB_Host_Hub___URB_Callback);
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Hub___STANDARD_NUMBER_OF_RETRIES, callback);
 }
 
-void USB_Host_Hub___Get_Hub_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t* p_Buffer, uint8_t descriptor_Length)
+void USB_Host_Hub___Get_Hub_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t* p_Buffer, uint8_t descriptor_Length, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
 
@@ -139,10 +139,10 @@ void USB_Host_Hub___Get_Hub_Descriptor(uint8_t port_Number, uint8_t device_Addre
 	setup_Packet.wIndex 		= 0;
 	setup_Packet.wLength 		= descriptor_Length;
 
-	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, descriptor_Length, USB_Host_Hub___STANDARD_NUMBER_OF_RETRIES, USB_Host_Hub___URB_Callback);
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, descriptor_Length, USB_Host_Hub___STANDARD_NUMBER_OF_RETRIES, callback);
 }
 
-void USB_Host_Hub___Set_Port_Feature(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint8_t main_Feature_Selector, uint8_t sub_Feature_Selector)
+void USB_Host_Hub___Set_Port_Feature(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint8_t main_Feature_Selector, uint8_t sub_Feature_Selector, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
 
@@ -152,26 +152,7 @@ void USB_Host_Hub___Set_Port_Feature(uint8_t port_Number, uint8_t device_Address
 	setup_Packet.wIndex 		= hub_Port_Number | (sub_Feature_Selector << 8);
 	setup_Packet.wLength 		= 0;
 
-	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Hub___STANDARD_NUMBER_OF_RETRIES, USB_Host_Hub___URB_Callback);
-}
-
-void USB_Host_Hub___Setup_Stage_Completed(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_Node)
-{
-	switch(p_USB_Hub_Node->hub.setup_Stage)
-	{
-	case USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION:
-
-		break;
-	case USB_Host_Hub___HUB_SETUP_STAGE_GET_SHORT_HUB_DESCRIPTOR:
-
-		break;
-	case USB_Host_Hub___HUB_SETUP_STAGE_GET_FULL_HUB_DESCRIPTOR:
-
-		break;
-	case USB_Host_Hub___HUB_SETUP_STAGE_ENABLE_PORTS:
-
-		break;
-	}
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Hub___STANDARD_NUMBER_OF_RETRIES, callback);
 }
 
 void USB_Host_Hub___Set_Next_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_Node)
@@ -193,35 +174,54 @@ void USB_Host_Hub___Set_Next_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_
 	}
 }
 
-void USB_Host_Hub___Do_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_Node)
+void USB_Host_Hub___Polling_Callback(uint8_t port_Number, uint8_t device_Address)
 {
-	switch(p_USB_Hub_Node->hub.setup_Stage)
-	{
-	case USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION:
-		USB_Host_Hub___Set_Configuration(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, 0);
-		break;
-	case USB_Host_Hub___HUB_SETUP_STAGE_GET_SHORT_HUB_DESCRIPTOR:
-		USB_Host_Hub___Get_Hub_Descriptor(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, (uint8_t*)&(p_USB_Hub_Node->hub.descriptor), USB_Host_Hub___HUB_DESCRIPTOR_BASE_LENGTH);
-		break;
-	case USB_Host_Hub___HUB_SETUP_STAGE_GET_FULL_HUB_DESCRIPTOR:
-		USB_Host_Hub___Get_Hub_Descriptor(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, (uint8_t*)&(p_USB_Hub_Node->hub.descriptor), p_USB_Hub_Node->hub.descriptor.bDescriptorLength);
-		break;
-	case USB_Host_Hub___HUB_SETUP_STAGE_ENABLE_PORTS:
-		for(uint8_t i = 0; i < p_USB_Hub_Node->hub.descriptor.bNumberOfPorts; i++)
-		{
-			USB_Host_Hub___Set_Port_Feature(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, i+1, USB_Host_Hub___FEATURE_PORT_POWER, 0);
-		}
-		break;
-	}
+	uint8_t i = 0;
 }
 
-void USB_Host_Hub___URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+void USB_Host_Hub___Port_Enable_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
 {
 	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
 
 	if(p_Hub_Node != NULL)
 	{
-		USB_Host_Hub___Setup_Stage_Completed(p_Hub_Node);
+
+	}
+}
+
+void USB_Host_Hub___Do_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_Node)
+{
+	switch(p_USB_Hub_Node->hub.setup_Stage)
+	{
+	case USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION:
+		USB_Host_Hub___Set_Configuration(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, 0, USB_Host_Hub___URB_Setup_Callback);
+		break;
+	case USB_Host_Hub___HUB_SETUP_STAGE_GET_SHORT_HUB_DESCRIPTOR:
+		USB_Host_Hub___Get_Hub_Descriptor(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, (uint8_t*)&(p_USB_Hub_Node->hub.descriptor), USB_Host_Hub___HUB_DESCRIPTOR_BASE_LENGTH, USB_Host_Hub___URB_Setup_Callback);
+		break;
+	case USB_Host_Hub___HUB_SETUP_STAGE_GET_FULL_HUB_DESCRIPTOR:
+		USB_Host_Hub___Get_Hub_Descriptor(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, (uint8_t*)&(p_USB_Hub_Node->hub.descriptor), p_USB_Hub_Node->hub.descriptor.bDescriptorLength, USB_Host_Hub___URB_Setup_Callback);
+		break;
+	case USB_Host_Hub___HUB_SETUP_STAGE_ENABLE_PORTS:
+		for(uint8_t i = 0; i < p_USB_Hub_Node->hub.descriptor.bNumberOfPorts -1 ; i++)
+		{
+			USB_Host_Hub___Set_Port_Feature(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, i+1, USB_Host_Hub___FEATURE_PORT_POWER, 0, USB_Host_Hub___Port_Enable_URB_Callback);
+		}
+
+		USB_Host_Hub___Set_Port_Feature(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, p_USB_Hub_Node->hub.descriptor.bNumberOfPorts -1, USB_Host_Hub___FEATURE_PORT_POWER, 0, USB_Host_Hub___URB_Setup_Callback);
+		break;
+	case USB_Host_Hub___HUB_SETUP_STAGE_COMPLETE:
+		USB_Host_Device_Manager___Add_Polling_Device(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, 2, USB_Host_Hub___Polling_Callback);
+		break;
+	}
+}
+
+void USB_Host_Hub___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+{
+	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
+
+	if(p_Hub_Node != NULL)
+	{
 		USB_Host_Hub___Set_Next_Setup_Stage(p_Hub_Node);
 		USB_Host_Hub___Do_Setup_Stage(p_Hub_Node);
 	}

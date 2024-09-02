@@ -18,6 +18,16 @@
 
 static USB_LL_Interrupts_Host___Status_TypeDef host_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
 
+uint8_t USB_LL_Interrupts_Host___Is_Start_Of_Frame(uint8_t port_Number)
+{
+	return(host_Status[port_Number].is_Start_Of_Frame);
+}
+
+void USB_LL_Interrupts_Host___Clear_Start_Of_Frame(uint8_t port_Number)
+{
+	host_Status[port_Number].is_Start_Of_Frame = false;
+}
+
 uint8_t USB_LL_Interrupts_Host___Get_Root_Device_Speed(uint8_t port_Number)
 {
 	uint8_t return_Value = host_Status[port_Number].root_Device_Speed;
@@ -146,6 +156,11 @@ void USB_LL_Interrupts_Host___Device_Disconnect_Detected(uint8_t port_Number)
 	host_Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
 	host_Status[port_Number].is_Root_Device_Connected 					= 	false;
 	host_Status[port_Number].is_Root_Device_Disconnected 				= 	true;
+}
+
+void USB_LL_Interrupts_Host___Start_Of_Frame_Interrupt_Received(uint8_t port_Number)
+{
+	host_Status[port_Number].is_Start_Of_Frame = true;
 }
 
 void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)

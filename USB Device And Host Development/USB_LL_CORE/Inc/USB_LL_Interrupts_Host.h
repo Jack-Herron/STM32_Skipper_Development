@@ -23,6 +23,7 @@ typedef struct {
 } USB_LL_Interrupts_Host___Channel_Status_TypeDef;
 
 typedef struct {
+	uint8_t                                             is_Start_Of_Frame;
 	uint8_t												is_Root_Device_Connection_Status_Change;
 	uint8_t 											is_Root_Device_Connected;
 	uint8_t 											is_Root_Device_Disconnected;
@@ -45,4 +46,8 @@ uint8_t USB_LL_Interrupts_Host___Get_Channel_Status_Change_Flag(uint8_t port_Num
 uint8_t USB_LL_Interrupts_Host___Get_Channel_Status(uint8_t port_Number, uint8_t channel_Number);
 void USB_LL_Interrupts_Host___Clear_All_Channels_Status_Change_Flag(uint8_t port_Number);
 void USB_LL_Interrupts_Host___Clear_Channel_Status_Change_Flag(uint8_t port_Number,  uint8_t channel_Number);
+void USB_LL_Interrupts_Host___Start_Of_Frame_Interrupt_Received(uint8_t port_Number);
+uint8_t USB_LL_Interrupts_Host___Is_Start_Of_Frame(uint8_t port_Number);
+void USB_LL_Interrupts_Host___Clear_Start_Of_Frame(uint8_t port_Number);
+
 #endif /* INC_USB_LL_INTERRUPTS_HOST_H_ */

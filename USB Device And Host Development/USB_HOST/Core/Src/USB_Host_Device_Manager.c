@@ -61,6 +61,37 @@ static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[
 
 #endif // --------------------------------------------------------------------------------------------------------
 
+USB_Host_Device_Manager___Polling_Device_List_Typedef	USB_Host_Device_Manager___Polling_List[2] = {0};
+
+void USB_Host_Device_Manager___Add_Polling_Device(uint8_t port_Number, uint8_t device_Address, uint16_t polling_Period, void callback(uint8_t port_Number , uint8_t device_Address))
+{
+	USB_Host_Device_Manager___Polling_Device_Node_TypeDef* p_Polling_Node = &(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->polling_Process);
+
+	if(p_Polling_Node != NULL)
+	{
+		p_Polling_Node -> enabled														= true;
+		p_Polling_Node -> device_Address 												= device_Address;
+		p_Polling_Node -> polling_Target 												= polling_Period;
+		p_Polling_Node -> polling_Counter 												= 0;
+		p_Polling_Node -> callback 														= callback;
+
+		p_Polling_Node -> next_Node														= NULL;
+		p_Polling_Node -> previous_Node													= NULL;
+
+		if(USB_Host_Device_Manager___Polling_List->first_Node != NULL)
+		{
+			USB_Host_Device_Manager___Polling_List[port_Number].last_Node -> next_Node 	= p_Polling_Node;
+			USB_Host_Device_Manager___Polling_List[port_Number].last_Node 				= p_Polling_Node;
+			p_Polling_Node->previous_Node												= USB_Host_Device_Manager___Polling_List[port_Number].last_Node;
+		}
+		else
+		{
+			USB_Host_Device_Manager___Polling_List->last_Node 							= p_Polling_Node;
+			USB_Host_Device_Manager___Polling_List->first_Node 							= p_Polling_Node;
+		}
+	}
+}
+
 uint8_t USB_Host_Device_Manager___Get_Device_Class(uint8_t port_Number, uint8_t device_Address)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bDeviceClass);
@@ -482,6 +513,24 @@ void USB_Host_Device_Manager___Device_Initialize_Buffers(uint8_t port_Number, ui
 		for(uint8_t i = 0; i < USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS; i++)
 		{
 			p_Device -> descriptors.configuration[i].p_Configuration_Descriptor = (USB_Host___Configuration_Descriptor_TypeDef*) (p_Device -> descriptor_Buffers.configuration_Descriptor_Buffer[i]);
+		}
+	}
+}
+
+void USB_Host_Device_Manager___Handle_Start_Of_Frame(uint8_t port_Number)
+{
+	if(USB_Host_Device_Manager___Polling_List->first_Node != NULL)
+	{
+		USB_Host_Device_Manager___Polling_Device_Node_TypeDef* p_Polling_Node = USB_Host_Device_Manager___Polling_List->first_Node;
+		while (p_Polling_Node != NULL)
+		{
+			p_Polling_Node->polling_Counter++;
+			if (p_Polling_Node->polling_Counter >= (p_Polling_Node -> polling_Target -1))
+			{
+				p_Polling_Node->polling_Counter = 0;
+				p_Polling_Node->callback(port_Number, p_Polling_Node -> device_Address);
+			}
+			p_Polling_Node = p_Polling_Node->next_Node;
 		}
 	}
 }
