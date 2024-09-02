@@ -211,7 +211,7 @@ void USB_Host_Hub___Do_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_No
 		USB_Host_Hub___Set_Port_Feature(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, p_USB_Hub_Node->hub.descriptor.bNumberOfPorts -1, USB_Host_Hub___FEATURE_PORT_POWER, 0, USB_Host_Hub___URB_Setup_Callback);
 		break;
 	case USB_Host_Hub___HUB_SETUP_STAGE_COMPLETE:
-		USB_Host_Device_Manager___Add_Polling_Device(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, 2, USB_Host_Hub___Polling_Callback);
+		USB_Host_Device_Manager___Add_Polling_Device(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, p_USB_Hub_Node->hub.polling_Interval, USB_Host_Hub___Polling_Callback);
 		break;
 	}
 }
@@ -232,9 +232,11 @@ void USB_Host_Hub___Initiate_Hub(uint8_t port_Number, uint8_t device_Address)
 	USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_Node = USB_Host_Hub___Create_Enumerator(port_Number);
 	if(p_USB_Hub_Node != NULL)
 	{
-		p_USB_Hub_Node->hub.setup_Stage = USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION;
-		p_USB_Hub_Node->hub.device_Address 		= device_Address;
-		p_USB_Hub_Node->hub.port_Number 	= port_Number;
+		USB_Host___Endpoint_Descriptor_TypeDef* p_Endpoint_Descriptor 	= USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(port_Number, device_Address, 0, 0, 0);
+		p_USB_Hub_Node->hub.polling_Interval 							= p_Endpoint_Descriptor->bInterval;
+		p_USB_Hub_Node->hub.setup_Stage 								= USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION;
+		p_USB_Hub_Node->hub.device_Address 								= device_Address;
+		p_USB_Hub_Node->hub.port_Number 								= port_Number;
 		USB_Host_Hub___Do_Setup_Stage(p_USB_Hub_Node);
 	}
 }
