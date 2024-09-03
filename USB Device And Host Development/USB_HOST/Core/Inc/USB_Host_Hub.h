@@ -100,6 +100,9 @@ typedef struct{
 	uint8_t									polling_Interval;
 	USB_Host_Hub___Hub_Descriptor_TypeDef 	descriptor;
 	uint8_t 								setup_Stage;
+	uint8_t									interrupt_Endpoint_Packet_Size;
+	uint8_t									interrupt_Endpoint_Number;
+	uint8_t									interrupt_Endpoint_Data_Buffer[16];
 	USB_Host_Hub___Hub_Port_Typedef			port[USB_Host_Config___MAX_HUB_PORTS];
 }USB_Host_Hub___Hub_TypeDef;
 

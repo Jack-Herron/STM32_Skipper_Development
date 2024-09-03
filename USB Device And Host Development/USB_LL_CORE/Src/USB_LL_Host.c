@@ -64,7 +64,7 @@ uint32_t USB_LL_Host___Get_FIFO_Space_Available(uint8_t port_Number, uint8_t FIF
 	return(0);
 }
 
-uint16_t USB_LL_Host___Get_Frame_Number(uint8_t port_Number)
+uint16_t USB_LL_Host___Host_Get_Frame_Number(uint8_t port_Number)
 {
 	USB_OTG_HostTypeDef* USB_Host = USB_LL_Hardware___Get_USB_Host(port_Number);
 	return(USB_Host->HFNUM & USB_OTG_HFNUM_FRNUM_Msk);

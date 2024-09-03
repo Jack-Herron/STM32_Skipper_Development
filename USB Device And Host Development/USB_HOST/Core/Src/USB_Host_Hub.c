@@ -174,9 +174,21 @@ void USB_Host_Hub___Set_Next_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_
 	}
 }
 
+void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+{
+	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
+
+	if(p_Hub_Node != NULL)
+	{
+
+	}
+}
+
 void USB_Host_Hub___Polling_Callback(uint8_t port_Number, uint8_t device_Address)
 {
-	uint8_t i = 0;
+	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(port_Number, device_Address);
+	uint8_t odd_Frame = USB_Host___Get_Frame_Number(port_Number) %2;
+	USB_Host_Transfers___Interrupt_Transfer(port_Number, device_Address, p_Hub_Node->hub.interrupt_Endpoint_Number, USB_Host_Transfers___URB_DIRECTION_IN, p_Hub_Node->hub.interrupt_Endpoint_Data_Buffer, p_Hub_Node->hub.interrupt_Endpoint_Packet_Size, 0, odd_Frame, 1, USB_Host_Hub___Interrupt_URB_Callback);
 }
 
 void USB_Host_Hub___Port_Enable_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
@@ -195,6 +207,7 @@ void USB_Host_Hub___Do_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_No
 	{
 	case USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION:
 		USB_Host_Hub___Set_Configuration(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, 0, USB_Host_Hub___URB_Setup_Callback);
+		USB_Host_Device_Manager___Set_Configuration(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, 0);
 		break;
 	case USB_Host_Hub___HUB_SETUP_STAGE_GET_SHORT_HUB_DESCRIPTOR:
 		USB_Host_Hub___Get_Hub_Descriptor(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, (uint8_t*)&(p_USB_Hub_Node->hub.descriptor), USB_Host_Hub___HUB_DESCRIPTOR_BASE_LENGTH, USB_Host_Hub___URB_Setup_Callback);
@@ -234,6 +247,8 @@ void USB_Host_Hub___Initiate_Hub(uint8_t port_Number, uint8_t device_Address)
 	{
 		USB_Host___Endpoint_Descriptor_TypeDef* p_Endpoint_Descriptor 	= USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(port_Number, device_Address, 0, 0, 0);
 		p_USB_Hub_Node->hub.polling_Interval 							= p_Endpoint_Descriptor->bInterval;
+		p_USB_Hub_Node->hub.interrupt_Endpoint_Number 					= p_Endpoint_Descriptor->bEndpointAddress & 0x0f;
+		p_USB_Hub_Node->hub.interrupt_Endpoint_Packet_Size 				= p_Endpoint_Descriptor->wMaxPacketSize;
 		p_USB_Hub_Node->hub.setup_Stage 								= USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION;
 		p_USB_Hub_Node->hub.device_Address 								= device_Address;
 		p_USB_Hub_Node->hub.port_Number 								= port_Number;

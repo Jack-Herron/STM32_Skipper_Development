@@ -123,6 +123,10 @@ void 	USB_Host_Pipes___Process_Pipes	(uint8_t port_Number)
 						USB_Host_Pipes___Pipe[port_Number][i].callback(port_Number, i, USB_Host_Pipes___Pipe[port_Number][i].context, channel_Status, USB_Host_Pipes___Pipe[port_Number][i].p_Buffer, USB_Host_Pipes___Pipe[port_Number][i].transfer_Length);
 					}
 				}
+				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
+				{
+					uint8_t i = 0;
+				}
 			}
 		}
 	}

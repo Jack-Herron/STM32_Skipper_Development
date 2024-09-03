@@ -91,7 +91,9 @@ typedef struct __attribute__((packed)) {
   uint8_t	bInterval;          	/* is used to specify the polling interval of certain transfers. */
 } USB_Host___Endpoint_Descriptor_TypeDef;
 
-void USB_Host___Init(uint8_t port_Number);
-void USB_Host___Process(uint8_t port_Number);
-void USB_Host___Device_Enumerated(uint8_t port_Number, uint8_t device_Address);
+void 		USB_Host___Init					(uint8_t port_Number);
+void 		USB_Host___Process				(uint8_t port_Number);
+void 		USB_Host___Device_Enumerated	(uint8_t port_Number, uint8_t device_Address);
+uint16_t 	USB_Host___Get_Frame_Number		(uint8_t port_Number);
+
 #endif /* CORE_INC_USB_HOST_H_ */

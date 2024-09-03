@@ -298,6 +298,28 @@ void USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(uint8_t p
 	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->out_Endpoint_Status[endpoint_Number].max_Packet_Size = max_Packet_Size;
 }
 
+void USB_Host_Device_Manager___Set_Configuration(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
+{
+	for(uint8_t i = 0; i < USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor->bNumInterfaces; i++)
+	{
+		for(uint8_t j = 0; j < USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[i].p_Interface_Descriptor->bNumEndpoints; j++)
+		{
+			uint8_t  endpoint_Address 			= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[i].endpoint[j].p_Endpoint_Descriptor->bEndpointAddress & 0x0f;
+			uint8_t  endpoint_Direction 		= (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[i].endpoint[j].p_Endpoint_Descriptor->bEndpointAddress & 0x80) >> 7;
+			uint16_t endpoint_Max_Packet_Size	= USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[i].endpoint[j].p_Endpoint_Descriptor->wMaxPacketSize;
+
+			if(endpoint_Direction == 1)
+			{
+				USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(port_Number, device_Address, endpoint_Address, endpoint_Max_Packet_Size);
+			}
+			else
+			{
+				USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(port_Number, device_Address, endpoint_Address, endpoint_Max_Packet_Size);
+			}
+		}
+	}
+}
+
 uint32_t USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->out_Endpoint_Status[endpoint_Number].max_Packet_Size);
@@ -540,7 +562,7 @@ void USB_Host_Device_Manager___Handle_Start_Of_Frame(uint8_t port_Number)
 		while (p_Polling_Node != NULL)
 		{
 			p_Polling_Node->polling_Counter++;
-			if (p_Polling_Node->polling_Counter >= (p_Polling_Node -> polling_Target -1))
+			if (p_Polling_Node->polling_Counter >= (p_Polling_Node -> polling_Target))
 			{
 				p_Polling_Node->polling_Counter = 0;
 				p_Polling_Node->callback(port_Number, p_Polling_Node -> device_Address);

@@ -220,4 +220,5 @@ void 											USB_Host_Device_Manager___Add_Polling_Device									(uint8_t po
 USB_Host___Configuration_Descriptor_TypeDef*	USB_Host_Device_Manager___Device_Get_Configuration_Descriptor					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 USB_Host___Interface_Descriptor_TypeDef* 		USB_Host_Device_Manager___Device_Get_Interface_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index);
 USB_Host___Endpoint_Descriptor_TypeDef* 		USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index, uint8_t endpoint_Index);
+void 											USB_Host_Device_Manager___Set_Configuration										(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

@@ -19,9 +19,9 @@ struct USB_Host_Transfers___URB;
 #define USB_Host_Transfers___URB_STAGE_STATUS													2
 #define USB_Host_Transfers___URB_STAGE_COMPLETE													3
 #define USB_Host_Transfers___URB_TYPE_CONTROL													0
-#define USB_Host_Transfers___URB_TYPE_BULK														1
-#define USB_Host_Transfers___URB_TYPE_INTERRUPT													2
-#define USB_Host_Transfers___URB_TYPE_ISOCHRONOUS												3
+#define USB_Host_Transfers___URB_TYPE_ISOCHRONOUS												1
+#define USB_Host_Transfers___URB_TYPE_BULK														2
+#define USB_Host_Transfers___URB_TYPE_INTERRUPT												3
 #define USB_Host_Transfers___URB_DIRECTION_IN													USB_Host___TRANSFER_DIRECTION_IN
 #define USB_Host_Transfers___URB_DIRECTION_OUT													USB_Host___TRANSFER_DIRECTION_OUT
 #define USB_Host_Transfers___URB_FIFO_QUEUE_LENGTH												USB_Host_Config___MAX_USB_REQUEST_BLOCKS
@@ -85,7 +85,9 @@ typedef struct USB_Host_Transfers___URB
 	uint8_t											transfer_Type;
 	uint32_t										transfer_Length;
 	uint16_t                                        num_Retries;
+	uint8_t											is_Odd_Frame;
 	USB_Host_Transfers___Control_Setup_Packet		control_Setup_Packet;
+	uint8_t 										multi_Count;
 	uint8_t*										transfer_Buffer;
 	void(*URB_Callback)								(USB_Host_Transfers___URB_CALLBACK_PARAMETERS);
 }USB_Host_Transfers___URB_TypeDef;
@@ -103,8 +105,8 @@ typedef struct
 	USB_Host_Transfers___URB_Node_TypeDef*			last_Node;
 }USB_Host_Transfers___URB_Queue_TypeDef;
 
-int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
-int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, uint8_t odd_Frame, uint8_t multi_Count, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
+int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, uint8_t odd_Frame, uint8_t multi_Count, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
 int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
 int8_t USB_Host_Transfers___Control_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, USB_Host_Transfers___Control_Setup_Packet setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
 

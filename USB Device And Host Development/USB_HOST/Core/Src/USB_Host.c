@@ -98,6 +98,11 @@ void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Ad
 	GPIOD->ODR &= ~(1<<4);			// set PD4 HIGH
 }
 
+uint16_t USB_Host___Get_Frame_Number(uint8_t port_Number)
+{
+	return(USB_LL_Host___Host_Get_Frame_Number(port_Number));
+}
+
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 {
 	if(USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(port_Number))
