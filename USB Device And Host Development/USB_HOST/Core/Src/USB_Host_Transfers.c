@@ -211,6 +211,11 @@ void USB_Host_Transfers___Set_Next_URB_Transfer_Stage(USB_Host_Transfers___URB_T
 			USB_Host_Transfers___Delete_Current_URB(p_URB->port_Number);
 		}
 	}
+	else
+	{
+		p_URB -> URB_Callback(*p_URB);
+		USB_Host_Transfers___Delete_Current_URB(p_URB->port_Number);
+	}
 }
 
 void pipe_Callback(USB_Host_Pipes___Callback_Parameters)

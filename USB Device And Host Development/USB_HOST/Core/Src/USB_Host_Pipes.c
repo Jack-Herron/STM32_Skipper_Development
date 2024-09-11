@@ -79,6 +79,11 @@ uint8_t USB_Host_Pipes___Create_Pipe
 	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
 	USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
 
+	if(USB_Host_Pipes___Pipe[port_Number][pipe_Number].endpoint_Number == 1)
+	{
+		uint8_t i = 0;
+	}
+
 	return(pipe_Number);
 }
 
@@ -124,6 +129,10 @@ void 	USB_Host_Pipes___Process_Pipes	(uint8_t port_Number)
 					}
 				}
 				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
+				{
+					uint8_t i = 0;
+				}
+				else
 				{
 					uint8_t i = 0;
 				}
