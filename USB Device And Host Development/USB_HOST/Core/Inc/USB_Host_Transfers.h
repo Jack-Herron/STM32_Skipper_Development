@@ -89,6 +89,7 @@ typedef struct USB_Host_Transfers___URB
 	USB_Host_Transfers___Control_Setup_Packet		control_Setup_Packet;
 	uint8_t 										multi_Count;
 	uint8_t*										transfer_Buffer;
+	uint8_t											transfer_Status;
 	void(*URB_Callback)								(USB_Host_Transfers___URB_CALLBACK_PARAMETERS);
 }USB_Host_Transfers___URB_TypeDef;
 
