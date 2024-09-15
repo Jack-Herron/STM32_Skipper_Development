@@ -125,7 +125,6 @@ void 	USB_Host_Pipes___Process_Pipes	(uint8_t port_Number)
 				uint8_t channel_Status = USB_LL_Interrupts_Host___Get_Channel_Status(port_Number, i);
 				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
 				{
-					USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID(port_Number, USB_Host_Pipes___Pipe[port_Number][i].device_Address, USB_Host_Pipes___Pipe[port_Number][i].endpoint_Number, USB_Host_Pipes___Pipe[port_Number][i].pipe_Direction, USB_LL_Host___Channel_Get_Current_Packet_ID(port_Number, i));
 					USB_Host_Pipes___Free_Pipe(port_Number, i);
 					if(USB_Host_Pipes___Pipe[port_Number][i].callback != NULL)
 					{
