@@ -32,6 +32,9 @@ void GPIO_init(void){
 	GPIOA->MODER |= (1<<4); 		// set PA2 to output
 	GPIOA->ODR &= ~(1<<2);			// set PA2 HIGH
 
+	GPIOC->MODER |= (1<<0); 		// set PA2 to output
+	GPIOC->ODR &= ~(1<<0);			// set PA2 LOW
+
 }
 
 int main(void) {
