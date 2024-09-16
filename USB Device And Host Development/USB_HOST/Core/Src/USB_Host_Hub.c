@@ -180,7 +180,10 @@ void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PAR
 
 	if(p_Hub_Node != NULL)
 	{
+		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
+		{
 
+		}
 	}
 }
 
