@@ -182,7 +182,7 @@ void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PAR
 	{
 		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
 		{
-
+			uint8_t i = 0;
 		}
 	}
 }
