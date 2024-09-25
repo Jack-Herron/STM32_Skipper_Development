@@ -28,6 +28,7 @@
 		free(p_Hub_Node);
 	}
 
+
 #else
 
 	static USB_Host_Hub___Hub_Node_TypeDef USB_Host_Hub___Hub_Node_Pool[USB_Host_Config___MAX_USB_HUBS];
