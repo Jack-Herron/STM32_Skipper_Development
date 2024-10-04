@@ -28,7 +28,6 @@
 		free(p_Hub_Node);
 	}
 
-
 #else
 
 	static USB_Host_Hub___Hub_Node_TypeDef USB_Host_Hub___Hub_Node_Pool[USB_Host_Config___MAX_USB_HUBS];
@@ -175,6 +174,11 @@ void USB_Host_Hub___Set_Next_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_
 	}
 }
 
+void USB_Host_Hub___Get_Port_Status(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint8_t p_Buffer, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+{
+
+}
+
 void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
 {
 	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
@@ -183,7 +187,17 @@ void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PAR
 	{
 		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
 		{
-			uint8_t i = 0;
+			for(uint8_t i = 0; i < URB.transfer_Length; i++)
+			{
+				uint8_t port_Mask = URB.transfer_Buffer[i];
+				uint8_t hub_Port_Number;
+				while(port_Mask != 0)
+				{
+					hub_Port_Number = POSITION_VAL(port_Mask) + (i * 8);
+					USB_Host_Hub___Get_Port_Status(URB.port_Number, URB.device_Address, hub_Port_Number, 0, 0);
+					port_Mask &= ~(1 << hub_Port_Number);
+				}
+			}
 		}
 	}
 }
