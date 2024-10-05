@@ -174,9 +174,17 @@ void USB_Host_Hub___Set_Next_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_
 	}
 }
 
+//new function\/\/\/
 void USB_Host_Hub___Get_Port_Status(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint8_t p_Buffer, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
+	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_CLASS_HOST_TO_OTHER;
+	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_SET_FEATURE;
+	setup_Packet.wValue 		= main_Feature_Selector;
+	setup_Packet.wIndex 		= hub_Port_Number | (sub_Feature_Selector << 8);
+	setup_Packet.wLength 		= 0;
 
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Hub___STANDARD_NUMBER_OF_RETRIES, callback);
 }
 
 void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
