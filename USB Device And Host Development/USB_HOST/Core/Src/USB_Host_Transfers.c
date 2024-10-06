@@ -221,17 +221,16 @@ void USB_Host_Transfers___Set_Next_URB_Transfer_Stage(USB_Host_Transfers___URB_T
 void pipe_Callback(USB_Host_Pipes___Callback_Parameters)
 {
 	USB_Host_Transfers___URB_TypeDef* p_URB = (USB_Host_Transfers___URB_TypeDef*)context;
-	if(status == 0)
-	{
-		uint8_t pipe_Direction 		= USB_Host_Pipes___Get_Pipe_Direction(port_Number, pipe_Number);
-		uint8_t packet_ID 			= USB_Host_Pipes___Get_Current_Packet_ID(port_Number, pipe_Number);
 
-		p_URB -> transfer_Status 	= status;
+	uint8_t pipe_Direction 		= USB_Host_Pipes___Get_Pipe_Direction(port_Number, pipe_Number);
+	uint8_t packet_ID 			= USB_Host_Pipes___Get_Current_Packet_ID(port_Number, pipe_Number);
 
-		USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID(p_URB->port_Number, p_URB->device_Address, pipe_Direction, p_URB->endpoint_Number, packet_ID);
-		USB_Host_Transfers___Set_Next_URB_Transfer_Stage(p_URB);
-		p_URB -> busy = false;
-	}
+	p_URB -> transfer_Status 	= status;
+
+	USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID(p_URB->port_Number, p_URB->device_Address, pipe_Direction, p_URB->endpoint_Number, packet_ID);
+	USB_Host_Transfers___Set_Next_URB_Transfer_Stage(p_URB);
+
+	p_URB -> busy = false;
 }
 
 void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)

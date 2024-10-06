@@ -92,6 +92,11 @@ void USB_Host_Device_Manager___Add_Polling_Device(uint8_t port_Number, uint8_t d
 	}
 }
 
+uint8_t USB_Host_Device_Manager___Is_Port_Open(uint8_t port_Number)
+{
+	return(USB_Host_Device_Manager___Port[port_Number].p_Device[0] == NULL);
+}
+
 uint8_t USB_Host_Device_Manager___Get_Device_Class(uint8_t port_Number, uint8_t device_Address)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bDeviceClass);
@@ -572,27 +577,35 @@ void USB_Host_Device_Manager___Handle_Start_Of_Frame(uint8_t port_Number)
 	}
 }
 
-void USB_Host_Device_Manager___Initialize_Device(uint8_t port_Number, uint8_t device_Address, uint8_t is_Root_Device, uint8_t device_Speed)
+void USB_Host_Device_Manager___Setup_Device(uint8_t port_Number, uint8_t device_Address, uint8_t is_Root_Device, uint8_t device_Speed)
 {
 	USB_Host_Device_Manager___Device_Set_Is_Root_Device							(port_Number, device_Address, is_Root_Device);
 	USB_Host_Device_Manager___Device_Initialize_Buffers							(port_Number, device_Address);
 	USB_Host_Device_Manager___Device_Set_Port_Number							(port_Number, 0);
 	USB_Host_Device_Manager___Device_Set_Speed									(port_Number, 0, device_Speed);
-	USB_Host_Device_Manager___Device_Connected									(port_Number, 0);
 }
+
+
 
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device)
 {
 	if(USB_Host_Device_Manager___Port[port_Number].p_Device[0] == NULL)
 	{
 		USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Allocate_Device();
-		if(USB_Host_Device_Manager___Port_Set_Device_To_Address(port_Number, 0, p_Device) == EXIT_SUCCESS)
+		if(p_Device != NULL)
 		{
-			USB_Host_Device_Manager___Initialize_Device(port_Number, 0, is_Root_Device, device_Speed);
+			if(USB_Host_Device_Manager___Port_Set_Device_To_Address(port_Number, 0, p_Device) == EXIT_SUCCESS)
+			{
+				USB_Host_Device_Manager___Setup_Device(port_Number, 0, is_Root_Device, device_Speed);
 
-			return(EXIT_SUCCESS);
+				return(EXIT_SUCCESS);
+			}
 		}
-		return(EXIT_FAILURE);
 	}
 	return(EXIT_FAILURE);
+}
+
+void USB_Host_Device_Manager___Enable_Device(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_Connected(port_Number, device_Address);
 }

@@ -71,6 +71,7 @@ void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 
 			if(USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(port_Number, device_Manager_Speed, true) == EXIT_SUCCESS)
 			{
+				USB_Host_Device_Manager___Enable_Device(port_Number, 0);
 				USB_LL_Interrupts_Host___Clear_Connection_Status_Change(port_Number);
 			}
 		}

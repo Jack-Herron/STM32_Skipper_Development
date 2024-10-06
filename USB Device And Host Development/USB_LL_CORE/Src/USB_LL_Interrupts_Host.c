@@ -244,6 +244,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			}
 			else
 			{
+				USB_LL_Host___Channel_Halt(port_Number, channel_Number);
 				USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 				host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 				host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK;
