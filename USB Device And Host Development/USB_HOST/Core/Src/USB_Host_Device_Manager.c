@@ -92,6 +92,11 @@ void USB_Host_Device_Manager___Add_Polling_Device(uint8_t port_Number, uint8_t d
 	}
 }
 
+USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Get_Device_Pointer(uint8_t port_Number, uint8_t device_Address)
+{
+	return(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]);
+}
+
 uint8_t USB_Host_Device_Manager___Is_Port_Open(uint8_t port_Number)
 {
 	return(USB_Host_Device_Manager___Port[port_Number].p_Device[0] == NULL);
@@ -385,6 +390,7 @@ int8_t USB_Host_Device_Manager___Port_Set_Device_To_Address(uint8_t port_Number,
 	if(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] == NULL)
 	{
 		USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address] = p_Device;
+		p_Device->status.current_USB_Address = device_Address;
 		return(EXIT_SUCCESS);
 	}
 
@@ -451,6 +457,7 @@ void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t 
 
 	if(p_Device != NULL)
 	{
+		USB_Host_Device_Manager___Port[port_Number].number_Of_Devices_Connected--;
 		USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag 	= true;
 		p_Device->status.connection_Flag 																= true;
 		p_Device->status.is_Connected 																	= false;
@@ -463,6 +470,7 @@ void USB_Host_Device_Manager___Device_Connected(uint8_t port_Number, uint8_t dev
 
 	if(p_Device != NULL)
 	{
+		USB_Host_Device_Manager___Port[port_Number].number_Of_Devices_Connected++;
 		USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag 	= true;
 		p_Device->status.connection_Flag 																= true;
 		p_Device->status.is_Connected 																	= true;

@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include "../../Config/USB_Host_Config.h"
-
+#include "USB_Host_Device_Manager.h"
 #define USB_Host_Hub___QUICK_DIV_ROOF(number, diviser) 				((number + (diviser-1)) / diviser)
 
 #define USB_Host_Hub___HUB_DEVICE_CLASS								0x09
@@ -91,7 +91,7 @@ typedef struct __attribute__((__packed__)){
 }USB_Host_Hub___Hub_Descriptor_TypeDef;
 
 typedef struct{
-	uint8_t 		is_Powered;
+	USB_Host_Device_Manager___Device_TypeDef*	p_Device;
 }USB_Host_Hub___Hub_Port_Typedef;
 
 typedef struct{

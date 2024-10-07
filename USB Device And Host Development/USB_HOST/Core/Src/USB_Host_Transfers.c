@@ -186,7 +186,7 @@ int8_t USB_Host_Transfers___Control_Transfer(uint8_t port_Number, uint8_t device
 
 void USB_Host_Transfers___Set_Next_URB_Transfer_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)
 {
-	if(p_URB->transfer_Type == USB_Host_Transfers___URB_TYPE_CONTROL)
+	if((p_URB->transfer_Type == USB_Host_Transfers___URB_TYPE_CONTROL) && (p_URB->transfer_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE))
 	{
 		if(p_URB -> transfer_Stage == USB_Host_Transfers___URB_STAGE_SETUP)
 		{
@@ -230,12 +230,14 @@ void pipe_Callback(USB_Host_Pipes___Callback_Parameters)
 	USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID(p_URB->port_Number, p_URB->device_Address, pipe_Direction, p_URB->endpoint_Number, packet_ID);
 	USB_Host_Transfers___Set_Next_URB_Transfer_Stage(p_URB);
 
+
 	p_URB -> busy = false;
 }
 
 void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)
 {
 	p_URB -> busy = true;
+	p_URB -> transfer_Status = 0;
 	uint8_t pipe_Number = USB_Host_Pipes___Create_Pipe
 	(
 		p_URB->port_Number,
@@ -260,6 +262,7 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeD
 void USB_Host_Transfers___Process_URB_Data_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)
 {
 	p_URB -> busy = true;
+	p_URB -> transfer_Status = 0;
 	uint8_t pipe_Number;
 
 	uint16_t max_Packet_Size;
@@ -298,6 +301,7 @@ void USB_Host_Transfers___Process_URB_Data_Stage(USB_Host_Transfers___URB_TypeDe
 void USB_Host_Transfers___Process_URB_Status_Stage(USB_Host_Transfers___URB_TypeDef* p_URB)
 {
 	p_URB -> busy = true;
+	p_URB -> transfer_Status = 0;
 	uint8_t pipe_Number;
 
 	pipe_Number = USB_Host_Pipes___Create_Pipe

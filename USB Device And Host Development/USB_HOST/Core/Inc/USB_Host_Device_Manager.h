@@ -223,4 +223,6 @@ USB_Host___Endpoint_Descriptor_TypeDef* 		USB_Host_Device_Manager___Device_Get_E
 void 											USB_Host_Device_Manager___Set_Configuration										(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 uint8_t 										USB_Host_Device_Manager___Is_Port_Open											(uint8_t port_Number);
 void 											USB_Host_Device_Manager___Enable_Device											(uint8_t port_Number, uint8_t device_Address);
+USB_Host_Device_Manager___Device_TypeDef* 		USB_Host_Device_Manager___Get_Device_Pointer									(uint8_t port_Number, uint8_t device_Address);
+
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

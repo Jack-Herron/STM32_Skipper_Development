@@ -203,12 +203,12 @@ void USB_Host_Hub___Handle_Change_In_Port_Reset_Status(uint8_t port_Number, uint
 	USB_Host_Device_Manager___Enable_Device(port_Number, 0);
 }
 
-void USB_Host_Hub___Handle_Change_In_Port_Connection_Status(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint16_t wPortChange, uint16_t wPortStatus)
+void USB_Host_Hub___Handle_Port_Connection(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint16_t wPortChange, uint16_t wPortStatus)
 {
+	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(port_Number, device_Address);
+
 	if(USB_Host_Device_Manager___Is_Port_Open(port_Number))
 	{
-		USB_Host_Hub___Clear_Port_Feature(port_Number, device_Address, hub_Port_Number, USB_Host_Hub___FEATURE_C_PORT_CONNECTION, 0, USB_Host_Hub___Generic_URB_Callback);
-
 		uint8_t device_Speed;
 
 		if(((wPortStatus & USB_Host_Hub___wPortStatus_PORT_LOW_SPEED_Msk) >> USB_Host_Hub___wPortStatus_PORT_LOW_SPEED_Pos) == true)
@@ -228,12 +228,43 @@ void USB_Host_Hub___Handle_Change_In_Port_Connection_Status(uint8_t port_Number,
 
 		if(allocation_Result == EXIT_SUCCESS)
 		{
+			p_Hub_Node->hub.port[hub_Port_Number].p_Device = USB_Host_Device_Manager___Get_Device_Pointer(port_Number, 0);
+			USB_Host_Hub___Clear_Port_Feature(port_Number, device_Address, hub_Port_Number, USB_Host_Hub___FEATURE_C_PORT_CONNECTION, 0, USB_Host_Hub___Generic_URB_Callback);
 			USB_Host_Hub___Set_Port_Feature(port_Number, device_Address, hub_Port_Number, USB_Host_Hub___FEATURE_PORT_RESET, 0, USB_Host_Hub___Generic_URB_Callback);
+
+
 		}
 	}
 }
 
-uint8_t test1 = 0;
+uint8_t disconnected_Device_Address = 255;
+
+void USB_Host_Hub___Handle_Port_Disconnection(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint16_t wPortChange, uint16_t wPortStatus)
+{
+	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(port_Number, device_Address);
+
+	USB_Host_Hub___Clear_Port_Feature(port_Number, device_Address, hub_Port_Number, USB_Host_Hub___FEATURE_C_PORT_CONNECTION, 0, USB_Host_Hub___Generic_URB_Callback);
+
+
+	if(p_Hub_Node->hub.port[hub_Port_Number].p_Device != NULL)
+	{
+		disconnected_Device_Address = p_Hub_Node->hub.port[hub_Port_Number].p_Device->status.current_USB_Address;
+		USB_Host_Device_Manager___Device_Disconnected(port_Number, p_Hub_Node->hub.port[hub_Port_Number].p_Device->status.current_USB_Address);
+		p_Hub_Node->hub.port[hub_Port_Number].p_Device = NULL;
+	}
+}
+
+void USB_Host_Hub___Handle_Change_In_Port_Connection_Status(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint16_t wPortChange, uint16_t wPortStatus)
+{
+	if(wPortStatus & USB_Host_Hub___wPortStatus_PORT_CONNECTION_Msk >> USB_Host_Hub___wPortStatus_PORT_CONNECTION_Pos)
+	{
+		USB_Host_Hub___Handle_Port_Connection(port_Number, device_Address, hub_Port_Number, wPortChange, wPortStatus);
+	}
+	else
+	{
+		USB_Host_Hub___Handle_Port_Disconnection(port_Number, device_Address, hub_Port_Number, wPortChange, wPortStatus);
+	}
+}
 
 void USB_Host_Hub___Get_Port_Status_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
 {
@@ -246,7 +277,6 @@ void USB_Host_Hub___Get_Port_Status_URB_Callback(USB_Host_Transfers___URB_CALLBA
 		uint8_t							hub_Port_Number = URB.control_Setup_Packet.wIndex;
 		while(wPortChange)
 		{
-			test1++;
 			switch(POSITION_VAL(wPortChange))
 			{
 			case USB_Host_Hub___wPortChange_C_PORT_CONNECTION_Pos:
@@ -262,7 +292,6 @@ void USB_Host_Hub___Get_Port_Status_URB_Callback(USB_Host_Transfers___URB_CALLBA
 	}
 }
 
-//new function\/\/\/
 void USB_Host_Hub___Get_Port_Status(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint8_t* p_Buffer, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
 	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
@@ -294,9 +323,6 @@ void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PAR
 					port_Mask &= ~(1 << hub_Port_Number);
 				}
 			}
-		}
-		else{
-			uint8_t i = 0;
 		}
 	}
 }
