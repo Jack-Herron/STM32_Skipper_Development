@@ -132,7 +132,7 @@ typedef struct{
 } USB_Host_Device_Manager___Device_Status_TypeDef;
 
 typedef struct {
-	int8_t 																(*device_Disconnected_Callback)			(uint8_t port_Number , uint8_t device_Address);
+	void 																(*device_Disconnected_Callback)			(uint8_t port_Number , uint8_t device_Address);
 	int8_t 																(*device_Enumerated_Callback)			(uint8_t port_Number , uint8_t device_Address);
 } USB_Host_Device_Manager___Device_Callbacks_TypeDef;
 
@@ -224,5 +224,6 @@ void 											USB_Host_Device_Manager___Set_Configuration										(uint8_t po
 uint8_t 										USB_Host_Device_Manager___Is_Port_Open											(uint8_t port_Number);
 void 											USB_Host_Device_Manager___Enable_Device											(uint8_t port_Number, uint8_t device_Address);
 USB_Host_Device_Manager___Device_TypeDef* 		USB_Host_Device_Manager___Get_Device_Pointer									(uint8_t port_Number, uint8_t device_Address);
+void 											USB_Host_Device_Manager___Device_Add_Disconnection_Callback						(uint8_t port_Number, uint8_t device_Address, void callback(uint8_t port_Number, uint8_t device_Address));
 
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

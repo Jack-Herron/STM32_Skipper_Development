@@ -74,22 +74,60 @@ void USB_Host_Device_Manager___Add_Polling_Device(uint8_t port_Number, uint8_t d
 		p_Polling_Node -> polling_Target 												= polling_Period;
 		p_Polling_Node -> polling_Counter 												= 0;
 		p_Polling_Node -> callback 														= callback;
-
 		p_Polling_Node -> next_Node														= NULL;
 		p_Polling_Node -> previous_Node													= NULL;
 
 		if(USB_Host_Device_Manager___Polling_List->first_Node != NULL)
 		{
+			p_Polling_Node->previous_Node												= USB_Host_Device_Manager___Polling_List[port_Number].last_Node;
 			USB_Host_Device_Manager___Polling_List[port_Number].last_Node -> next_Node 	= p_Polling_Node;
 			USB_Host_Device_Manager___Polling_List[port_Number].last_Node 				= p_Polling_Node;
-			p_Polling_Node->previous_Node												= USB_Host_Device_Manager___Polling_List[port_Number].last_Node;
 		}
 		else
 		{
-			USB_Host_Device_Manager___Polling_List->last_Node 							= p_Polling_Node;
-			USB_Host_Device_Manager___Polling_List->first_Node 							= p_Polling_Node;
+			USB_Host_Device_Manager___Polling_List[port_Number].last_Node 							= p_Polling_Node;
+			USB_Host_Device_Manager___Polling_List[port_Number].first_Node 							= p_Polling_Node;
 		}
 	}
+}
+
+void USB_Host_Device___Remove_Polling_Device(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Polling_Device_Node_TypeDef* p_Polling_Node = &(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->polling_Process);
+	if(p_Polling_Node != NULL)
+	{
+		p_Polling_Node -> enabled														= false;
+		p_Polling_Node -> device_Address 												= 0;
+		p_Polling_Node -> polling_Target 												= 0;
+		p_Polling_Node -> polling_Counter 												= 0;
+		p_Polling_Node -> callback 														= NULL;
+
+		if(p_Polling_Node == USB_Host_Device_Manager___Polling_List[port_Number].first_Node)
+		{
+			USB_Host_Device_Manager___Polling_List[port_Number].first_Node = NULL;
+		}
+		if(p_Polling_Node == USB_Host_Device_Manager___Polling_List[port_Number].last_Node)
+		{
+			USB_Host_Device_Manager___Polling_List[port_Number].last_Node = p_Polling_Node->previous_Node;
+		}
+
+		if(p_Polling_Node -> previous_Node != NULL)
+		{
+			if(p_Polling_Node -> next_Node != NULL)
+			{
+				p_Polling_Node->previous_Node -> next_Node 	= p_Polling_Node -> next_Node;
+			}
+			else
+			{
+				p_Polling_Node->previous_Node -> next_Node = NULL;
+			}
+		}
+	}
+}
+
+void USB_Host_Device_Manager___Device_Add_Disconnection_Callback(uint8_t port_Number, uint8_t device_Address, void callback(uint8_t port_Number, uint8_t device_Address))
+{
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->callbacks.device_Disconnected_Callback = callback;
 }
 
 USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Get_Device_Pointer(uint8_t port_Number, uint8_t device_Address)
@@ -457,10 +495,15 @@ void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t 
 
 	if(p_Device != NULL)
 	{
+		USB_Host_Device___Remove_Polling_Device(port_Number, device_Address);
 		USB_Host_Device_Manager___Port[port_Number].number_Of_Devices_Connected--;
 		USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag 	= true;
 		p_Device->status.connection_Flag 																= true;
 		p_Device->status.is_Connected 																	= false;
+		if (p_Device->callbacks.device_Disconnected_Callback != NULL)
+		{
+			p_Device->callbacks.device_Disconnected_Callback(port_Number, device_Address);
+		}
 	}
 }
 

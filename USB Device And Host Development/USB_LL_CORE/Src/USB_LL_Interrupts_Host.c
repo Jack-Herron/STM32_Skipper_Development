@@ -216,9 +216,6 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 				USB_LL_Host___Channel_Retry_Transfer_Out(port_Number, channel_Number);
 				USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, false);
 			}
-			//USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
-			//host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			//host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_CHANNEL_HALTED;
 			break;
 
 		case USB_OTG_HCINT_STALL_Pos: 								// channel Stall received
@@ -265,7 +262,6 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
-			//USB_LL_Host___Channel_Halt(port_Number, channel_Number);
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR;
@@ -273,7 +269,6 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
-			//USB_LL_Host___Channel_Halt(port_Number, channel_Number);
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR;
