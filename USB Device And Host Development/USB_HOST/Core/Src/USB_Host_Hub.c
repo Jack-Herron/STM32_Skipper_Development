@@ -251,8 +251,15 @@ void USB_Host_Hub___Handle_Change_In_Port_Reset_Status(uint8_t port_Number, uint
 {
 	// Clear the C_PORT_RESET feature
 	USB_Host_Hub___Clear_Port_Feature(port_Number, device_Address, hub_Port_Number, USB_Host_Hub___FEATURE_C_PORT_RESET, 0, USB_Host_Hub___Generic_URB_Callback);
+<<<<<<< Upstream, based on origin/main
 	// Enable the device on the port
 	USB_Host_Device_Manager___Enable_Device(port_Number, 0);
+=======
+	if(wPortStatus & USB_Host_Hub___wPortStatus_PORT_CONNECTION_Msk)
+	{
+		USB_Host_Device_Manager___Enable_Device(port_Number, 0);
+	}
+>>>>>>> bdbfeb5 debugging, not finished
 }
 
 // Function to handle port connection events
@@ -293,10 +300,13 @@ void USB_Host_Hub___Handle_Port_Connection(uint8_t port_Number, uint8_t device_A
 	}
 }
 
+<<<<<<< Upstream, based on origin/main
 // Variable to store the address of a disconnected device
 uint8_t disconnected_Device_Address = 255;
 
 // Function to handle port disconnection events
+=======
+>>>>>>> bdbfeb5 debugging, not finished
 void USB_Host_Hub___Handle_Port_Disconnection(uint8_t port_Number, uint8_t device_Address, uint8_t hub_Port_Number, uint16_t wPortChange, uint16_t wPortStatus)
 {
 	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(port_Number, device_Address);
@@ -306,9 +316,12 @@ void USB_Host_Hub___Handle_Port_Disconnection(uint8_t port_Number, uint8_t devic
 
 	if(p_Hub_Node->hub.port[hub_Port_Number].p_Device != NULL)
 	{
+<<<<<<< Upstream, based on origin/main
 		// Retrieve the disconnected device's address
 		disconnected_Device_Address = p_Hub_Node->hub.port[hub_Port_Number].p_Device->status.current_USB_Address;
 		// Notify the device manager about the disconnection
+=======
+>>>>>>> bdbfeb5 debugging, not finished
 		USB_Host_Device_Manager___Device_Disconnected(port_Number, p_Hub_Node->hub.port[hub_Port_Number].p_Device->status.current_USB_Address);
 		// Clear the device pointer
 		p_Hub_Node->hub.port[hub_Port_Number].p_Device = NULL;

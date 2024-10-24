@@ -115,11 +115,8 @@ int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t de
 	return(EXIT_FAILURE);
 }
 
-uint16_t itest2 = 0;
-
 int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, uint8_t odd_Frame, uint8_t multi_Count, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
 {
-	itest2++;
 	USB_Host_Transfers___URB_TypeDef* p_URB = USB_Host_Transfers___Create_URB(port_Number);
 	if(p_URB != NULL)
 	{

@@ -123,7 +123,10 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 			{
 				USB_LL_Interrupts_Host___Clear_Channel_Status_Change_Flag(port_Number, i);
 				uint8_t channel_Status = USB_LL_Interrupts_Host___Get_Channel_Status(port_Number, i);
-
+				if(channel_Status != USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE && channel_Status != USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
+				{
+					uint8_t i = 0;
+				}
 				USB_Host_Pipes___Free_Pipe(port_Number, i);
 				if(USB_Host_Pipes___Pipe[port_Number][i].callback != NULL)
 				{
