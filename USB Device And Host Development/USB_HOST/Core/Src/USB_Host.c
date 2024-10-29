@@ -43,17 +43,24 @@ uint8_t USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manag
 	}
 }
 
-void USB_Host___Device_Enumerated(uint8_t port_Number, uint8_t device_Address)
+void USB_Host___Device_Enumeration_Finished(uint8_t port_Number, uint8_t device_Address, uint8_t success)
 {
-	uint8_t device_Class = USB_Host_Device_Manager___Get_Device_Class(port_Number, device_Address);
-
-	if(device_Class == USB_Host_Hub___HUB_DEVICE_CLASS)
+	if(success)
 	{
-		USB_Host_Hub___Initiate_Hub(port_Number, device_Address);
+		uint8_t device_Class = USB_Host_Device_Manager___Get_Device_Class(port_Number, device_Address);
+
+		if(device_Class == USB_Host_Hub___HUB_DEVICE_CLASS)
+		{
+			USB_Host_Hub___Initiate_Hub(port_Number, device_Address);
+		}
+		else
+		{
+			uint8_t i =0;
+		}
 	}
 	else
 	{
-		uint8_t i =0;
+		USB_Host_Device_Manager___Device_Disconnected(port_Number, device_Address);
 	}
 }
 

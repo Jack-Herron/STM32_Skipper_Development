@@ -415,6 +415,7 @@ void USB_Host_Enumerate___URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMET
 		}
 		else
 		{
+			USB_Host___Device_Enumeration_Finished(URB.port_Number, URB.device_Address, false);
 			USB_Host_Enumerate___Delete_Enumerator_Node(URB.port_Number, p_Enumerator_Node);
 		}
 	}
@@ -543,7 +544,7 @@ void USB_Host_Enumerate___Do_Setup_Stage(USB_Host_Enumerate___Enumerator_Node_Ty
 		break;
 	}
 	case USB_Host_Device_Manager___SETUP_STAGE_COMPLETE:
-		USB_Host___Device_Enumerated(port_Number, device_Address);
+		USB_Host___Device_Enumeration_Finished(port_Number, device_Address, true);
 		USB_Host_Enumerate___Delete_Enumerator_Node(port_Number, p_Enumerator_Node);
 		break;
 	}
