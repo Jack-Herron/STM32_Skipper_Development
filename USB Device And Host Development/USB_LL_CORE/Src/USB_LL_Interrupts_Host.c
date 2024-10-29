@@ -226,8 +226,10 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_HCINT_NAK_Pos: 								// NAK received
+		{
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_NAK_Msk;
-			if (USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number) > 0)
+			uint16_t retries_Remaining = USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number);
+			if (retries_Remaining > 0)
 			{
 				if(USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
 				{
@@ -238,6 +240,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 				{
 					USB_LL_Host___Channel_Retry_Transfer_In(port_Number, channel_Number);
 				}
+				USB_LL_Host___Channel_Set_Retries_Remaining(port_Number, channel_Number, retries_Remaining-1);
 			}
 			else
 			{
@@ -247,6 +250,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 				host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK;
 			}
 			break;
+		}
 
 		case USB_OTG_HCINT_ACK_Pos: 										// ACK received
 			USB_Host_Ch->HCINT = USB_OTG_HCINT_ACK_Msk;
@@ -262,9 +266,27 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
-			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
-			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
-			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR;
+			uint16_t retries_Remaining = USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number);
+			if (retries_Remaining > 0)
+			{
+				if(USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
+				{
+					USB_LL_Host___Channel_Halt(port_Number, channel_Number);
+					USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, true);
+				}
+				else
+				{
+					USB_LL_Host___Channel_Retry_Transfer_In(port_Number, channel_Number);
+				}
+				USB_LL_Host___Channel_Set_Retries_Remaining(port_Number, channel_Number, retries_Remaining-1);
+			}
+			else
+			{
+				USB_LL_Host___Channel_Halt(port_Number, channel_Number);
+				USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
+				host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
+				host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR;
+			}
 			break;
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received

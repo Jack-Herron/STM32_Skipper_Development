@@ -76,7 +76,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 
 	USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
 	USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
-	USB_LL_Host___Channel_Set_Number_Of_Retries(port_Number, pipe_Number, number_Of_Retries);
+	USB_LL_Host___Channel_Set_Retries_Remaining(port_Number, pipe_Number, number_Of_Retries);
 	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
 	USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
 
@@ -125,7 +125,7 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 				uint8_t channel_Status = USB_LL_Interrupts_Host___Get_Channel_Status(port_Number, i);
 				if(channel_Status != USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE && channel_Status != USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
 				{
-					uint8_t i = 0;
+					uint8_t j = 0;
 				}
 				USB_Host_Pipes___Free_Pipe(port_Number, i);
 				if(USB_Host_Pipes___Pipe[port_Number][i].callback != NULL)

@@ -16,7 +16,7 @@
 #define USB_Host_Config___PORT_DEVICE_LIMIT								0x8
 
 #define USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_REQUEST_BLOCKS		false		// highly recommended to leave this option false
-#define USB_Host_Config___MAX_USB_REQUEST_BLOCKS						0x10
+#define USB_Host_Config___MAX_USB_REQUEST_BLOCKS						0x40
 
 #define USB_Host_Config___DYNAMICALLY_ALLOCATE_ENUMERATORS              false		// highly recommended to leave this option false
 #define USB_Host_Config___MAX_USB_ENUMERATORS							USB_Host_Config___NUMBER_OF_HOST_PORTS_USED		// how many devices can be in the setup process at one time (only up to one per port is recommended)

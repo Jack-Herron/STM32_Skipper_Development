@@ -79,6 +79,11 @@ uint16_t USB_LL_Host___Channel_Get_Retries_Remaining(uint8_t port_Number, uint8_
 	return (USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retries_Remaining);
 }
 
+void USB_LL_Host___Channel_Set_Retries_Remaining(uint8_t port_Number, uint8_t channel_Number, uint16_t number_Of_Retries)
+{
+	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retries_Remaining = number_Of_Retries;
+}
+
 uint8_t USB_LL_Host___Channel_Get_Retry_After_Halt(uint8_t port_Number, uint8_t channel_Number)
 {
 	return (USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retry_After_Halt);
@@ -189,11 +194,6 @@ void USB_LL_Host___Channel_Set_Interrupts(uint8_t port_Number,uint8_t channel_Nu
 	USB_OTG_HostTypeDef*		USB_Host 			= USB_LL_Hardware___Get_USB_Host(port_Number);
 	USB_Host 			-> HAINTMSK |= (1 << channel_Number);
 	USB_Host_Channel 	-> HCINTMSK  = USB_LL_Host___CHANNEL_INTERRUPTS_MASK;
-}
-
-void USB_LL_Host___Channel_Set_Number_Of_Retries(uint8_t port_Number, uint8_t channel_Number, uint16_t number_Of_Retries)
-{
-	USB_LL_Host___Host_Port[port_Number].channel_Buffer[channel_Number].retries_Remaining = number_Of_Retries;
 }
 
 void USB_LL_Host___Channel_Set_Characteristics
