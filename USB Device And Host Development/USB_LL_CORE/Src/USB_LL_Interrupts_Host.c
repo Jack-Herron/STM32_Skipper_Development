@@ -213,7 +213,15 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_CHH_Msk;
 			if(USB_LL_Host___Channel_Get_Retry_After_Halt(port_Number, channel_Number))
 			{
-				USB_LL_Host___Channel_Retry_Transfer_Out(port_Number, channel_Number);
+				if (USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
+				{
+					USB_LL_Host___Channel_Retry_Transfer_Out(port_Number, channel_Number);
+				}
+				else
+				{
+					USB_LL_Host___Channel_Retry_Transfer_In(port_Number, channel_Number);
+				}
+
 				USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, false);
 			}
 			break;
@@ -276,7 +284,8 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 				}
 				else
 				{
-					USB_LL_Host___Channel_Retry_Transfer_In(port_Number, channel_Number);
+					USB_LL_Host___Channel_Halt(port_Number, channel_Number);
+					USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, true);
 				}
 				USB_LL_Host___Channel_Set_Retries_Remaining(port_Number, channel_Number, retries_Remaining-1);
 			}
