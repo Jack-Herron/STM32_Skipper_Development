@@ -198,7 +198,7 @@ void USB_Host_Hub___Generic_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAM
 
 	if(p_Hub_Node != NULL)
 	{
-		uint8_t i = 0;
+
 	}
 }
 

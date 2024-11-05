@@ -55,7 +55,7 @@ void USB_Host___Device_Enumeration_Finished(uint8_t port_Number, uint8_t device_
 		}
 		else
 		{
-			uint8_t i =0;
+
 		}
 	}
 	else
@@ -103,7 +103,7 @@ void USB_Host___Process_Device_Connect(uint8_t port_Number, uint8_t device_Addre
 
 void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Address)
 {
-	GPIOD->ODR &= ~(1<<4);			// set PD4 HIGH
+
 }
 
 uint16_t USB_Host___Get_Frame_Number(uint8_t port_Number)

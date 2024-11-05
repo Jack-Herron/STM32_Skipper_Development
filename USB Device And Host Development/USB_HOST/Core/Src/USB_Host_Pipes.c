@@ -84,7 +84,6 @@ uint8_t USB_Host_Pipes___Create_Pipe
 	{
 		GPIOC->ODR |= (1<<0);
 		GPIOC->ODR &= ~(1<<0);
-		uint8_t i = 0;
 	}
 
 	return(pipe_Number);
