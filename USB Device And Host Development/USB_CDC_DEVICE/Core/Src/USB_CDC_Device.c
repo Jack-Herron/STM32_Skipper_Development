@@ -10,7 +10,7 @@
 #include <stm32f4xx.h>					// include MCU specific definitions
 #include <Skipper_Clock.h>
 
-#include "./inc/USB_CDC_Device.h"
+#include "../Inc/USB_CDC_Device.h"
 #include <USB_LL_Hardware.h>
 
 void USB_CDC_Device___Init(uint8_t port_Number)
