@@ -11,6 +11,7 @@
 #include <stm32f4xx.h>				// include MCU specific definitions
 #include <Skipper_Clock.h>			// Include Skipper clock configuration
 #include <USB_Host.h>
+#include <USB_CDC_Device.h>
 
 void GPIO_init(void){
 	RCC->AHB1ENR |= (1<<3); 		// enable GPIOD clock
