@@ -12,8 +12,27 @@
 
 #include "../Inc/USB_CDC_Device.h"
 #include <USB_LL_Hardware.h>
+#include <USB_LL_Device.h>
+#include <USB_LL_Interrupts_Device.h>
+
+void USB_CDC_Device___RX_Callback(USB_LL_Interrupts_Device___RX_CALLBACK_PARAMETERS);
 
 void USB_CDC_Device___Init(uint8_t port_Number)
 {
+	USB_LL_Device___FIFO_Config_TypeDef FIFO_Config = {0};
+
+	FIFO_Config.RX_FIFO_Depth = 0x80;
+	FIFO_Config.Endpoint_TX_FIFO_Depth[0] = 0x80;
+	FIFO_Config.Endpoint_TX_FIFO_Depth[1] = 0x80;
+	FIFO_Config.Endpoint_TX_FIFO_Depth[2] = 0x80;
+
+	USB_LL_Hardware___GPIO_Init(port_Number);
 	USB_LL_Hardware___Init(port_Number, USB_LL_Hardware___DEVICE_MODE);
+	USB_LL_Device___Set_FIFO_Size(port_Number, FIFO_Config);
+	USB_LL_Interrupts_Device___Set_RX_Callback(port_Number, USB_CDC_Device___RX_Callback);
+}
+
+void USB_CDC_Device___RX_Callback(USB_LL_Interrupts_Device___RX_CALLBACK_PARAMETERS)
+{
+
 }

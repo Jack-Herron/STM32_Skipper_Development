@@ -43,12 +43,12 @@ int main(void) {
 	Skipper_Clock___Init();			// initiate the clock
 	Skipper_Clock___Systick_Init();
 	GPIO_init();					//initiate the GPIO to be used in this program.
-	USB_Host___Init(0);
+	//USB_Host___Init(0);
 	USB_CDC_Device___Init(1);
 
 	for(;;)
 	{
-		USB_Host___Process(0);
+		//USB_Host___Process(0);
 	}
 }
 

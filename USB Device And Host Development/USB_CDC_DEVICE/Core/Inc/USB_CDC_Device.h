@@ -10,6 +10,4 @@
 
 void USB_CDC_Device___Init(uint8_t port_Number);
 
-
-
 #endif /* USB_CDC_DEVICE_H_ */
