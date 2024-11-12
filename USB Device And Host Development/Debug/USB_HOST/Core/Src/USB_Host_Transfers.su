@@ -1,0 +1,15 @@
+../USB_HOST/Core/Src/USB_Host_Transfers.c:34:41:USB_Host_Transfers___Allocate_URB_Node	16	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:47:7:USB_Host_Transfers___Free_URB_Node	16	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:55:35:USB_Host_Transfers___Create_URB	24	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:75:6:USB_Host_Transfers___Delete_Current_URB	24	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:85:35:USB_Host_Tranfers___Get_Current_URB	16	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:94:8:USB_Host_Transfers___Isochronous_Transfer	32	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:118:8:USB_Host_Transfers___Interrupt_Transfer	32	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:142:8:USB_Host_Transfers___Bulk_Transfer	32	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:164:8:USB_Host_Transfers___Control_Transfer	32	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:187:6:USB_Host_Transfers___Set_Next_URB_Transfer_Stage	56	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:221:6:pipe_Callback	40	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:237:6:USB_Host_Transfers___Process_URB_Setup_Stage	96	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:262:6:USB_Host_Transfers___Process_URB_Data_Stage	112	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:301:6:USB_Host_Transfers___Process_URB_Status_Stage	96	static
+../USB_HOST/Core/Src/USB_Host_Transfers.c:329:6:USB_Host_Transfers___Process_URB	16	static

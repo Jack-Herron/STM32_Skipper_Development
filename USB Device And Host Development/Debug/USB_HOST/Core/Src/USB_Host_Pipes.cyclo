@@ -1,0 +1,7 @@
+../USB_HOST/Core/Src/USB_Host_Pipes.c:18:9:USB_Host_Pipes___Allocate_Pipe	3
+../USB_HOST/Core/Src/USB_Host_Pipes.c:31:6:USB_Host_Pipes___Free_Pipe	1
+../USB_HOST/Core/Src/USB_Host_Pipes.c:36:9:USB_Host_Pipes___Create_Pipe	3
+../USB_HOST/Core/Src/USB_Host_Pipes.c:92:9:USB_Host_Pipes___Get_Pipe_Direction	1
+../USB_HOST/Core/Src/USB_Host_Pipes.c:97:9:USB_Host_Pipes___Get_Current_Packet_ID	1
+../USB_HOST/Core/Src/USB_Host_Pipes.c:102:6:USB_Host_Pipes___Begin_Transfer	2
+../USB_HOST/Core/Src/USB_Host_Pipes.c:114:6:USB_Host_Pipes___Process_Pipes	7

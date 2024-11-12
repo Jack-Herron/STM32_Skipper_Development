@@ -1,0 +1,14 @@
+C:/Users/Jack Herron/git/STM32_Skipper_Development/USB Device And Host Development/Drivers/CMSIS/Include/core_cm4.h:1688:22:__NVIC_EnableIRQ	2
+C:/Users/Jack Herron/git/STM32_Skipper_Development/USB Device And Host Development/Drivers/CMSIS/Include/core_cm4.h:1816:22:__NVIC_SetPriority	2
+../USB_LL_CORE/Src/USB_LL_Hardware.c:23:10:USB_LL_Hardware___Get_USB_BASE	3
+../USB_LL_CORE/Src/USB_LL_Hardware.c:39:24:USB_LL_Hardware___Get_USB	1
+../USB_LL_CORE/Src/USB_LL_Hardware.c:44:24:USB_LL_Hardware___Get_USB_Device	1
+../USB_LL_CORE/Src/USB_LL_Hardware.c:49:22:USB_LL_Hardware___Get_USB_Host	1
+../USB_LL_CORE/Src/USB_LL_Hardware.c:54:26:USB_LL_Hardware___Get_USB_Host_Port	1
+../USB_LL_CORE/Src/USB_LL_Hardware.c:59:29:USB_LL_Hardware___Get_USB_Host_Channel	1
+../USB_LL_CORE/Src/USB_LL_Hardware.c:64:28:USB_LL_Hardware___Get_USB_Device_IN	1
+../USB_LL_CORE/Src/USB_LL_Hardware.c:69:29:USB_LL_Hardware___Get_USB_Device_OUT	1
+../USB_LL_CORE/Src/USB_LL_Hardware.c:78:6:USB_LL_Hardware___GPIO_Init	3
+../USB_LL_CORE/Src/USB_LL_Hardware.c:98:6:USB_LL_Hardware___Init	5
+../USB_LL_CORE/Src/USB_LL_Hardware.c:160:6:USB_LL_Hardware___FIFO_Transfer_In	4
+../USB_LL_CORE/Src/USB_LL_Hardware.c:181:6:USB_LL_Hardware___FIFO_Transfer_Out	4
