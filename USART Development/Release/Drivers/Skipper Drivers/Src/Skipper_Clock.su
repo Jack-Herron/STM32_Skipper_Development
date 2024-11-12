@@ -1,3 +1,0 @@
-../Drivers/Skipper Drivers/Src/Skipper_Clock.c:14:9:Skipper_Clock___Get_RCC_CFGR_APB_Value_From_Prescaler_Value	0	static
-../Drivers/Skipper Drivers/Src/Skipper_Clock.c:44:9:Skipper_Clock___Get_RCC_CFGR_AHB_Value_From_Prescaler_Value	0	static
-../Drivers/Skipper Drivers/Src/Skipper_Clock.c:90:6:Skipper_Clock___Init	0	static
