@@ -40,3 +40,8 @@ void USB_LL_Interrupts_Device___Packet_Received(uint8_t port_Number)
 		}
 	}
 }
+
+void USB_LL_Interrupts_Device___Host_Connected(uint8_t port_Number)
+{
+	uint8_t i = 0;
+}

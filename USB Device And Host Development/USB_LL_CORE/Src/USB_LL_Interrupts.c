@@ -68,7 +68,9 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_ENUMDNE_Pos:										// enumeration done (core knows the speed of the port)
+			USB_LL_Interrupts_Device___Host_Connected(port_Number);				// Host connected (device mode)
 			USB -> GINTSTS = (USB_OTG_GINTSTS_ENUMDNE);
+
 			break;
 
 		case USB_OTG_GINTSTS_ISOODRP_Pos:										// Isochronous OUT packet dropped interrupt
