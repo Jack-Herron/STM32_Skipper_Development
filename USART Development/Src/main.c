@@ -11,6 +11,7 @@
 #include <stdint.h>										// Include C library for fixed-width integer types
 #include <stm32f4xx.h>									// Include STM32F4 specific definitions
 #include <Skipper_Clock.h>								// Include Skipper clock configuration
+#include <USART.h>
 
 void GPIO_init(void)
 {
