@@ -12,6 +12,7 @@
 #include <stm32f4xx.h>									// Include STM32F4 specific definitions
 #include <Skipper_Clock.h>								// Include Skipper clock configuration
 #include <USART.h>
+#include <USART_LL_Driver.h>
 
 void GPIO_init(void)
 {
@@ -31,13 +32,16 @@ int main(void)
 	Skipper_Clock___Init();
 	Skipper_Clock___Systick_Init();
 	GPIO_init();										// Initiate the GPIO's to be used in this program
+	USART_LL_Driver___Init(1);
+	USART_LL_Driver___Set_Baud_Rate(1, 9600);
+
 	for(;;)
 	{
 
-		Skipper_Clock___Delay_ms(5);
-		GPIOA -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
-		Skipper_Clock___Delay_ms(5);
-		GPIOA -> ODR 	&= ~(GPIO_ODR_ODR_4);				// Set PA4 HIGH
+		Skipper_Clock___Delay_ms(250);
+		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
+		Skipper_Clock___Delay_ms(250);
+		GPIOD -> ODR 	&= ~(GPIO_ODR_ODR_4);				// Set PA4 LOW
 	}
 
 	return(EXIT_SUCCESS);

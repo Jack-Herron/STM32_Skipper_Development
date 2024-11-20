@@ -8,6 +8,7 @@
 #include <stm32f4xx.h>									// Include STM32F4 specific definitions
 #include <stdlib.h>
 #include <USART_LL_Driver.h>
+#include <Skipper_Clock.h>
 
 USART_TypeDef* USART_LL_Driver___Get_USART(uint8_t USART_Number)
 {
@@ -60,8 +61,9 @@ void USART_LL_Driver___Enable_GPIO(uint8_t USART_Number)
 	switch (USART_Number)
 	{
 	case 1:
-		RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
-		GPIOB->MODER |= GPIO_MODER_MODER6_1 | GPIO_MODER_MODER7_1;
+		RCC   -> AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+		GPIOB -> MODER   |= GPIO_MODER_MODER6_1 | GPIO_MODER_MODER7_1;
+		GPIOB -> AFR[0]  |= (7 << 24) | (7 << 28);
 		break;
 	case 2:
 
@@ -81,6 +83,24 @@ void USART_LL_Driver___Enable_GPIO(uint8_t USART_Number)
 	}
 }
 
+void USART_LL_Driver___Set_Baud_Rate(uint8_t USART_Number, uint32_t baud_Rate)
+{
+	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
+	uint32_t pClk;
+	if(USART_Number == 1 || USART_Number == 6)
+	{
+		pClk = Skipper_Clock___APB2_PERIPHERAL_FREQUENCY;
+	}
+	else
+	{
+		pClk = Skipper_Clock___APB1_PERIPHERAL_FREQUENCY;
+	}
+	uint32_t divisor 	= pClk 		/ baud_Rate;
+	uint16_t mantissa 	= divisor 	/ 16;
+	uint16_t fractional = divisor 	% 16;
+
+	USART -> BRR = (mantissa << USART_BRR_DIV_Mantissa_Pos) | fractional;
+}
 
 void USART_LL_Driver___Init(uint8_t USART_Number)
 {
@@ -89,6 +109,7 @@ void USART_LL_Driver___Init(uint8_t USART_Number)
 	if (USART != NULL)
 	{
 		USART_LL_Driver___Enable_USART_Clock(USART_Number);
+		USART_LL_Driver___Enable_GPIO(USART_Number);
 
 		USART->CR1 |= USART_CR1_UE; 	// Enable USART
 		USART->CR1 |= USART_CR1_TE; 	// Enable Transmitter
@@ -97,4 +118,34 @@ void USART_LL_Driver___Init(uint8_t USART_Number)
 		USART->CR1 |= USART_CR1_TCIE; 	// Enable TC interrupt
 		USART->CR1 |= USART_CR1_TXEIE; 	// Enable TXE interrupt
 	}
+}
+
+void USART1_IRQHandler(void)
+{
+
+}
+
+void USART2_IRQHandler(void)
+{
+
+}
+
+void USART3_IRQHandler(void)
+{
+
+}
+
+void UART4_IRQHandler(void)
+{
+
+}
+
+void UART5_IRQHandler(void)
+{
+
+}
+
+void USART6_IRQHandler(void)
+{
+
 }
