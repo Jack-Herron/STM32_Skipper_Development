@@ -83,6 +83,32 @@ void USART_LL_Driver___Enable_GPIO(uint8_t USART_Number)
 	}
 }
 
+void USART_LL_Driver___Enable_Interrupt(uint8_t USART_Number)
+{
+	switch (USART_Number)
+	{
+	case 1:
+		NVIC_EnableIRQ(USART1_IRQn);
+		NVIC_SetPriority(USART1_IRQn, 1);
+		break;
+	case 2:
+
+		break;
+	case 3:
+
+		break;
+	case 4:
+
+		break;
+	case 5:
+
+		break;
+	case 6:
+
+		break;
+	}
+}
+
 void USART_LL_Driver___Set_Baud_Rate(uint8_t USART_Number, uint32_t baud_Rate)
 {
 	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
@@ -110,19 +136,47 @@ void USART_LL_Driver___Init(uint8_t USART_Number)
 	{
 		USART_LL_Driver___Enable_USART_Clock(USART_Number);
 		USART_LL_Driver___Enable_GPIO(USART_Number);
+		USART_LL_Driver___Enable_Interrupt(USART_Number);
 
 		USART->CR1 |= USART_CR1_UE; 	// Enable USART
 		USART->CR1 |= USART_CR1_TE; 	// Enable Transmitter
 		USART->CR1 |= USART_CR1_RE; 	// Enable Receiver
 		USART->CR1 |= USART_CR1_RXNEIE; // Enable RXNE interrupt
 		USART->CR1 |= USART_CR1_TCIE; 	// Enable TC interrupt
-		USART->CR1 |= USART_CR1_TXEIE; 	// Enable TXE interrupt
+	}
+}
+
+char rec_Data[64] = {0};
+int16_t rec_Data_Index = 0;
+void USART_Interrupt_Handler(uint8_t USART_Number)
+{
+	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
+
+	while(USART -> SR & USART_INTERRUPTS_MSK)
+	{
+		switch (POSITION_VAL(USART -> SR & USART_INTERRUPTS_MSK))
+		{
+		case (USART_SR_RXNE_Pos):
+			USART->SR &= ~(USART_SR_RXNE);
+			rec_Data[rec_Data_Index] = USART->DR;
+			rec_Data_Index++;
+			break;
+		case (USART_SR_TC_Pos):
+			USART->SR &= ~(USART_SR_TC);
+			break;
+		case (USART_SR_LBD_Pos):
+			USART->SR &= ~(USART_SR_LBD);
+			break;
+		case (USART_SR_CTS_Pos):
+			USART->SR &= ~(USART_SR_CTS);
+			break;
+		}
 	}
 }
 
 void USART1_IRQHandler(void)
 {
-
+	USART_Interrupt_Handler(1);
 }
 
 void USART2_IRQHandler(void)
