@@ -148,6 +148,7 @@ void USART_LL_Driver___Init(uint8_t USART_Number)
 
 char rec_Data[64] = {0};
 int16_t rec_Data_Index = 0;
+
 void USART_Interrupt_Handler(uint8_t USART_Number)
 {
 	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
