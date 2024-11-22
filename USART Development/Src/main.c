@@ -42,7 +42,7 @@ int main(void)
 
 	for(;;)
 	{
-		scanf(" %s", i);
+		gets(i);
 		printf("received data = (%s)\n", i);
 		Skipper_Clock___Delay_ms(5);
 		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
