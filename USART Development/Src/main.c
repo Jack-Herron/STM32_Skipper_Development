@@ -17,23 +17,6 @@
 #include <USART_LL_Driver.h>
 #include <stdio.h>
 
-int _write(int file, char *data, int len)
-{
-	uint8_t i = 0;
-	return(0);
-}
-
-int _read(int file, char *data, int len)
-{
-	data[0] = '1';
-	data[1] = '2';
-	data[2] = '3';
-	data[3] = '4';
-	data[4] = ' ';
-	data[5] = '\n';
-    return 6;
-}
-
 void GPIO_init(void)
 {
 	RCC->AHB1ENR 	|= (RCC_AHB1ENR_GPIODEN); 			// Enable GPIOD clock
@@ -52,18 +35,18 @@ int main(void)
 	Skipper_Clock___Init();
 	Skipper_Clock___Systick_Init();
 	GPIO_init();										// Initiate the GPIO's to be used in this program
-	USART_LL_Driver___Init(1);
-	USART_LL_Driver___Set_Baud_Rate(1, 9600);
+	USART___Init(1);
+	USART___Set_Baud_Rate(1, 2000000);
 
-    int i = 0;
-    int j = 0;
+    char i[100] = {0};
+
 	for(;;)
 	{
-		scanf(" %d%d", &i, &j);
-		printf("%d%d", i, j);
-		Skipper_Clock___Delay_ms(250);
+		scanf(" %s", i);
+		printf("received data = (%s)\n", i);
+		Skipper_Clock___Delay_ms(5);
 		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
-		Skipper_Clock___Delay_ms(250);
+		Skipper_Clock___Delay_ms(5);
 		GPIOD -> ODR 	&= ~(GPIO_ODR_ODR_4);				// Set PA4 LOW
 	}
 

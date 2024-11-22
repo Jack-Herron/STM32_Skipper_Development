@@ -10,6 +10,8 @@
 #include <USART_LL_Driver.h>
 #include <Skipper_Clock.h>
 
+USART_LL_Driver___USART_Port_TypeDef USART_LL_Driver___USART_Port[6];
+
 USART_TypeDef* USART_LL_Driver___Get_USART(uint8_t USART_Number)
 {
 	switch (USART_Number)
@@ -146,8 +148,44 @@ void USART_LL_Driver___Init(uint8_t USART_Number)
 	}
 }
 
-char rec_Data[64] = {0};
-int16_t rec_Data_Index = 0;
+uint8_t block_Transmition = 0;
+
+uint8_t USART_LL_Driver___Get_Transmitter_Status(uint8_t USART_Number)
+{
+	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
+	return (block_Transmition);
+}
+
+void USART_LL_Driver___Send_Byte(uint8_t USART_Number, uint8_t data)
+{
+	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
+	block_Transmition = 1;
+	USART->DR = data;
+}
+
+void USART_LL_Driver___Increment_RX_Buffer_Index(uint8_t USART_Number)
+{
+	if (USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index < USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Size -1)
+	{
+		USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index++;
+	}
+	else
+	{
+		USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index = 0;
+	}
+}
+
+uint32_t USART_LL_Driver___Get_RX_Buffer_Index(uint8_t USART_Number)
+{
+	return (USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index);
+}
+
+void USART_LL_Driver___Set_RX_Buffer(uint8_t USART_Number, uint8_t *buffer, uint32_t buffer_Size)
+{
+	USART_LL_Driver___USART_Port[USART_Number].RX_Buffer = buffer;
+	USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Size = buffer_Size;
+	USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index = 0;
+}
 
 void USART_Interrupt_Handler(uint8_t USART_Number)
 {
@@ -159,11 +197,15 @@ void USART_Interrupt_Handler(uint8_t USART_Number)
 		{
 		case (USART_SR_RXNE_Pos):
 			USART->SR &= ~(USART_SR_RXNE);
-			rec_Data[rec_Data_Index] = USART->DR;
-			rec_Data_Index++;
+			if(USART_LL_Driver___USART_Port[USART_Number].RX_Buffer != NULL)
+			{
+				USART_LL_Driver___USART_Port[USART_Number].RX_Buffer[USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index] = USART->DR;
+				USART_LL_Driver___Increment_RX_Buffer_Index(USART_Number);
+			}
 			break;
 		case (USART_SR_TC_Pos):
 			USART->SR &= ~(USART_SR_TC);
+			block_Transmition = 0;
 			break;
 		case (USART_SR_LBD_Pos):
 			USART->SR &= ~(USART_SR_LBD);
