@@ -36,14 +36,14 @@ int main(void)
 	Skipper_Clock___Systick_Init();
 	GPIO_init();										// Initiate the GPIO's to be used in this program
 	USART___Init(1);
-	USART___Set_Baud_Rate(1, 2000000);
+	USART___Set_Baud_Rate(1, 921600);
 
-    char i[100] = {0};
+    char i[100] = "test";
 
 	for(;;)
 	{
 		gets(i);
-		printf("received data = (%s)\n", i);
+		printf("The input was (%s)\r\n", i);
 		Skipper_Clock___Delay_ms(5);
 		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
 		Skipper_Clock___Delay_ms(5);
