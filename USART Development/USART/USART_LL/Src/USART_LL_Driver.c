@@ -10,7 +10,8 @@
 #include <USART_LL_Driver.h>
 #include <Skipper_Clock.h>
 
-USART_LL_Driver___USART_Port_TypeDef USART_LL_Driver___USART_Port[6] = {0};
+void (*USART_LL_Driver___TX_Callback)(uint8_t port_Number);
+void (*USART_LL_Driver___RX_Callback)(uint8_t port_Number, uint8_t data);
 
 USART_TypeDef* USART_LL_Driver___Get_USART(uint8_t USART_Number)
 {
@@ -111,19 +112,6 @@ void USART_LL_Driver___Enable_Interrupt(uint8_t USART_Number)
 	}
 }
 
-uint8_t USART_LL_Driver___Is_TX_Busy(uint8_t USART_Number)
-{
-	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
-	if (USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head == NULL)
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
-}
-
 void USART_LL_Driver___Set_Baud_Rate(uint8_t USART_Number, uint32_t baud_Rate)
 {
 	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
@@ -141,6 +129,16 @@ void USART_LL_Driver___Set_Baud_Rate(uint8_t USART_Number, uint32_t baud_Rate)
 	uint16_t fractional = divisor 	% 16;
 
 	USART -> BRR = (mantissa << USART_BRR_DIV_Mantissa_Pos) | fractional;
+}
+
+void USART_LL_Driver___Set_TX_Callback(void callback(uint8_t))
+{
+	USART_LL_Driver___TX_Callback = callback;
+}
+
+void USART_LL_Driver___Set_RX_Callback(void callback(uint8_t, uint8_t))
+{
+	USART_LL_Driver___RX_Callback = callback;
 }
 
 void USART_LL_Driver___Init(uint8_t USART_Number)
@@ -161,45 +159,10 @@ void USART_LL_Driver___Init(uint8_t USART_Number)
 	}
 }
 
-void USART_LL_Driver___Set_TX_Buffer(uint8_t USART_Number, uint8_t* buffer, uint32_t buffer_Size)
-{
-	USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head = buffer;
-	USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Tail = buffer + buffer_Size;
-}
-
-void USART_LL_Driver___Start_TX_Transfer(uint8_t USART_Number)
+void USART_LL_Driver___Transfer_Out(uint8_t USART_Number, uint8_t data)
 {
 	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
-	if (USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head != NULL)
-	{
-		USART->SR &= ~(USART_SR_TC);
-		USART->CR1 |= USART_CR1_TCIE;
-		USART->DR = USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head[0];
-		USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head++;
-	}
-}
-
-void USART_LL_Driver___Increment_RX_Buffer_Index(uint8_t USART_Number)
-{
-	if (USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index < USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Size -1)
-	{
-		USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index++;
-	}
-	else
-	{
-		USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index = 0;
-	}
-}
-
-uint32_t USART_LL_Driver___Get_RX_Buffer_Index(uint8_t USART_Number)
-{
-	return (USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index);
-}
-
-void USART_LL_Driver___Set_RX_Buffer(uint8_t USART_Number, uint8_t *buffer, uint32_t buffer_Size)
-{
-	USART_LL_Driver___USART_Port[USART_Number].RX_Buffer = buffer;
-	USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Size = buffer_Size;
+	USART->DR=data;
 }
 
 void USART_Interrupt_Handler(uint8_t USART_Number)
@@ -212,24 +175,19 @@ void USART_Interrupt_Handler(uint8_t USART_Number)
 		{
 		case (USART_SR_RXNE_Pos):
 			USART->SR &= ~(USART_SR_RXNE);
-			if(USART_LL_Driver___USART_Port[USART_Number].RX_Buffer != NULL)
+
+			uint8_t received_Byte = USART->DR;
+			if (USART_LL_Driver___RX_Callback != NULL)
 			{
-				USART_LL_Driver___USART_Port[USART_Number].RX_Buffer[USART_LL_Driver___USART_Port[USART_Number].RX_Buffer_Index] = USART->DR;
-				USART_LL_Driver___Increment_RX_Buffer_Index(USART_Number);
+				USART_LL_Driver___RX_Callback(USART_Number, received_Byte);
 			}
+
 			break;
 		case (USART_SR_TC_Pos):
 			USART->SR &= ~(USART_SR_TC);
-			if (USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head != USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Tail)
+			if (USART_LL_Driver___TX_Callback != NULL)
 			{
-				USART->DR = USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head[0];
-				USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head++;
-			}
-			else
-			{
-				USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Head = NULL;
-				USART_LL_Driver___USART_Port[USART_Number].TX_Buffer_Tail = NULL;
-				USART->CR1 &= ~(USART_CR1_TCIE);
+				USART_LL_Driver___TX_Callback(USART_Number);
 			}
 
 			break;

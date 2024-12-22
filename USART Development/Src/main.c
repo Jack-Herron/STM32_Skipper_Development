@@ -30,6 +30,12 @@ void GPIO_init(void)
 	GPIOA -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
 }
 
+void USART_Callback(uint8_t USART_Port_Number, char interrupt_Char, uint32_t data_Length)
+{
+	char data[data_Length+1];
+	USART___Read_Data_To_Buffer(USART_Port_Number, data, data_Length);
+}
+
 int main(void)
 {
 	Skipper_Clock___Init();
@@ -37,16 +43,18 @@ int main(void)
 	GPIO_init();										// Initiate the GPIO's to be used in this program
 	USART___Init(1);
 	USART___Set_Baud_Rate(1, 921600);
+	USART___Set_Interrupt_Char(1, '\n');
+	USART___Set_Interrupt_Callback(1, USART_Callback);
 
-    char i[100] = "test";
+	char str[100];
 
 	for(;;)
 	{
-		gets(i);
-		printf("The input was (%s)\r\n", i);
-		Skipper_Clock___Delay_ms(5);
+		gets(str);
+		printf("%s\n", str);
+		Skipper_Clock___Delay_ms(100);
 		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
-		Skipper_Clock___Delay_ms(5);
+		Skipper_Clock___Delay_ms(100);
 		GPIOD -> ODR 	&= ~(GPIO_ODR_ODR_4);				// Set PA4 LOW
 	}
 
