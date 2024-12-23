@@ -126,11 +126,13 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 
 				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
 				{
-					printf("Channel closed with status : SUCCESS\n\n");
+					printf("Channel closed with status : SUCCESS\n");
+					printf("\n\n");
 				}
 				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
 				{
-					printf("Channel closed with status : NAK\n\n");
+					printf("Channel closed with status : NAK\n");
+					printf("\n");
 				}
 
 				USB_Host_Pipes___Free_Pipe(port_Number, i);

@@ -60,7 +60,7 @@ void USB_Debug___Print_URB(USB_Host_Transfers___URB_TypeDef URB)
 	printf("Device address : %d\n",URB.device_Address);
 	printf("Transfer type  : %d\n",URB.transfer_Type);
 	printf("Transfer stage : %d\n",URB.transfer_Stage);
-	printf("\n\n");
+	printf("\n");
 }
 
 USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Create_URB(uint8_t port_Number)
