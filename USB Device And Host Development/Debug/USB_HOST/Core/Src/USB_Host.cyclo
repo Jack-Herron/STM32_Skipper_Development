@@ -1,9 +1,0 @@
-../USB_HOST/Core/Src/USB_Host.c:23:6:USB_Host___Init	1
-../USB_HOST/Core/Src/USB_Host.c:30:9:USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manager_Speed	3
-../USB_HOST/Core/Src/USB_Host.c:46:6:USB_Host___Device_Enumeration_Finished	3
-../USB_HOST/Core/Src/USB_Host.c:67:6:USB_Host___Process_Host_Interrupts	5
-../USB_HOST/Core/Src/USB_Host.c:99:6:USB_Host___Process_Device_Connect	1
-../USB_HOST/Core/Src/USB_Host.c:104:6:USB_Host___Process_Device_Disconnect	1
-../USB_HOST/Core/Src/USB_Host.c:109:10:USB_Host___Get_Frame_Number	1
-../USB_HOST/Core/Src/USB_Host.c:114:6:USB_Host___Process_Device_Manager_Status	5
-../USB_HOST/Core/Src/USB_Host.c:138:6:USB_Host___Process	1

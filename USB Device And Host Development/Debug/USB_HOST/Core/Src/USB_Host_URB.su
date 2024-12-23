@@ -1,2 +1,0 @@
-../USB_HOST/Core/Src/USB_Host_URB.c:30:36:USB_Host_Transfers___Allocate_URB	16	static
-../USB_HOST/Core/Src/USB_Host_URB.c:43:7:USB_Host_Transfers___Free_URB	16	static

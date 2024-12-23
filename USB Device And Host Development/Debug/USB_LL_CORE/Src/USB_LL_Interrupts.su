@@ -1,4 +1,0 @@
-../USB_LL_CORE/Src/USB_LL_Interrupts.c:18:6:USB_LL_Interrupts___Start_Of_Frame_Reveived	16	static
-../USB_LL_CORE/Src/USB_LL_Interrupts.c:23:6:USB_LL_Interrupts___Interrupt_Handler	32	static,ignoring_inline_asm
-../USB_LL_CORE/Src/USB_LL_Interrupts.c:122:6:OTG_FS_IRQHandler	8	static
-../USB_LL_CORE/Src/USB_LL_Interrupts.c:127:6:OTG_HS_IRQHandler	8	static
