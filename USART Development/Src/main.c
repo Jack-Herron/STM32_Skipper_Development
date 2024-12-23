@@ -33,7 +33,10 @@ void GPIO_init(void)
 void USART_Callback(uint8_t USART_Port_Number, char interrupt_Char, uint32_t data_Length)
 {
 	char data[data_Length+1];
+	data[data_Length] = '\0';
 	USART___Read_Data_To_Buffer(USART_Port_Number, data, data_Length);
+	printf("\"%d\"\n", interrupt_Char);
+	printf("%s\n", data);
 }
 
 int main(void)
@@ -44,14 +47,13 @@ int main(void)
 	USART___Init(1);
 	USART___Set_Baud_Rate(1, 921600);
 	USART___Set_Interrupt_Char(1, '\n');
+	USART___Set_Interrupt_Char(1, '\r');
 	USART___Set_Interrupt_Callback(1, USART_Callback);
 
-	char str[100];
+	char str[100] = "test";
 
 	for(;;)
 	{
-		gets(str);
-		printf("%s\n", str);
 		Skipper_Clock___Delay_ms(100);
 		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
 		Skipper_Clock___Delay_ms(100);

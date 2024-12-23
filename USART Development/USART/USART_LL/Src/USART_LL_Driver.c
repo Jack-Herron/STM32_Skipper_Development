@@ -86,13 +86,14 @@ void USART_LL_Driver___Enable_GPIO(uint8_t USART_Number)
 	}
 }
 
-void USART_LL_Driver___Enable_Interrupt(uint8_t USART_Number)
+void USART_LL_Driver___Enable_GPIO_Clock_Output(uint8_t USART_Number)
 {
 	switch (USART_Number)
 	{
 	case 1:
-		NVIC_EnableIRQ(USART1_IRQn);
-		NVIC_SetPriority(USART1_IRQn, 1);
+		RCC   -> AHB1ENR |= RCC_AHB1ENR_GPIOBEN;
+		GPIOB -> MODER   |= GPIO_MODER_MODER6_1 | GPIO_MODER_MODER7_1;
+		GPIOB -> AFR[0]  |= (7 << 24) | (7 << 28);
 		break;
 	case 2:
 
@@ -108,6 +109,37 @@ void USART_LL_Driver___Enable_Interrupt(uint8_t USART_Number)
 		break;
 	case 6:
 
+		break;
+	}
+}
+
+void USART_LL_Driver___Enable_Interrupt(uint8_t USART_Number)
+{
+	switch (USART_Number)
+	{
+	case 1:
+		NVIC_EnableIRQ(USART1_IRQn);
+		NVIC_SetPriority(USART1_IRQn, 1);
+		break;
+	case 2:
+		NVIC_EnableIRQ(USART2_IRQn);
+		NVIC_SetPriority(USART2_IRQn, 1);
+		break;
+	case 3:
+		NVIC_EnableIRQ(USART3_IRQn);
+		NVIC_SetPriority(USART3_IRQn, 1);
+		break;
+	case 4:
+		NVIC_EnableIRQ(UART4_IRQn);
+		NVIC_SetPriority(UART4_IRQn, 1);
+		break;
+	case 5:
+		NVIC_EnableIRQ(UART5_IRQn);
+		NVIC_SetPriority(UART5_IRQn, 1);
+		break;
+	case 6:
+		NVIC_EnableIRQ(USART6_IRQn);
+		NVIC_SetPriority(USART6_IRQn, 1);
 		break;
 	}
 }
@@ -129,6 +161,39 @@ void USART_LL_Driver___Set_Baud_Rate(uint8_t USART_Number, uint32_t baud_Rate)
 	uint16_t fractional = divisor 	% 16;
 
 	USART -> BRR = (mantissa << USART_BRR_DIV_Mantissa_Pos) | fractional;
+}
+
+void USART_LL_Driver___Set_Parity(uint8_t USART_Number, uint8_t parity)
+{
+	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
+
+	switch(parity)
+	{
+	case USART_LL_Driver___PARITY_NONE:
+		USART -> CR1 &= ~USART_CR1_M;
+		USART -> CR1 &= ~USART_CR1_PCE;
+		USART -> CR1 &= ~USART_CR1_PEIE;
+		break;
+	case USART_LL_Driver___PARITY_ODD:
+		USART -> CR1 |= USART_CR1_M;
+		USART -> CR1 |= USART_CR1_PCE;
+		USART -> CR1 |= USART_CR1_PS;
+		USART -> CR1 |= USART_CR1_PEIE;
+		break;
+	case USART_LL_Driver___PARITY_EVEN:
+		USART -> CR1 |= USART_CR1_M;
+		USART -> CR1 |= USART_CR1_PCE;
+		USART -> CR1 &= ~USART_CR1_PS;
+		USART -> CR1 |= USART_CR1_PEIE;
+		break;
+	}
+}
+
+void USART_LL_Driver___Set_Stop_Bits(uint8_t USART_Number, uint8_t stop_Bits)
+{
+	USART_TypeDef *USART = USART_LL_Driver___Get_USART(USART_Number);
+	USART->CR2 &= ~(USART_CR2_STOP_Msk);
+	USART->CR2 |= (stop_Bits << USART_CR2_STOP_Pos);
 }
 
 void USART_LL_Driver___Set_TX_Callback(void callback(uint8_t))
@@ -197,36 +262,52 @@ void USART_Interrupt_Handler(uint8_t USART_Number)
 		case (USART_SR_CTS_Pos):
 			USART->SR &= ~(USART_SR_CTS);
 			break;
+		case (USART_SR_ORE_Pos):
+			USART->SR &= ~(USART_SR_ORE);
+			break;
+		case (USART_SR_PE_Pos):
+			{uint8_t temp __attribute__((unused)) = USART->DR;}
+			if (USART_LL_Driver___RX_Callback != NULL)
+			{
+				USART_LL_Driver___RX_Callback(USART_Number, USART_LL_Driver___ERROR_BYTE);
+			}
+			USART->SR &= ~(USART_SR_PE);
+			break;
 		}
 	}
 }
 
+void USART_LL_Driver___Process(uint8_t USART_Number)
+{
+	USART_Interrupt_Handler(USART_Number);
+}
+
 void USART1_IRQHandler(void)
 {
-	USART_Interrupt_Handler(1);
+	USART_Interrupt_Handler(USART_1);
 }
 
 void USART2_IRQHandler(void)
 {
-
+	USART_Interrupt_Handler(USART_2);
 }
 
 void USART3_IRQHandler(void)
 {
-
+	USART_Interrupt_Handler(USART_3);
 }
 
 void UART4_IRQHandler(void)
 {
-
+	USART_Interrupt_Handler(USART_4);
 }
 
 void UART5_IRQHandler(void)
 {
-
+	USART_Interrupt_Handler(USART_5);
 }
 
 void USART6_IRQHandler(void)
 {
-
+	USART_Interrupt_Handler(USART_6);
 }

@@ -9,13 +9,12 @@
 #include <stdlib.h>
 #include <USART.h>
 #include <USART_LL_Driver.h>
+#include <stdbool.h>
 
-#define TEST_BUFFER_SIZE 8
-char test_Buffer[TEST_BUFFER_SIZE];
-uint32_t next_Read_Byte = 0;
 USART___USART_TypeDef	USART___Port[USART_LL_Driver___NUM_USARTS] = {0};
 
 #if USART___ENABLE_STDIO == true
+	char STDIO_Buffer[USART___STDIO_BUFFER_SIZE];
 
 	int _write(int file __attribute__((unused)), char *data, int len)
 	{
@@ -34,6 +33,16 @@ USART___USART_TypeDef	USART___Port[USART_LL_Driver___NUM_USARTS] = {0};
 void USART___Set_Baud_Rate(uint8_t USART_Number, uint32_t Baud_Rate)
 {
 	USART_LL_Driver___Set_Baud_Rate(USART_Number, Baud_Rate);
+}
+
+void USART___Set_Parity(uint8_t USART_Number, uint8_t parity)
+{
+	USART_LL_Driver___Set_Parity(USART_Number, parity);
+}
+
+void USART___Set_Stop_Bits(uint8_t USART_Number, uint8_t stop_Bits)
+{
+	USART_LL_Driver___Set_Stop_Bits(USART_Number, stop_Bits);
 }
 
 void USART___Set_RX_Buffer(uint8_t USART_Number, char* buffer, uint32_t buffer_Size)
@@ -114,7 +123,7 @@ void USART___RX_Callback(uint8_t USART_Number, uint8_t data)
 
 		USART___Port[USART_Number].RX_Buffer_Write_Index = next_Write_Index;
 
-		if(USART___Port[USART_Number].interrupt_Char[data/32] == data%32)
+		if(USART___Port[USART_Number].interrupt_Char[data/32] & (1 << (data % 32)))
 		{
 			if(USART___Port[USART_Number].interrupt_Callback != NULL)
 			{
@@ -128,9 +137,13 @@ void USART___Init(uint8_t USART_Number)
 {
 	USART_LL_Driver___Init(USART_Number);
 	USART___Set_Baud_Rate(USART_Number, USART___DEFAULT_BAUD_RATE);
+	USART___Set_Parity(USART_Number, USART___DEFAULT_PARITY);
+	USART___Set_Stop_Bits(USART_Number, USART___DEFAULT_STOP_BITS);
 	USART_LL_Driver___Set_RX_Callback(USART___RX_Callback);
 	USART_LL_Driver___Set_TX_Callback(USART___TX_Callback);
-	USART___Set_RX_Buffer(1, test_Buffer, TEST_BUFFER_SIZE);
+#if USART___ENABLE_STDIO == true
+	USART___Set_RX_Buffer(USART___STDIO_USART_NUMBER, STDIO_Buffer, USART___STDIO_BUFFER_SIZE);
+#endif
 }
 
 char USART___Read_Next_Byte(uint8_t USART_Number)
@@ -154,7 +167,7 @@ void USART___Read_Data_To_Buffer(uint8_t USART_Number, char* buffer, uint32_t da
 
 void USART___Set_Interrupt_Char(uint8_t USART_Number, char interrupt_Char)
 {
-	USART___Port[USART_Number].interrupt_Char[interrupt_Char / 32] |= interrupt_Char % 32;
+	USART___Port[USART_Number].interrupt_Char[interrupt_Char / 32] |= (1 << (interrupt_Char % 32));
 }
 
 void USART___Set_Interrupt_Callback(uint8_t USART_Number, void callback(uint8_t, char, uint32_t))
@@ -196,10 +209,10 @@ int USART___Read(uint8_t USART_Number, char *buffer, uint32_t buffer_Size)
 
 void USART___Write(uint8_t USART_Number, char *buffer, uint32_t buffer_Size)
 {
-	while(USART___Is_TX_Busy(USART_Number));
+	while(USART___Is_TX_Busy(USART_Number)) USART_LL_Driver___Process(USART_Number);
 
 	USART___Start_TX_Transfer(USART_Number, buffer, buffer_Size);
 
-	while(USART___Is_TX_Busy(USART_Number));
+	while(USART___Is_TX_Busy(USART_Number)) USART_LL_Driver___Process(USART_Number);
 
 }
