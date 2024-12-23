@@ -45,7 +45,7 @@ int main(void) {
 	GPIO_init();					//initiate the GPIO to be used in this program.
 	USART___Init(1);
 	USB_Host___Init(0);
-	//USB_CDC_Device___Init(1);
+	USB_CDC_Device___Init(1);
 
 	for(;;)
 	{
