@@ -9,6 +9,7 @@
 #include <stdint.h>						// Include C library for fixed-width integer types
 #include <stm32f4xx.h>					// include MCU specific definitions
 #include <Skipper_Clock.h>
+#include <stdio.h>
 
 #include <USB_LL_Hardware.h>
 #include <USB_LL_Host.h>
@@ -43,11 +44,36 @@ uint8_t USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manag
 	}
 }
 
+void USB_Host___16_Bit_String_To_Char_String(uint16_t* string_16, uint16_t string_Length, char* string_Char)
+{
+	for(uint16_t i = 0; i < string_Length; i++)
+	{
+		string_Char[i] = (char)string_16[i];
+	}
+}
+
+void USB_Debug___Print_Device_Name(uint8_t port_Number, uint8_t device_Address)
+{
+	uint16_t product_String_Length = USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address);
+	uint16_t manufacturer_String_Length = USB_Host_Device_Manager___Get_Manufacturer_String_Length(port_Number, device_Address);
+	char product_String[product_String_Length + 1];
+	char manufacturer_String[manufacturer_String_Length + 1];
+	product_String[product_String_Length] = 0;
+	manufacturer_String[manufacturer_String_Length] = 0;
+	USB_Host___16_Bit_String_To_Char_String(USB_Host_Device_Manager___Get_Product_String(port_Number, device_Address), product_String_Length, product_String);
+	USB_Host___16_Bit_String_To_Char_String(USB_Host_Device_Manager___Get_Manufacturer_String(port_Number, device_Address), manufacturer_String_Length, manufacturer_String);
+	printf("%s %s", manufacturer_String, product_String);
+}
+
 void USB_Host___Device_Enumeration_Finished(uint8_t port_Number, uint8_t device_Address, uint8_t success)
 {
 	if(success)
 	{
 		uint8_t device_Class = USB_Host_Device_Manager___Get_Device_Class(port_Number, device_Address);
+
+		printf("Device Connected: ");
+		USB_Debug___Print_Device_Name(port_Number, device_Address);
+		printf("\n");
 
 		if(device_Class == USB_Host_Hub___HUB_DEVICE_CLASS)
 		{
@@ -103,7 +129,9 @@ void USB_Host___Process_Device_Connect(uint8_t port_Number, uint8_t device_Addre
 
 void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Address)
 {
-
+	printf("Device disconnected: ");
+	USB_Debug___Print_Device_Name(port_Number, device_Address);
+	printf("\n");
 }
 
 uint16_t USB_Host___Get_Frame_Number(uint8_t port_Number)

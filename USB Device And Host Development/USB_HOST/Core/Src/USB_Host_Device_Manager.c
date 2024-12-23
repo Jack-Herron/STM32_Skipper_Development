@@ -612,6 +612,12 @@ void USB_Host_Device_Manager___Device_Initialize_Buffers(uint8_t port_Number, ui
 		p_Device -> strings.p_Manufacturer_String 	= (uint16_t*)								&(p_Device -> descriptor_Buffers.manufacturer_String_Descriptor_Buffer[2]);
 		p_Device -> strings.p_Product_String 		= (uint16_t*)								&(p_Device -> descriptor_Buffers.product_String_Descriptor_Buffer[2]);
 		p_Device -> strings.p_Serial_Number_String 	= (uint16_t*)								&(p_Device -> descriptor_Buffers.serial_Number_String_Descriptor_Buffer[2]);
+
+		p_Device -> strings.product_String_Length		= 0;
+		p_Device -> strings.manufacturer_String_Length	= 0;
+		p_Device -> strings.serial_Number_String_Length	= 0;
+		p_Device -> strings.language_ID_List_Length		= 0;
+
 		for(uint8_t i = 0; i < USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS; i++)
 		{
 			p_Device -> descriptors.configuration[i].p_Configuration_Descriptor = (USB_Host___Configuration_Descriptor_TypeDef*) (p_Device -> descriptor_Buffers.configuration_Descriptor_Buffer[i]);

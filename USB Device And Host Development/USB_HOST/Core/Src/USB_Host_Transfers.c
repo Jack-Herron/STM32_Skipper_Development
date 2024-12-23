@@ -8,6 +8,7 @@
 #include <stdlib.h>						// include c standard library
 #include <stdint.h>						// Include C library for fixed-width integer types
 #include <stdbool.h>
+#include <stdio.h>
 
 #include "../Inc/USB_Host_Transfers.h"
 #include "../../Config/USB_Host_Config.h"
@@ -51,6 +52,16 @@
 #endif
 
 static USB_Host_Transfers___URB_Queue_TypeDef URB_Queue[USB_Host___NUMBER_OF_PORTS];
+
+void USB_Debug___Print_URB(USB_Host_Transfers___URB_TypeDef URB)
+{
+	printf("--URB--\n");
+	printf("Port number    : %d\n",URB.port_Number);
+	printf("Device address : %d\n",URB.device_Address);
+	printf("Transfer type  : %d\n",URB.transfer_Type);
+	printf("Transfer stage : %d\n",URB.transfer_Stage);
+	printf("\n\n");
+}
 
 USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Create_URB(uint8_t port_Number)
 {
@@ -215,6 +226,8 @@ void USB_Host_Transfers___Set_Next_URB_Transfer_Stage(USB_Host_Transfers___URB_T
 	{
 		p_URB -> URB_Callback(*p_URB);
 		USB_Host_Transfers___Delete_Current_URB(p_URB->port_Number);
+
+
 	}
 }
 
@@ -256,6 +269,9 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_TypeD
 		USB_Host_Pipes___PID_SETUP,
 		pipe_Callback
 	);
+
+	USB_Debug___Print_URB(*p_URB);
+
 	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
 }
 
@@ -295,6 +311,8 @@ void USB_Host_Transfers___Process_URB_Data_Stage(USB_Host_Transfers___URB_TypeDe
 		pipe_Callback
 	);
 
+	USB_Debug___Print_URB(*p_URB);
+
 	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
 }
 
@@ -322,6 +340,8 @@ void USB_Host_Transfers___Process_URB_Status_Stage(USB_Host_Transfers___URB_Type
 		USB_Host_Pipes___PID_DATA1,
 		pipe_Callback
 	);
+
+	USB_Debug___Print_URB(*p_URB);
 
 	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
 }

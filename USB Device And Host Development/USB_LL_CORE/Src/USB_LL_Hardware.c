@@ -176,6 +176,8 @@ void USB_LL_Hardware___FIFO_Transfer_In(uint8_t* Source, uint32_t* Destination, 
 	}
 }
 
+#include <stdio.h>
+
 void USB_LL_Hardware___FIFO_Transfer_Out(uint32_t* Source, uint8_t* Destination, uint32_t transfer_Size)
 {
 	uint32_t 	full_Copies 	= 	transfer_Size / USB_LL_Hardware___NUMBER_OF_BYTES_IN_WORD_32;

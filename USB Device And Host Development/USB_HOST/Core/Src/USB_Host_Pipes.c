@@ -7,6 +7,7 @@
 
 #include "../Inc/USB_Host_Pipes.h"
 #include <stdlib.h>
+#include <stdio.h>
 #include <USB_LL_Definitions.h>
 #include <USB_LL_Host.h>
 #include <USB_LL_Interrupts_Host.h>
@@ -122,10 +123,16 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 			{
 				USB_LL_Interrupts_Host___Clear_Channel_Status_Change_Flag(port_Number, i);
 				uint8_t channel_Status = USB_LL_Interrupts_Host___Get_Channel_Status(port_Number, i);
-				if(channel_Status != USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE && channel_Status != USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
+
+				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
 				{
-					uint8_t j = 0;
+					printf("Channel closed with status : SUCCESS\n\n");
 				}
+				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
+				{
+					printf("Channel closed with status : NAK\n\n");
+				}
+
 				USB_Host_Pipes___Free_Pipe(port_Number, i);
 				if(USB_Host_Pipes___Pipe[port_Number][i].callback != NULL)
 				{
