@@ -4,6 +4,8 @@
 "./Src/sysmem.o"
 "./Src/system_stm32f4xx.o"
 "./Startup/startup_stm32f407zetx.o"
+"./USART/USART_APP/Src/USART.o"
+"./USART/USART_LL/Src/USART_LL_Driver.o"
 "./USB_CDC_DEVICE/Core/Src/USB_CDC_Device.o"
 "./USB_HOST/Core/Src/USB_Host.o"
 "./USB_HOST/Core/Src/USB_Host_Device_Manager.o"

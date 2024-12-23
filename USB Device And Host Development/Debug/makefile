@@ -12,6 +12,8 @@ RM := rm -rf
 -include USB_LL_CORE/Src/subdir.mk
 -include USB_HOST/Core/Src/subdir.mk
 -include USB_CDC_DEVICE/Core/Src/subdir.mk
+-include USART/USART_LL/Src/subdir.mk
+-include USART/USART_APP/Src/subdir.mk
 -include Startup/subdir.mk
 -include Src/subdir.mk
 -include Drivers/Skipper\ Drivers/Src/subdir.mk

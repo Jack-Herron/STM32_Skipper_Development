@@ -41,6 +41,8 @@ SUBDIRS := \
 Drivers/Skipper\ Drivers/Src \
 Src \
 Startup \
+USART/USART_APP/Src \
+USART/USART_LL/Src \
 USB_CDC_DEVICE/Core/Src \
 USB_HOST/Core/Src \
 USB_LL_CORE/Src \
