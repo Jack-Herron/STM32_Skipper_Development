@@ -11,6 +11,7 @@
 #include <stdint.h>						// Include C library for fixed-width integer types
 #include <stm32f4xx.h>					// include MCU specific definitions
 #include <Skipper_Clock.h>
+#include <stdio.h>
 
 #include "../../USB_LL_CORE/Inc/USB_LL_Definitions.h"
 #include "../../USB_LL_CORE/Inc/USB_LL_Hardware.h"
@@ -48,4 +49,30 @@ void USB_LL_Device___Set_FIFO_Size(uint8_t port_Number, USB_LL_Device___FIFO_Con
 			USB -> DIEPTXF[i] = 0;
 		}
 	}
+}
+
+void USB_LL_Device___Receive_Setup_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size)
+{
+	uint8_t temp[packet_Size];
+	uint32_t 	USB_offset 				= USB_LL_Hardware___Get_USB_BASE(port_Number);
+	USB_LL_Hardware___FIFO_Transfer_Out((uint32_t*)(USB_offset + USB_OTG_FIFO_BASE),temp,packet_Size);
+	printf("Setup packet received: ");
+	for(uint16_t i = 0; i < packet_Size; i++)
+	{
+		printf("%2.2x ", temp[i]);
+	}
+	printf("\n");
+}
+
+void USB_LL_Device___Receive_Data_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size)
+{
+	uint8_t temp[packet_Size];
+	uint32_t 	USB_offset 				= USB_LL_Hardware___Get_USB_BASE(port_Number);
+	USB_LL_Hardware___FIFO_Transfer_Out((uint32_t*)(USB_offset + USB_OTG_FIFO_BASE),temp,packet_Size);
+	printf("Data packet received: ");
+	for(uint16_t i = 0; i < packet_Size; i++)
+	{
+		printf("%2.2x ", temp[i]);
+	}
+	printf("\n");
 }

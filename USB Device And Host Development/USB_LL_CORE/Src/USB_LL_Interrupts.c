@@ -7,6 +7,7 @@
 
 #include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
+#include <stdio.h>
 
 #include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Hardware.h"
@@ -61,6 +62,7 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_GINTSTS_USBSUSP_Pos:										// USB suspend (no data activity for 3ms)
 			USB -> GINTSTS = (USB_OTG_GINTSTS_USBSUSP);
+			USB_LL_Interrupts_Device___USB_Suspend(port_Number);				// Host suspend (device mode)
 			break;
 
 		case USB_OTG_GINTSTS_USBRST_Pos:										// USB RESET (reset detected on USB core)
@@ -68,9 +70,8 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_ENUMDNE_Pos:										// enumeration done (core knows the speed of the port)
-			USB_LL_Interrupts_Device___Host_Connected(port_Number);				// Host connected (device mode)
 			USB -> GINTSTS = (USB_OTG_GINTSTS_ENUMDNE);
-
+			USB_LL_Interrupts_Device___Host_Enumerated(port_Number);			// Host connected (device mode)
 			break;
 
 		case USB_OTG_GINTSTS_ISOODRP_Pos:										// Isochronous OUT packet dropped interrupt

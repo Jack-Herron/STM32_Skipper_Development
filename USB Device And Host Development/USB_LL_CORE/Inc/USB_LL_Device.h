@@ -22,5 +22,7 @@ typedef struct
 } USB_LL_Device___FIFO_Config_TypeDef;
 
 void USB_LL_Device___Set_FIFO_Size(uint8_t port_Number, USB_LL_Device___FIFO_Config_TypeDef FIFO_Config);
+void USB_LL_Device___Receive_Setup_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size);
+void USB_LL_Device___Receive_Data_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size);
 
 #endif /* INC_USB_LL_DEVICE_H_ */
