@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "../Inc/USB_Host_Device_Manager.h"
 #define USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE							8
-#define USB_Host_Enumerate___STANDARD_NUMBER_OF_RETRIES							0xffff
+#define USB_Host_Enumerate___STANDARD_NUMBER_OF_RETRIES							0xff
 #define USB_Host_Enumerate___GET_MIN(a,b)								(((a) > (b)) ? (b) : (a))
 
 typedef struct {

@@ -45,12 +45,12 @@ int main(void) {
 	GPIO_init();					//initiate the GPIO to be used in this program.
 	USART___Init(1);
 	USART___Set_Baud_Rate(1, 921600);
-	//USB_Host___Init(0);
-	USB_CDC_Device___Init(1);
+	USB_Host___Init(0);
+	//USB_CDC_Device___Init(1);
 
 	for(;;)
 	{
-		//USB_Host___Process(0);
+		USB_Host___Process(0);
 	}
 }
 

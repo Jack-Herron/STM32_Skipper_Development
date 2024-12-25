@@ -129,11 +129,17 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 					printf("Channel closed with status : SUCCESS\n");
 					printf("\n\n");
 				}
-				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
+				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
 				{
 					printf("Channel closed with status : NAK\n");
 					printf("\n");
 				}
+				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR)
+				{
+					printf("Channel closed with status : ERROR\n");
+					printf("\n");
+				}
+
 
 				USB_Host_Pipes___Free_Pipe(port_Number, i);
 				if(USB_Host_Pipes___Pipe[port_Number][i].callback != NULL)

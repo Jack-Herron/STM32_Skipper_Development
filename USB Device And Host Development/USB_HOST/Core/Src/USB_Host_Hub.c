@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdio.h>
+
 #include "../Inc/USB_Host_Hub.h"
 #include "../Inc/USB_Host_Device_Manager.h"
 #include "../Inc/USB_Host_Transfers.h"
@@ -354,6 +356,7 @@ void USB_Host_Hub___Do_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_No
 		USB_Host_Hub___Get_Hub_Descriptor(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, (uint8_t*)&(p_USB_Hub_Node->hub.descriptor), p_USB_Hub_Node->hub.descriptor.bDescriptorLength, USB_Host_Hub___URB_Setup_Callback);
 		break;
 	case USB_Host_Hub___HUB_SETUP_STAGE_ENABLE_PORTS:
+		printf("USB Hub connected with %d ports\n",  p_USB_Hub_Node->hub.descriptor.bNumberOfPorts);
 		for(uint8_t i = 0; i < p_USB_Hub_Node->hub.descriptor.bNumberOfPorts -1; i++)
 		{
 			USB_Host_Hub___Set_Port_Feature(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, i+1, USB_Host_Hub___FEATURE_PORT_POWER, 0, USB_Host_Hub___Generic_URB_Callback);
