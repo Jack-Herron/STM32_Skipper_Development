@@ -19,3 +19,4 @@
 "./USB_LL_CORE/Src/USB_LL_Interrupts.o"
 "./USB_LL_CORE/Src/USB_LL_Interrupts_Device.o"
 "./USB_LL_CORE/Src/USB_LL_Interrupts_Host.o"
+"./USB_VICE_Host/Src/USB_VICE_Host.o"

@@ -9,6 +9,7 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include USB_VICE_Host/Src/subdir.mk
 -include USB_LL_CORE/Src/subdir.mk
 -include USB_HOST/Core/Src/subdir.mk
 -include USB_CDC_DEVICE/Core/Src/subdir.mk

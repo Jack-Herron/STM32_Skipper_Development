@@ -46,4 +46,5 @@ USART/USART_LL/Src \
 USB_CDC_DEVICE/Core/Src \
 USB_HOST/Core/Src \
 USB_LL_CORE/Src \
+USB_VICE_Host/Src \
 
