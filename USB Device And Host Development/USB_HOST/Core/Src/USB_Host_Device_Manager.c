@@ -145,6 +145,36 @@ uint8_t USB_Host_Device_Manager___Get_Device_Class(uint8_t port_Number, uint8_t 
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bDeviceClass);
 }
 
+uint16_t USB_Host_Device_Manager___Get_Device_USB_Specification_Number(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bcdUSB);
+}
+
+uint8_t USB_Host_Device_Manager___Get_Device_Subclass(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bDeviceSubClass);
+}
+
+uint8_t USB_Host_Device_Manager___Get_Device_Protocol(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bDeviceProtocol);
+}
+
+uint16_t USB_Host_Device_Manager___Get_Device_Vendor_ID(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->idVendor);
+}
+
+uint16_t USB_Host_Device_Manager___Get_Device_Product_ID(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->idProduct);
+}
+
+uint16_t USB_Host_Device_Manager___Get_Device_Release_Number(uint8_t port_Number, uint8_t device_Address)
+{
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bcdDevice);
+}
+
 USB_Host___Configuration_Descriptor_TypeDef* USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor);

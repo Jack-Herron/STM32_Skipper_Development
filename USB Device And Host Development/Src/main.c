@@ -40,6 +40,11 @@ void GPIO_init(void){
 
 }
 
+void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
+{
+	uint8_t i = 0;
+}
+
 int main(void) {
 	Skipper_Clock___Init();			// initiate the clock
 	Skipper_Clock___Systick_Init();
@@ -48,6 +53,7 @@ int main(void) {
 	USART___Set_Baud_Rate(1, 921600);
 	USB_Host___Init(0);
 	//USB_CDC_Device___Init(1);
+	USB_Host___Set_Device_Connected_Callback(0, USB_Device_Connected_Callback);
 	USB_VICE_Host___Setup_Device(0,0);
 	for(;;)
 	{

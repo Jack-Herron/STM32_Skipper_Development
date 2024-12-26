@@ -225,5 +225,10 @@ uint8_t 										USB_Host_Device_Manager___Is_Port_Open											(uint8_t port
 void 											USB_Host_Device_Manager___Enable_Device											(uint8_t port_Number, uint8_t device_Address);
 USB_Host_Device_Manager___Device_TypeDef* 		USB_Host_Device_Manager___Get_Device_Pointer									(uint8_t port_Number, uint8_t device_Address);
 void 											USB_Host_Device_Manager___Device_Add_Disconnection_Callback						(uint8_t port_Number, uint8_t device_Address, void callback(uint8_t port_Number, uint8_t device_Address));
-
+uint16_t 										USB_Host_Device_Manager___Get_Device_Release_Number								(uint8_t port_Number, uint8_t device_Address);
+uint16_t 										USB_Host_Device_Manager___Get_Device_Product_ID									(uint8_t port_Number, uint8_t device_Address);
+uint16_t 										USB_Host_Device_Manager___Get_Device_Vendor_ID									(uint8_t port_Number, uint8_t device_Address);
+uint8_t 										USB_Host_Device_Manager___Get_Device_Protocol									(uint8_t port_Number, uint8_t device_Address);
+uint8_t 										USB_Host_Device_Manager___Get_Device_Subclass									(uint8_t port_Number, uint8_t device_Address);
+uint16_t 										USB_Host_Device_Manager___Get_Device_USB_Specification_Number					(uint8_t port_Number, uint8_t device_Address);
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

@@ -21,6 +21,8 @@
 #include "../Inc/USB_Host.h"
 #include "../Inc/USB_Host_Enumerate.h"
 
+USB_Host___Host_Typedef USB_Host___Host[USB_Host___NUMBER_OF_PORTS];
+
 void USB_Host___Init(uint8_t port_Number)
 {
 	USB_LL_Hardware___GPIO_Init(port_Number);
@@ -79,9 +81,9 @@ void USB_Host___Device_Enumeration_Finished(uint8_t port_Number, uint8_t device_
 		{
 			USB_Host_Hub___Initiate_Hub(port_Number, device_Address);
 		}
-		else
+		else if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback != NULL)
 		{
-
+			USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback(port_Number, device_Address);
 		}
 	}
 	else
@@ -137,6 +139,16 @@ void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Ad
 uint16_t USB_Host___Get_Frame_Number(uint8_t port_Number)
 {
 	return(USB_LL_Host___Host_Get_Frame_Number(port_Number));
+}
+
+void USB_Host___Set_Device_Disconnected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
+{
+	USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback = callback;
+}
+
+void USB_Host___Set_Device_Connected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
+{
+	USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback = callback;
 }
 
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
