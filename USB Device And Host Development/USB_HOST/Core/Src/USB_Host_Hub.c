@@ -400,10 +400,10 @@ void USB_Host_Hub___Initiate_Hub(uint8_t port_Number, uint8_t device_Address)
 	USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_Node = USB_Host_Hub___Create_Hub_Node(port_Number);
 	if(p_USB_Hub_Node != NULL)
 	{
-		USB_Host___Endpoint_Descriptor_TypeDef* p_Endpoint_Descriptor 	= USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(port_Number, device_Address, 0, 0, 0);
-		p_USB_Hub_Node->hub.polling_Interval 							= p_Endpoint_Descriptor->bInterval;
-		p_USB_Hub_Node->hub.interrupt_Endpoint_Number 					= p_Endpoint_Descriptor->bEndpointAddress & 0x0f;
-		p_USB_Hub_Node->hub.interrupt_Endpoint_Packet_Size 				= p_Endpoint_Descriptor->wMaxPacketSize;
+		USB_Host___Endpoint_Descriptor_TypeDef endpoint_Descriptor 		= USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(port_Number, device_Address, 0, 0, 0);
+		p_USB_Hub_Node->hub.polling_Interval 							= endpoint_Descriptor.bInterval;
+		p_USB_Hub_Node->hub.interrupt_Endpoint_Number 					= endpoint_Descriptor.bEndpointAddress & 0x0f;
+		p_USB_Hub_Node->hub.interrupt_Endpoint_Packet_Size 				= endpoint_Descriptor.wMaxPacketSize;
 		p_USB_Hub_Node->hub.setup_Stage 								= USB_Host_Hub___HUB_SETUP_STAGE_SET_CONFIGURATION;
 		p_USB_Hub_Node->hub.device_Address 								= device_Address;
 		p_USB_Hub_Node->hub.port_Number 								= port_Number;

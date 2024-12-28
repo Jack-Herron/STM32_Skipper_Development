@@ -13,6 +13,15 @@
 #include <USB_LL_Interrupts_Host.h>
 struct USB_Host_Transfers___URB;
 
+//#define USB_Host_Transfers___DEBUG_ON
+
+#ifdef USB_Host_Transfers___DEBUG_ON
+#define USB_Host_Transfers___DPRINTF 1
+#else
+#define USB_Host_Transfers___DPRINTF 0
+#endif
+#define USB_Host_Transfers___Debug_Log(...) if (USB_Host_Transfers___DPRINTF) printf(__VA_ARGS__)
+
 #define USB_Host_Transfers___CONTROL_SETUP_PACKET_LENGTH									 	8
 #define USB_Host_Transfers___URB_STAGE_SETUP													0
 #define USB_Host_Transfers___URB_STAGE_DATA														1

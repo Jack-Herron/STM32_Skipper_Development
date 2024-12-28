@@ -217,9 +217,9 @@ uint16_t 										USB_Host_Device_Manager___Device_Get_Configuration_Descriptor
 void 											USB_Host_Device_Manager___Device_Update_Configuration_Descriptor				(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 uint8_t 										USB_Host_Device_Manager___Get_Device_Class										(uint8_t port_Number, uint8_t device_Address);
 void 											USB_Host_Device_Manager___Add_Polling_Device									(uint8_t port_Number, uint8_t device_Address, uint16_t polling_Period, void callback(uint8_t port_Number , uint8_t device_Address));
-USB_Host___Configuration_Descriptor_TypeDef*	USB_Host_Device_Manager___Device_Get_Configuration_Descriptor					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
-USB_Host___Interface_Descriptor_TypeDef* 		USB_Host_Device_Manager___Device_Get_Interface_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index);
-USB_Host___Endpoint_Descriptor_TypeDef* 		USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index, uint8_t endpoint_Index);
+USB_Host___Configuration_Descriptor_TypeDef		USB_Host_Device_Manager___Device_Get_Configuration_Descriptor					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
+USB_Host___Interface_Descriptor_TypeDef 		USB_Host_Device_Manager___Device_Get_Interface_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index);
+USB_Host___Endpoint_Descriptor_TypeDef 			USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index, uint8_t endpoint_Index);
 void 											USB_Host_Device_Manager___Set_Configuration										(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 uint8_t 										USB_Host_Device_Manager___Is_Port_Open											(uint8_t port_Number);
 void 											USB_Host_Device_Manager___Enable_Device											(uint8_t port_Number, uint8_t device_Address);
@@ -231,4 +231,6 @@ uint16_t 										USB_Host_Device_Manager___Get_Device_Vendor_ID									(uint8
 uint8_t 										USB_Host_Device_Manager___Get_Device_Protocol									(uint8_t port_Number, uint8_t device_Address);
 uint8_t 										USB_Host_Device_Manager___Get_Device_Subclass									(uint8_t port_Number, uint8_t device_Address);
 uint16_t 										USB_Host_Device_Manager___Get_Device_USB_Specification_Number					(uint8_t port_Number, uint8_t device_Address);
+uint8_t 										USB_Host_Device_Manager___Get_Device_Current_Configuration						(uint8_t port_Number, uint8_t device_Address);
+
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */

@@ -10,8 +10,10 @@
 #include <stdint.h>					// Include C library for fixed-width integer types
 #include <stm32f4xx.h>				// include MCU specific definitions
 #include <Skipper_Clock.h>			// Include Skipper clock configuration
+#include <stdio.h>
 #include <USB_Host.h>
 #include <USB_VICE_Host.h>
+#include <USB_HID_Host.h>
 #include <USART.h>
 #include <USB_CDC_Device.h>
 
@@ -42,7 +44,15 @@ void GPIO_init(void){
 
 void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
 {
-	uint8_t i = 0;
+	if(USB_VICE_Host___Is_Device_VICE_Device(port_Number, device_Address))
+	{
+		printf("VICE Device Connected!\n");
+	}
+	if(USB_HID_Host___Is_Device_HID_Device(port_Number, device_Address))
+	{
+		printf("HID Device Connected!\n");
+	}
+
 }
 
 int main(void) {

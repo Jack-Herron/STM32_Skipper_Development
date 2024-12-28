@@ -175,19 +175,24 @@ uint16_t USB_Host_Device_Manager___Get_Device_Release_Number(uint8_t port_Number
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bcdDevice);
 }
 
-USB_Host___Configuration_Descriptor_TypeDef* USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
+uint8_t USB_Host_Device_Manager___Get_Device_Current_Configuration(uint8_t port_Number, uint8_t device_Address)
 {
-	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor);
+	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.current_Configuration);
 }
 
-USB_Host___Interface_Descriptor_TypeDef* USB_Host_Device_Manager___Device_Get_Interface_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index)
+USB_Host___Configuration_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
 {
-	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Index].p_Interface_Descriptor);
+	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor);
 }
 
-USB_Host___Endpoint_Descriptor_TypeDef* USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index, uint8_t endpoint_Index)
+USB_Host___Interface_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Interface_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index)
 {
-	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Index].endpoint[endpoint_Index].p_Endpoint_Descriptor);
+	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Index].p_Interface_Descriptor);
+}
+
+USB_Host___Endpoint_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index, uint8_t endpoint_Index)
+{
+	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Index].endpoint[endpoint_Index].p_Endpoint_Descriptor);
 }
 
 uint8_t* USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)

@@ -12,6 +12,15 @@
 #include <USB_LL_Host.h>
 #include <stdint.h>
 
+//#define USB_Host_Pipes___DEBUG_ON
+
+#ifdef USB_Host_Pipes___DEBUG_ON
+#define USB_Host_Pipes___DPRINTF 1
+#else
+#define USB_Host_Pipes___DPRINTF 0
+#endif
+#define USB_Host_Pipes___Debug_Log(...) if (USB_Host_Pipes___DPRINTF) printf(__VA_ARGS__)
+
 #define USB_Host_Pipes___NUMBER_OF_PIPES        		USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS_PER_PORT
 #define USB_Host_Pipes___PID_SETUP						USB_LL_Host___CHANNEL_PACKET_ID_SETUP
 #define USB_Host_Pipes___PID_DATA0						USB_LL_Host___CHANNEL_PACKET_ID_DATA_ZERO

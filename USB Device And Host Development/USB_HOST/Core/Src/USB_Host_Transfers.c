@@ -55,12 +55,12 @@ static USB_Host_Transfers___URB_Queue_TypeDef URB_Queue[USB_Host___NUMBER_OF_POR
 
 void USB_Debug___Print_URB(USB_Host_Transfers___URB_TypeDef URB)
 {
-	printf("--URB--\n");
-	printf("Port number    : %d\n",URB.port_Number);
-	printf("Device address : %d\n",URB.device_Address);
-	printf("Transfer type  : %d\n",URB.transfer_Type);
-	printf("Transfer stage : %d\n",URB.transfer_Stage);
-	printf("\n");
+	USB_Host_Transfers___Debug_Log("--URB--\n");
+	USB_Host_Transfers___Debug_Log("Port number    : %d\n",URB.port_Number);
+	USB_Host_Transfers___Debug_Log("Device address : %d\n",URB.device_Address);
+	USB_Host_Transfers___Debug_Log("Transfer type  : %d\n",URB.transfer_Type);
+	USB_Host_Transfers___Debug_Log("Transfer stage : %d\n",URB.transfer_Stage);
+	USB_Host_Transfers___Debug_Log("\n");
 }
 
 USB_Host_Transfers___URB_TypeDef* USB_Host_Transfers___Create_URB(uint8_t port_Number)
