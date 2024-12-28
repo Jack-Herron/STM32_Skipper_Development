@@ -9,6 +9,7 @@
 "./USB_CDC_DEVICE/Core/Src/USB_CDC_Device.o"
 "./USB_HID_Host/Src/USB_HID_Host.o"
 "./USB_HOST/Core/Src/USB_Host.o"
+"./USB_HOST/Core/Src/USB_Host_Composite.o"
 "./USB_HOST/Core/Src/USB_Host_Device_Manager.o"
 "./USB_HOST/Core/Src/USB_Host_Enumerate.o"
 "./USB_HOST/Core/Src/USB_Host_Hub.o"

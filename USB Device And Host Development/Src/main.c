@@ -51,6 +51,7 @@ void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
 	if(USB_HID_Host___Is_Device_HID_Device(port_Number, device_Address))
 	{
 		printf("HID Device Connected!\n");
+		USB_HID_Host___Setup_HID_Device(port_Number, device_Address);
 	}
 
 }

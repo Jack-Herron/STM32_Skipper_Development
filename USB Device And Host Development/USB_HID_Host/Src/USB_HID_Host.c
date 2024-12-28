@@ -16,6 +16,49 @@
 #include <USB_Host_Device_Manager.h>
 #include <USB_Host_Transfers.h>
 
+#if USB_HID_Host___DYNAMICALLY_ALLOCATE_HID_DEVICES == true
+
+	USB_HID_Host___HID_Node_TypeDef* USB_Host_Hub___Allocate_HID_Node()
+	{
+		USB_HID_Host___HID_Node_TypeDef* p_HID_Node;
+		p_HID_Node = (USB_HID_Host___HID_Node_TypeDef*)malloc(sizeof(USB_HID_Host___HID_Node_TypeDef));
+		p_HID_Node -> is_Allocated 	= 1;
+		p_HID_Node -> next_Node 	= NULL;
+		p_HID_Node -> previous_Node = NULL;
+		return(p_HID_Node);
+	}
+
+	void USB_Host_Hub___Free_HID_Node(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+	{
+		free(p_HID_Node);
+	}
+
+#else
+
+	static USB_HID_Host___HID_Node_TypeDef USB_HID_Host___HID_Node_Pool[USB_HID_Host___NUMBER_OF_HID_INSTANCES];
+
+	USB_HID_Host___HID_Node_TypeDef* USB_Host_Hub___Allocate_HID_Node()
+	{
+		for(uint32_t i = 0; i < USB_HID_Host___NUMBER_OF_HID_INSTANCES; i++)
+		{
+			if(!USB_HID_Host___HID_Node_Pool[i].is_Allocated)
+			{
+				USB_HID_Host___HID_Node_Pool[i].is_Allocated 	= true;
+				USB_HID_Host___HID_Node_Pool[i].next_Node 		= NULL;
+				USB_HID_Host___HID_Node_Pool[i].previous_Node 	= NULL;
+				return(&USB_HID_Host___HID_Node_Pool[i]);
+			}
+		}
+		return(NULL);
+	}
+
+	void USB_Host_Hub___Free_HID_Node(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+	{
+		p_HID_Node -> is_Allocated = false;
+	}
+
+#endif
+
 uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_Address)
 {
 	uint8_t											num_HID_Interfaces			= 0;
@@ -40,7 +83,7 @@ uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_
 
 void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
-	uint8_t i = 0;
+	printf("interface %d is a HID interface\n", interface_Number);
 }
 
 void USB_HID_Host___Setup_HID_Device(uint8_t port_Number, uint8_t device_Address)

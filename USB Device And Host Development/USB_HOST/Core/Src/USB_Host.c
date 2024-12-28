@@ -20,6 +20,7 @@
 #include "../Inc/USB_Host_Pipes.h"
 #include "../Inc/USB_Host.h"
 #include "../Inc/USB_Host_Enumerate.h"
+#include "../Inc/USB_Host_Composite.h"
 
 USB_Host___Host_Typedef USB_Host___Host[USB_Host___NUMBER_OF_PORTS];
 
