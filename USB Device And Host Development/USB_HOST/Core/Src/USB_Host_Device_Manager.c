@@ -20,7 +20,7 @@ static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[
 
 #if USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES == false
 
-	USB_Host_Device_Manager___Device_TypeDef device_Pool[USB_Host_Device_Manager___DEVICE_POOL_SIZE] = {0};
+	USB_Host_Device_Manager___Device_TypeDef device_Pool[USB_Host_Device_Manager___DEVICE_POOL_SIZE];
 
 	USB_Host_Device_Manager___Device_TypeDef* USB_Host_Device_Manager___Allocate_Device()
 	{
@@ -85,8 +85,8 @@ void USB_Host_Device_Manager___Add_Polling_Device(uint8_t port_Number, uint8_t d
 		}
 		else
 		{
-			USB_Host_Device_Manager___Polling_List[port_Number].last_Node 							= p_Polling_Node;
-			USB_Host_Device_Manager___Polling_List[port_Number].first_Node 							= p_Polling_Node;
+			USB_Host_Device_Manager___Polling_List[port_Number].last_Node 				= p_Polling_Node;
+			USB_Host_Device_Manager___Polling_List[port_Number].first_Node 				= p_Polling_Node;
 		}
 	}
 }
@@ -259,6 +259,10 @@ uint8_t USB_Host_Device_Manager___Get_String_Descriptor_Length(uint8_t port_Numb
 	case USB_Host_Device_Manager___STRING_TYPE_SERIAL_NUMBER:
 	{
 		return (USB_Host_Device_Manager___GET_MIN(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptor_Buffers.serial_Number_String_Descriptor_Buffer[0], USB_Host_Config___DEVICE_SERIAL_NUMBER_STRING_MAX_LENGTH));
+	}
+	default:
+	{
+		return (0);
 	}
 	}
 }
@@ -521,7 +525,7 @@ void USB_Host_Device_Manager___Port_Set_Device_Connected_Or_Disconnected_Flag(ui
 }
 
 
-uint8_t USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)
+uint8_t USB_Host_Device_Manager___Port_Is_Device_Connected_Or_Disconnected_Flag(uint8_t port_Number)
 {
 	return(USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag);
 }
@@ -539,6 +543,15 @@ void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t 
 			USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag 	= true;
 			p_Device->status.connection_Flag 																= true;
 			p_Device->status.is_Connected 																	= false;
+			uint8_t current_Configuration = p_Device->status.current_Configuration;
+			for(uint8_t i = 0; i < p_Device->descriptors.configuration[current_Configuration].p_Configuration_Descriptor->bNumInterfaces; i++)
+			{
+				if(p_Device->callbacks.interface_Disconnected_Callback[current_Configuration][i] != NULL)
+				{
+					p_Device->callbacks.interface_Disconnected_Callback[current_Configuration][i](port_Number, device_Address, current_Configuration, i);
+				}
+			}
+
 			if (p_Device->callbacks.device_Disconnected_Callback != NULL)
 			{
 				p_Device->callbacks.device_Disconnected_Callback(port_Number, device_Address);
@@ -678,15 +691,36 @@ void USB_Host_Device_Manager___Handle_Start_Of_Frame(uint8_t port_Number)
 	}
 }
 
+void USB_Host_Device_Manager___Device_Initialize_Callbacks(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+
+	for(uint8_t i = 0; i < USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS; i++)
+	{
+		for(uint8_t j = 0; j < USB_Host_Config___DEVICE_MAX_NUMBER_OF_INTERFACE_DESCRIPTORS; j++)
+		{
+			p_Device->callbacks.interface_Disconnected_Callback[i][j] = NULL;
+		}
+	}
+
+	p_Device->callbacks.device_Enumerated_Callback 		= NULL;
+	p_Device->callbacks.device_Disconnected_Callback 	= NULL;
+}
+
 void USB_Host_Device_Manager___Setup_Device(uint8_t port_Number, uint8_t device_Address, uint8_t is_Root_Device, uint8_t device_Speed)
 {
 	USB_Host_Device_Manager___Device_Set_Is_Root_Device							(port_Number, device_Address, is_Root_Device);
 	USB_Host_Device_Manager___Device_Initialize_Buffers							(port_Number, device_Address);
+	USB_Host_Device_Manager___Device_Initialize_Callbacks						(port_Number, device_Address);
 	USB_Host_Device_Manager___Device_Set_Port_Number							(port_Number, 0);
 	USB_Host_Device_Manager___Device_Set_Speed									(port_Number, 0, device_Speed);
 }
 
-
+void USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, void callback(uint8_t, uint8_t, uint8_t, uint8_t))
+{
+	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
+	p_Device->callbacks.interface_Disconnected_Callback[configuration_Number][interface_Number] = callback;
+}
 
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device)
 {

@@ -20,7 +20,6 @@
 #include "../Inc/USB_Host_Pipes.h"
 #include "../Inc/USB_Host.h"
 #include "../Inc/USB_Host_Enumerate.h"
-#include "../Inc/USB_Host_Composite.h"
 
 USB_Host___Host_Typedef USB_Host___Host[USB_Host___NUMBER_OF_PORTS];
 
@@ -154,7 +153,7 @@ void USB_Host___Set_Device_Connected_Callback(uint8_t port_Number, void callback
 
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 {
-	if(USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag(port_Number))
+	if(USB_Host_Device_Manager___Port_Is_Device_Connected_Or_Disconnected_Flag(port_Number))
 	{
 		USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag(port_Number);
 		for(uint8_t i = 0; i < USB_Host_Device_Manager___PORT_DEVICE_LIMIT +1; i++)

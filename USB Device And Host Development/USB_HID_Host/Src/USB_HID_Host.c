@@ -81,8 +81,14 @@ uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_
 	return(num_HID_Interfaces);
 }
 
-void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
+	printf("Interface Disconnected at interface %d\n", interface_Number);
+}
+
+void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
+{
+	USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(port_Number, device_Address, configuration_Number, interface_Number, USB_HID_Host___HID_Interface_Disconnected_Callback);
 	printf("interface %d is a HID interface\n", interface_Number);
 }
 
@@ -100,13 +106,8 @@ void USB_HID_Host___Setup_HID_Device(uint8_t port_Number, uint8_t device_Address
 
 			if(interface_Descriptor.bInterfaceClass == USB_HID_Host___HID_INTERFACE_CLASS)
 			{
-				USB_HID_Host___Setup_HID_Interface(port_Number, device_Address, i);
+				USB_HID_Host___Setup_HID_Interface(port_Number, device_Address, current_Configuration, i);
 			}
 		}
 	}
-}
-
-void USB_HID_Host___Setup_Device(uint8_t port_Number, uint8_t device_Address)
-{
-
 }

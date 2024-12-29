@@ -132,8 +132,9 @@ typedef struct{
 } USB_Host_Device_Manager___Device_Status_TypeDef;
 
 typedef struct {
-	void 																(*device_Disconnected_Callback)			(uint8_t port_Number , uint8_t device_Address);
-	int8_t 																(*device_Enumerated_Callback)			(uint8_t port_Number , uint8_t device_Address);
+	void 																(*device_Disconnected_Callback)																																(uint8_t port_Number , uint8_t device_Address);
+	int8_t 																(*device_Enumerated_Callback)																																(uint8_t port_Number , uint8_t device_Address);
+	void																(*interface_Disconnected_Callback[USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS][USB_Host_Config___DEVICE_MAX_NUMBER_OF_INTERFACE_DESCRIPTORS])		(uint8_t port_Number , uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number);
 } USB_Host_Device_Manager___Device_Callbacks_TypeDef;
 
 typedef struct {
@@ -178,7 +179,7 @@ uint8_t 										USB_Host_Device_Manager___Device_Connection_Flag								(uint8
 uint8_t 										USB_Host_Device_Manager___Is_Device_Connected									(uint8_t port_Number, uint8_t device_Address);
 uint8_t 										USB_Host_Device_Manager___Port_Get_Root_Device_Address							(uint8_t port_Number);
 void 											USB_Host_Device_Manager___Device_Disconnected									(uint8_t port_Number, uint8_t device_Address);
-uint8_t 										USB_Host_Device_Manager__Port_Is_Device_Connected_Or_Disconnected_Flag			(uint8_t port_Number);
+uint8_t 										USB_Host_Device_Manager___Port_Is_Device_Connected_Or_Disconnected_Flag			(uint8_t port_Number);
 void 											USB_Host_Device_Manager___Port_Clear_Device_Connected_Or_Disconnected_Flag		(uint8_t port_Number);
 void 											USB_Host_Device_Manager___Clear_Device_Connection_Flag							(uint8_t port_Number, uint8_t device_Address);
 void 											USB_Host_Device_Manager___Port_Remove_Device									(uint8_t port_Number, uint8_t device_Address);
@@ -232,5 +233,7 @@ uint8_t 										USB_Host_Device_Manager___Get_Device_Protocol									(uint8_t
 uint8_t 										USB_Host_Device_Manager___Get_Device_Subclass									(uint8_t port_Number, uint8_t device_Address);
 uint16_t 										USB_Host_Device_Manager___Get_Device_USB_Specification_Number					(uint8_t port_Number, uint8_t device_Address);
 uint8_t 										USB_Host_Device_Manager___Get_Device_Current_Configuration						(uint8_t port_Number, uint8_t device_Address);
+void 											USB_Host_Device_Manager___Handle_Start_Of_Frame									(uint8_t port_Number);
+void USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, void callback(uint8_t, uint8_t, uint8_t, uint8_t));
 
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
