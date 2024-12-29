@@ -18,7 +18,7 @@
 
 #if USB_HID_Host___DYNAMICALLY_ALLOCATE_HID_DEVICES == true
 
-	USB_HID_Host___HID_Node_TypeDef* USB_Host_Hub___Allocate_HID_Node()
+	USB_HID_Host___HID_Node_TypeDef* USB_HID_Host___Allocate_HID_Node()
 	{
 		USB_HID_Host___HID_Node_TypeDef* p_HID_Node;
 		p_HID_Node = (USB_HID_Host___HID_Node_TypeDef*)malloc(sizeof(USB_HID_Host___HID_Node_TypeDef));
@@ -28,7 +28,7 @@
 		return(p_HID_Node);
 	}
 
-	void USB_Host_Hub___Free_HID_Node(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+	void USB_HID_Host___Free_HID_Node(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
 	{
 		free(p_HID_Node);
 	}
@@ -37,7 +37,7 @@
 
 	static USB_HID_Host___HID_Node_TypeDef USB_HID_Host___HID_Node_Pool[USB_HID_Host___NUMBER_OF_HID_INSTANCES];
 
-	USB_HID_Host___HID_Node_TypeDef* USB_Host_Hub___Allocate_HID_Node()
+	USB_HID_Host___HID_Node_TypeDef* USB_HID_Host___Allocate_HID_Node()
 	{
 		for(uint32_t i = 0; i < USB_HID_Host___NUMBER_OF_HID_INSTANCES; i++)
 		{
@@ -52,12 +52,82 @@
 		return(NULL);
 	}
 
-	void USB_Host_Hub___Free_HID_Node(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+	void USB_HID_Host___Free_HID_Node(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
 	{
 		p_HID_Node -> is_Allocated = false;
 	}
 
 #endif
+
+static USB_HID_Host___HID_List_TypeDef USB_HID_Host___HID_List[USB_Host___NUMBER_OF_PORTS];
+
+USB_HID_Host___HID_Node_TypeDef* USB_HID_Host___Create_HID_Node(uint8_t port_Number)
+{
+	USB_HID_Host___HID_Node_TypeDef* p_HID_Node = USB_HID_Host___Allocate_HID_Node();
+	if(p_HID_Node != NULL)
+	{
+		p_HID_Node -> next_Node = NULL;
+		p_HID_Node -> previous_Node = NULL;
+
+		if(USB_HID_Host___HID_List[port_Number].first_Node == NULL)
+		{
+			USB_HID_Host___HID_List[port_Number].first_Node = p_HID_Node;
+			USB_HID_Host___HID_List[port_Number].last_Node  = p_HID_Node;
+		}
+		else
+		{
+			p_HID_Node -> previous_Node 									= USB_HID_Host___HID_List[port_Number].last_Node;
+			USB_HID_Host___HID_List[port_Number].last_Node -> next_Node 	= p_HID_Node;
+			USB_HID_Host___HID_List[port_Number].last_Node 					= p_HID_Node;
+		}
+	}
+	return(p_HID_Node);
+}
+
+void USB_HID_Host___Delete_HID_Node(uint8_t port_Number, USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+{
+	if(p_HID_Node != NULL)
+	{
+		if (p_HID_Node -> previous_Node != NULL)
+		{
+			p_HID_Node -> previous_Node -> next_Node = p_HID_Node -> next_Node;
+			p_HID_Node -> next_Node -> previous_Node = p_HID_Node -> previous_Node;
+		}
+		else
+		{
+			USB_HID_Host___HID_List[port_Number].first_Node = p_HID_Node -> next_Node;
+		}
+
+		if (USB_HID_Host___HID_List[port_Number].last_Node == p_HID_Node)
+		{
+			USB_HID_Host___HID_List[port_Number].last_Node = p_HID_Node->previous_Node;
+		}
+
+		USB_HID_Host___Free_HID_Node(p_HID_Node);
+	}
+}
+
+void USB_HID_Host___Polling_Callback(uint8_t port_Number, void* context)
+{
+	printf("polling callback triggered\n");
+}
+
+USB_HID_Host___HID_Node_TypeDef* USB_HID_Host___Get_HID_Node_From_Device_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
+{
+	if (USB_HID_Host___HID_List[port_Number].first_Node != NULL)
+	{
+		USB_HID_Host___HID_Node_TypeDef* p_HID_Node = USB_HID_Host___HID_List[port_Number].first_Node;
+		while (p_HID_Node != NULL)
+		{
+			if (p_HID_Node->HID_Device.device_Address == device_Address && p_HID_Node->HID_Device.configuration_Number == configuration_Number && p_HID_Node->HID_Device.interface_Number == interface_Number)
+			{
+				return (p_HID_Node);
+			}
+			p_HID_Node = p_HID_Node->next_Node;
+		}
+	}
+	return(NULL);
+}
 
 uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_Address)
 {
@@ -89,6 +159,7 @@ void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uin
 void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
 	USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(port_Number, device_Address, configuration_Number, interface_Number, USB_HID_Host___HID_Interface_Disconnected_Callback);
+	USB_Host_Device_Manager___Add_Interface_Polling_Process(port_Number, device_Address, configuration_Number, interface_Number, 255, NULL, USB_HID_Host___Polling_Callback);
 	printf("interface %d is a HID interface\n", interface_Number);
 }
 

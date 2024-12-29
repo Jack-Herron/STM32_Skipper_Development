@@ -334,11 +334,11 @@ void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PAR
 	}
 }
 
-void USB_Host_Hub___Polling_Callback(uint8_t port_Number, uint8_t device_Address)
+void USB_Host_Hub___Polling_Callback(uint8_t port_Number, void* context)
 {
-	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(port_Number, device_Address);
+	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = (USB_Host_Hub___Hub_Node_TypeDef*)context;
 	uint8_t odd_Frame = USB_Host___Get_Frame_Number(port_Number) %2;
-	USB_Host_Transfers___Interrupt_Transfer(port_Number, device_Address, p_Hub_Node->hub.interrupt_Endpoint_Number, USB_Host_Transfers___URB_DIRECTION_IN, p_Hub_Node->hub.interrupt_Endpoint_Data_Buffer, p_Hub_Node->hub.interrupt_Endpoint_Packet_Size, 0, odd_Frame, 1, USB_Host_Hub___Interrupt_URB_Callback);
+	USB_Host_Transfers___Interrupt_Transfer(port_Number, p_Hub_Node->hub.device_Address, p_Hub_Node->hub.interrupt_Endpoint_Number, USB_Host_Transfers___URB_DIRECTION_IN, p_Hub_Node->hub.interrupt_Endpoint_Data_Buffer, p_Hub_Node->hub.interrupt_Endpoint_Packet_Size, 0, odd_Frame, 1, USB_Host_Hub___Interrupt_URB_Callback);
 }
 
 void USB_Host_Hub___Do_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_Node)
@@ -365,7 +365,7 @@ void USB_Host_Hub___Do_Setup_Stage(USB_Host_Hub___Hub_Node_TypeDef* p_USB_Hub_No
 		USB_Host_Hub___Set_Port_Feature(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, p_USB_Hub_Node->hub.descriptor.bNumberOfPorts, USB_Host_Hub___FEATURE_PORT_POWER, 0, USB_Host_Hub___URB_Setup_Callback);
 		break;
 	case USB_Host_Hub___HUB_SETUP_STAGE_COMPLETE:
-		USB_Host_Device_Manager___Add_Polling_Device(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, p_USB_Hub_Node->hub.polling_Interval, USB_Host_Hub___Polling_Callback);
+		USB_Host_Device_Manager___Add_Device_Polling_Process(p_USB_Hub_Node->hub.port_Number, p_USB_Hub_Node->hub.device_Address, p_USB_Hub_Node->hub.polling_Interval, (void*)p_USB_Hub_Node, USB_Host_Hub___Polling_Callback);
 		break;
 	}
 }

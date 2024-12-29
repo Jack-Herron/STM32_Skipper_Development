@@ -20,6 +20,8 @@ typedef struct
 {
 	uint8_t port_Number;
 	uint8_t device_Address;
+	uint8_t configuration_Number;
+	uint8_t interface_Number;
 	uint8_t interrupt_In_Endpoint_Number;
 	uint8_t interrupt_Out_Endpoint_Number;
 } USB_HID_Host___HID_Device_TypeDef;
@@ -31,6 +33,11 @@ typedef struct USB_HID_Host___HID_Node
 	struct USB_HID_Host___HID_Node* 	next_Node;
 	struct USB_HID_Host___HID_Node* 	previous_Node;
 } USB_HID_Host___HID_Node_TypeDef;
+
+typedef struct {
+	USB_HID_Host___HID_Node_TypeDef* 	first_Node;
+	USB_HID_Host___HID_Node_TypeDef* 	last_Node;
+}USB_HID_Host___HID_List_TypeDef;
 
 void 	USB_HID_Host___Setup_Device			(uint8_t port_Number, uint8_t device_Address);
 uint8_t USB_HID_Host___Is_Device_HID_Device	(uint8_t port_Number, uint8_t device_Address);

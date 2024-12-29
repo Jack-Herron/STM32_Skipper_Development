@@ -59,11 +59,10 @@
 // Structures
 
 typedef struct USB_Host_Device_Manager___Polling_Device_Node{
-	uint8_t 															enabled;
-	uint8_t																device_Address;
-	uint16_t																polling_Target;
+	uint16_t															polling_Target;
 	uint16_t 															polling_Counter;
-	void 																(*callback)			(uint8_t port_Number , uint8_t device_Address);
+	void 																(*callback)			(uint8_t port_Number , void* context);
+	void*																context;
 	struct USB_Host_Device_Manager___Polling_Device_Node*				next_Node;
 	struct USB_Host_Device_Manager___Polling_Device_Node*				previous_Node;
 }USB_Host_Device_Manager___Polling_Device_Node_TypeDef;
@@ -155,7 +154,8 @@ struct USB_Host_Device_Manager___Device_TypeDef{
 	USB_Host_Device_Manager___Out_Endpoint_Status_Typedef				in_Endpoint_Status	[USB_Host_Device_Manager___DEVICE_MAX_OUT_ENDPOINTS];
 	USB_Host_Device_Manager___Device_Descriptors_TypeDef				descriptors;
 	USB_Host_Device_Manager___Device_Strings_TypeDef					strings;
-	USB_Host_Device_Manager___Polling_Device_Node_TypeDef				polling_Process;
+	USB_Host_Device_Manager___Polling_Device_Node_TypeDef				device_Polling_Process;
+	USB_Host_Device_Manager___Polling_Device_Node_TypeDef				interface_Polling_Process[USB_Host_Config___DEVICE_MAX_NUMBER_OF_CONFIGURATIONS][USB_Host_Config___DEVICE_MAX_NUMBER_OF_INTERFACE_DESCRIPTORS];
 };
 
 typedef struct USB_Host_Device_Manager___Device_TypeDef USB_Host_Device_Manager___Device_TypeDef;
@@ -217,7 +217,10 @@ uint8_t* 										USB_Host_Device_Manager___Get_Configuration_Descriptor_Buffer
 uint16_t 										USB_Host_Device_Manager___Device_Get_Configuration_Descriptor_Total_Length		(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 void 											USB_Host_Device_Manager___Device_Update_Configuration_Descriptor				(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 uint8_t 										USB_Host_Device_Manager___Get_Device_Class										(uint8_t port_Number, uint8_t device_Address);
-void 											USB_Host_Device_Manager___Add_Polling_Device									(uint8_t port_Number, uint8_t device_Address, uint16_t polling_Period, void callback(uint8_t port_Number , uint8_t device_Address));
+void 											USB_Host_Device_Manager___Add_Device_Polling_Process							(uint8_t port_Number, uint8_t device_Address, uint16_t polling_Period, void* context, void callback(uint8_t port_Number , void* context));
+void 											USB_Host_Device_Manager___Add_Interface_Polling_Process							(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, uint16_t polling_Period, void* context, void callback(uint8_t port_Number , void* context));
+void 											USB_Host_Device_Manager___Remove_Device_Polling_Process									(uint8_t port_Number, uint8_t device_Address);
+void 											USB_Host_Device_Manager___Remove_Interface_Polling_Process								(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number);
 USB_Host___Configuration_Descriptor_TypeDef		USB_Host_Device_Manager___Device_Get_Configuration_Descriptor					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index);
 USB_Host___Interface_Descriptor_TypeDef 		USB_Host_Device_Manager___Device_Get_Interface_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index);
 USB_Host___Endpoint_Descriptor_TypeDef 			USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor						(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index, uint8_t endpoint_Index);
@@ -234,6 +237,6 @@ uint8_t 										USB_Host_Device_Manager___Get_Device_Subclass									(uint8_t
 uint16_t 										USB_Host_Device_Manager___Get_Device_USB_Specification_Number					(uint8_t port_Number, uint8_t device_Address);
 uint8_t 										USB_Host_Device_Manager___Get_Device_Current_Configuration						(uint8_t port_Number, uint8_t device_Address);
 void 											USB_Host_Device_Manager___Handle_Start_Of_Frame									(uint8_t port_Number);
-void USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, void callback(uint8_t, uint8_t, uint8_t, uint8_t));
+void 											USB_Host_Device_Manager___Set_Interface_Disconnected_Callback					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, void callback(uint8_t, uint8_t, uint8_t, uint8_t));
 
 #endif /* CORE_INC_USB_HOST_DEVICE_MANAGER_H_ */
