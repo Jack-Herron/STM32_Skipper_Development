@@ -423,7 +423,7 @@ void USB_Host_Enumerate___URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMET
 
 void USB_Host_Enumerate___Get_Full_Device_Descriptor(uint8_t port_Number, uint8_t device_Address)
 {
-	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
 	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_DEVICE_TO_HOST;
 	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
 	setup_Packet.wValue 		= 0x0100;
@@ -437,7 +437,7 @@ void USB_Host_Enumerate___Get_Full_Device_Descriptor(uint8_t port_Number, uint8_
 
 void USB_Host_Enumerate___Get_First_Eight_Device_Descriptor(uint8_t port_Number, uint8_t device_Address)
 {
-	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
 	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_DEVICE_TO_HOST;
 	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
 	setup_Packet.wValue 		= 0x0100;
@@ -451,7 +451,7 @@ void USB_Host_Enumerate___Get_First_Eight_Device_Descriptor(uint8_t port_Number,
 
 void USB_Host_Enumerate___Set_Address(uint8_t port_Number, uint8_t device_Address, uint8_t new_Address)
 {
-	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
 	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_HOST_TO_DEVICE;
 	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_SET_ADDRESS;
 	setup_Packet.wValue 		= new_Address;
@@ -463,7 +463,7 @@ void USB_Host_Enumerate___Set_Address(uint8_t port_Number, uint8_t device_Addres
 
 void USB_Host_Enumerate___Get_String_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t* p_Buffer, uint16_t language_Id, uint8_t string_Index, uint16_t string_Length)
 {
-	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
 	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_DEVICE_TO_HOST;
 	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
 	setup_Packet.wValue 		= (0x03 << 0x08) | string_Index;
@@ -475,7 +475,7 @@ void USB_Host_Enumerate___Get_String_Descriptor(uint8_t port_Number, uint8_t dev
 
 void USB_Host_Enumerate___Get_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t* p_Buffer, uint8_t configuration_Index, uint16_t configuration_Length)
 {
-	USB_Host_Transfers___Control_Setup_Packet setup_Packet;
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
 	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_DEVICE_TO_HOST;
 	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
 	setup_Packet.wValue 		= (0x02 << 0x08) | configuration_Index;

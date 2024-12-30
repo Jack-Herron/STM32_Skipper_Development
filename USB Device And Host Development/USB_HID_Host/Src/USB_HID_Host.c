@@ -131,20 +131,23 @@ USB_HID_Host___HID_Node_TypeDef* USB_HID_Host___Get_HID_Node_From_Device_Interfa
 
 uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_Address)
 {
-	uint8_t											num_HID_Interfaces			= 0;
-	USB_Host___Device_Descriptor_TypeDef			device_Descriptor			= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
-	uint8_t 										current_Configuration 		= USB_Host_Device_Manager___Get_Device_Current_Configuration(port_Number, device_Address);
-	USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 	= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration);
-
-	if(device_Descriptor.bDeviceClass == USB_HID_Host___COMPOSITE_DEVICE_CLASS)
+	uint8_t											num_HID_Interfaces				= 0;
+	USB_Host___Device_Descriptor_TypeDef			device_Descriptor				= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
+	uint8_t 										current_Configuration_Number 	= USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(port_Number, device_Address);
+	if(current_Configuration_Number > 0)
 	{
-		for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
-		{
-			USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration, i);
+		USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 		= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration_Number);
 
-			if(interface_Descriptor.bInterfaceClass == USB_HID_Host___HID_INTERFACE_CLASS)
+		if(device_Descriptor.bDeviceClass == USB_HID_Host___COMPOSITE_DEVICE_CLASS)
+		{
+			for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
 			{
-				num_HID_Interfaces++;
+				USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration_Number, i);
+
+				if(interface_Descriptor.bInterfaceClass == USB_HID_Host___HID_INTERFACE_CLASS)
+				{
+					num_HID_Interfaces++;
+				}
 			}
 		}
 	}
@@ -159,25 +162,28 @@ void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uin
 void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
 	USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(port_Number, device_Address, configuration_Number, interface_Number, USB_HID_Host___HID_Interface_Disconnected_Callback);
-	USB_Host_Device_Manager___Add_Interface_Polling_Process(port_Number, device_Address, configuration_Number, interface_Number, 255, NULL, USB_HID_Host___Polling_Callback);
+
 	printf("interface %d is a HID interface\n", interface_Number);
 }
 
 void USB_HID_Host___Setup_HID_Device(uint8_t port_Number, uint8_t device_Address)
 {
-	uint8_t 										current_Configuration 		= USB_Host_Device_Manager___Get_Device_Current_Configuration(port_Number, device_Address);
-	USB_Host___Device_Descriptor_TypeDef			device_Descriptor			= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
-	USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 	= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration);
-
-	if(device_Descriptor.bDeviceClass == USB_HID_Host___COMPOSITE_DEVICE_CLASS)
+	uint8_t 										current_Configuration_Number	= USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(port_Number, device_Address);
+	if(current_Configuration_Number > 0)
 	{
-		for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
-		{
-			USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration, i);
+		USB_Host___Device_Descriptor_TypeDef			device_Descriptor				= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
+		USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 		= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration_Number);
 
-			if(interface_Descriptor.bInterfaceClass == USB_HID_Host___HID_INTERFACE_CLASS)
+		if(device_Descriptor.bDeviceClass == USB_HID_Host___COMPOSITE_DEVICE_CLASS)
+		{
+			for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
 			{
-				USB_HID_Host___Setup_HID_Interface(port_Number, device_Address, current_Configuration, i);
+				USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration_Number, i);
+
+				if(interface_Descriptor.bInterfaceClass == USB_HID_Host___HID_INTERFACE_CLASS)
+				{
+					USB_HID_Host___Setup_HID_Interface(port_Number, device_Address, current_Configuration_Number, i);
+				}
 			}
 		}
 	}

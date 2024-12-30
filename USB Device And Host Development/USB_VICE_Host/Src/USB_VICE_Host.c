@@ -18,19 +18,22 @@
 
 uint8_t USB_VICE_Host___Is_Device_VICE_Device(uint8_t port_Number, uint8_t device_Address)
 {
-	uint8_t											num_VICE_Interfaces			= 0;
-	uint8_t 										current_Configuration 		= USB_Host_Device_Manager___Get_Device_Current_Configuration(port_Number, device_Address);
-	USB_Host___Device_Descriptor_TypeDef			device_Descriptor			= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
-	USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 	= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration);
-	if(device_Descriptor.bDeviceClass == USB_VICE_Host___COMPOSITE_DEVICE_CLASS)
+	uint8_t											num_VICE_Interfaces				= 0;
+	uint8_t 										current_Configuration_Number 	= USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(port_Number, device_Address);
+	if(current_Configuration_Number > 0)
 	{
-		for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
+		USB_Host___Device_Descriptor_TypeDef			device_Descriptor				= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
+		USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 		= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration_Number);
+		if(device_Descriptor.bDeviceClass == USB_VICE_Host___COMPOSITE_DEVICE_CLASS)
 		{
-			USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration, i);
-
-			if(interface_Descriptor.bInterfaceClass == USB_VICE_Host___VICE_INTERFACE_CLASS)
+			for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
 			{
-				num_VICE_Interfaces++;
+				USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration_Number, i);
+
+				if(interface_Descriptor.bInterfaceClass == USB_VICE_Host___VICE_INTERFACE_CLASS)
+				{
+					num_VICE_Interfaces++;
+				}
 			}
 		}
 	}
@@ -44,19 +47,22 @@ void USB_VICE_Host___Setup_VICE_Interface(uint8_t port_Number, uint8_t device_Ad
 
 void USB_VICE_Host___Setup_VICE_Device(uint8_t port_Number, uint8_t device_Address)
 {
-	uint8_t 										current_Configuration 		= USB_Host_Device_Manager___Get_Device_Current_Configuration(port_Number, device_Address);
-	USB_Host___Device_Descriptor_TypeDef			device_Descriptor			= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
-	USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 	= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration);
-
-	if(device_Descriptor.bDeviceClass == USB_VICE_Host___COMPOSITE_DEVICE_CLASS)
+	uint8_t 										current_Configuration_Number 	= USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(port_Number, device_Address);
+	if(current_Configuration_Number > 0)
 	{
-		for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
-		{
-			USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration, i);
+		USB_Host___Device_Descriptor_TypeDef			device_Descriptor				= USB_Host_Device_Manager___Device_Get_Device_Descriptor(port_Number, device_Address);
+		USB_Host___Configuration_Descriptor_TypeDef 	configuration_Descriptor 		= USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(port_Number, device_Address, current_Configuration_Number);
 
-			if(interface_Descriptor.bInterfaceClass == USB_VICE_Host___VICE_INTERFACE_CLASS)
+		if(device_Descriptor.bDeviceClass == USB_VICE_Host___COMPOSITE_DEVICE_CLASS)
+		{
+			for(uint8_t i = 0; i < configuration_Descriptor.bNumInterfaces; i++)
 			{
-				USB_VICE_Host___Setup_VICE_Interface(port_Number, device_Address, i);
+				USB_Host___Interface_Descriptor_TypeDef 	interface_Descriptor 		= USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, current_Configuration_Number, i);
+
+				if(interface_Descriptor.bInterfaceClass == USB_VICE_Host___VICE_INTERFACE_CLASS)
+				{
+					USB_VICE_Host___Setup_VICE_Interface(port_Number, device_Address, i);
+				}
 			}
 		}
 	}

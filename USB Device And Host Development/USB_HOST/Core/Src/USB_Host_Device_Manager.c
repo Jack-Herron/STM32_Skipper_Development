@@ -13,7 +13,7 @@
 #include "../Inc/USB_Host.h"
 #include "../../Config/USB_Host_Config.h"
 #include "../Inc/USB_Host_Device_Manager.h"
-
+#include "../Inc/USB_Host_Transfers.h"
 
 
 static USB_Host_Device_Manager___Port_TypeDef  	 USB_Host_Device_Manager___Port[USB_Host___NUMBER_OF_PORTS] = {0};
@@ -131,7 +131,9 @@ void USB_Host_Device_Manager___Add_Device_Polling_Process(uint8_t port_Number, u
 
 void USB_Host_Device_Manager___Add_Interface_Polling_Process(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, uint16_t polling_Period, void* context, void callback(uint8_t port_Number , void* context))
 {
-	USB_Host_Device_Manager___Polling_Device_Node_TypeDef* p_Polling_Node = &(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->interface_Polling_Process[configuration_Number][interface_Number]);
+	uint8_t configuration_Index = configuration_Number - 1;
+
+	USB_Host_Device_Manager___Polling_Device_Node_TypeDef* p_Polling_Node = &(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->interface_Polling_Process[configuration_Index][interface_Number]);
 
 	USB_Host_Device_Manager___Setup_Polling_Process(p_Polling_Node, polling_Period, context, callback);
 	USB_Host_Device_Manager___Add_Polling_Process_Node_To_List(port_Number, p_Polling_Node);
@@ -146,7 +148,9 @@ void USB_Host_Device_Manager___Remove_Device_Polling_Process(uint8_t port_Number
 
 void USB_Host_Device_Manager___Remove_Interface_Polling_Process(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
-	USB_Host_Device_Manager___Polling_Device_Node_TypeDef* p_Polling_Node = &(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->interface_Polling_Process[configuration_Number][interface_Number]);
+	uint8_t configuration_Index = configuration_Number - 1;
+
+	USB_Host_Device_Manager___Polling_Device_Node_TypeDef* p_Polling_Node = &(USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->interface_Polling_Process[configuration_Index][interface_Number]);
 
 	USB_Host_Device_Manager___Remove_Polling_Process_Node_From_List(port_Number, p_Polling_Node);
 }
@@ -201,24 +205,27 @@ uint16_t USB_Host_Device_Manager___Get_Device_Release_Number(uint8_t port_Number
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.p_Device_Descriptor->bcdDevice);
 }
 
-uint8_t USB_Host_Device_Manager___Get_Device_Current_Configuration(uint8_t port_Number, uint8_t device_Address)
+uint8_t USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(uint8_t port_Number, uint8_t device_Address)
 {
 	return (USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.current_Configuration);
 }
 
-USB_Host___Configuration_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
+USB_Host___Configuration_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Configuration_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number)
 {
+	uint8_t configuration_Index = configuration_Number - 1;
 	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor);
 }
 
-USB_Host___Interface_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Interface_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index)
+USB_Host___Interface_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Interface_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
-	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Index].p_Interface_Descriptor);
+	uint8_t configuration_Index = configuration_Number - 1;
+	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Number].p_Interface_Descriptor);
 }
 
-USB_Host___Endpoint_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index, uint8_t interface_Index, uint8_t endpoint_Index)
+USB_Host___Endpoint_Descriptor_TypeDef USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, uint8_t endpoint_Number)
 {
-	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Index].endpoint[endpoint_Index].p_Endpoint_Descriptor);
+	uint8_t configuration_Index = configuration_Number - 1;
+	return (*USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[interface_Number].endpoint[endpoint_Number].p_Endpoint_Descriptor);
 }
 
 uint8_t* USB_Host_Device_Manager___Get_Device_Descriptor_Buffer(uint8_t port_Number, uint8_t device_Address)
@@ -435,8 +442,12 @@ void USB_Host_Device_Manager___Device_Set_Endpoint_Current_Packet_ID(uint8_t por
 	}
 }
 
-void USB_Host_Device_Manager___Set_Configuration(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Index)
+void USB_Host_Device_Manager___Set_Device_Current_Configuration(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number)
 {
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->status.current_Configuration = configuration_Number;
+
+	uint8_t configuration_Index = configuration_Number - 1;
+
 	for(uint8_t i = 0; i < USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].p_Configuration_Descriptor->bNumInterfaces; i++)
 	{
 		for(uint8_t j = 0; j < USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->descriptors.configuration[configuration_Index].interface[i].p_Interface_Descriptor->bNumEndpoints; j++)
@@ -457,6 +468,39 @@ void USB_Host_Device_Manager___Set_Configuration(uint8_t port_Number, uint8_t de
 			}
 		}
 	}
+}
+
+void USB_Host_Device_Manager___URB_Set_Configuration_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+{
+	if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
+	{
+		USB_Host_Device_Manager___Set_Device_Current_Configuration(URB.port_Number, URB.device_Address, URB.control_Setup_Packet.wValue);
+		if(USB_Host_Device_Manager___Port[URB.port_Number].p_Device[URB.device_Address]->callbacks.device_Set_Configuration_Callback != NULL)
+		{
+			USB_Host_Device_Manager___Port[URB.port_Number].p_Device[URB.device_Address]->callbacks.device_Set_Configuration_Callback(URB.port_Number, URB.device_Address, true);
+		}
+	}
+	else
+	{
+		if(USB_Host_Device_Manager___Port[URB.port_Number].p_Device[URB.device_Address]->callbacks.device_Set_Configuration_Callback != NULL)
+		{
+			USB_Host_Device_Manager___Port[URB.port_Number].p_Device[URB.device_Address]->callbacks.device_Set_Configuration_Callback(URB.port_Number, URB.device_Address, false);
+		}
+	}
+}
+
+void USB_Host_Device_Manager___Set_Configuration(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, void callback(uint8_t, uint8_t, uint8_t))
+{
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
+	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_HOST_TO_DEVICE;
+	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_SET_CONFIGURATION;
+	setup_Packet.wValue 		= configuration_Number;
+	setup_Packet.wIndex 		= 0;
+	setup_Packet.wLength 		= 0;
+
+	USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address]->callbacks.device_Set_Configuration_Callback = callback;
+
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_Host_Device_Manager___STANDARD_NUMBER_OF_RETRIES, USB_Host_Device_Manager___URB_Set_Configuration_Callback);
 }
 
 uint32_t USB_Host_Device_Manager___Device_Get_Out_Endpoint_Max_Packet_Size(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number)
@@ -569,13 +613,18 @@ void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t 
 			USB_Host_Device_Manager___Port[port_Number].port_Status.device_Connected_Or_Disconnected_Flag 	= true;
 			p_Device->status.connection_Flag 																= true;
 			p_Device->status.is_Connected 																	= false;
-			uint8_t current_Configuration = p_Device->status.current_Configuration;
-			for(uint8_t i = 0; i < p_Device->descriptors.configuration[current_Configuration].p_Configuration_Descriptor->bNumInterfaces; i++)
+			uint8_t current_Configuration_Number = p_Device->status.current_Configuration;
+			if(current_Configuration_Number != 0)
 			{
-				if(p_Device->callbacks.interface_Disconnected_Callback[current_Configuration][i] != NULL)
+				uint8_t current_Configuration_Index = current_Configuration_Number - 1;
+
+				for(uint8_t i = 0; i < p_Device->descriptors.configuration[current_Configuration_Index].p_Configuration_Descriptor->bNumInterfaces; i++)
 				{
-					USB_Host_Device_Manager___Remove_Interface_Polling_Process(port_Number, device_Address, current_Configuration, i);
-					p_Device->callbacks.interface_Disconnected_Callback[current_Configuration][i](port_Number, device_Address, current_Configuration, i);
+					if(p_Device->callbacks.interface_Disconnected_Callback[current_Configuration_Index][i] != NULL)
+					{
+						USB_Host_Device_Manager___Remove_Interface_Polling_Process(port_Number, device_Address, current_Configuration_Number, i);
+						p_Device->callbacks.interface_Disconnected_Callback[current_Configuration_Index][i](port_Number, device_Address, current_Configuration_Number, i);
+					}
 				}
 			}
 
@@ -583,6 +632,7 @@ void USB_Host_Device_Manager___Device_Disconnected(uint8_t port_Number, uint8_t 
 			{
 				p_Device->callbacks.device_Disconnected_Callback(port_Number, device_Address);
 			}
+
 		}
 		else
 		{
@@ -718,6 +768,10 @@ void USB_Host_Device_Manager___Handle_Start_Of_Frame(uint8_t port_Number)
 	}
 }
 
+uint8_t USB_Host_Device_Manager___Get_Number_Of_Devices_Connected(uint8_t port_Number)
+{
+	return(USB_Host_Device_Manager___Port[port_Number].number_Of_Devices_Connected);
+}
 void USB_Host_Device_Manager___Device_Initialize_Callbacks(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
@@ -745,8 +799,9 @@ void USB_Host_Device_Manager___Setup_Device(uint8_t port_Number, uint8_t device_
 
 void USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, void callback(uint8_t, uint8_t, uint8_t, uint8_t))
 {
+	uint8_t configuration_Index = configuration_Number - 1;
 	USB_Host_Device_Manager___Device_TypeDef* p_Device = USB_Host_Device_Manager___Port[port_Number].p_Device[device_Address];
-	p_Device->callbacks.interface_Disconnected_Callback[configuration_Number][interface_Number] = callback;
+	p_Device->callbacks.interface_Disconnected_Callback[configuration_Index][interface_Number] = callback;
 }
 
 int8_t USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(uint8_t port_Number, uint8_t device_Speed, uint8_t is_Root_Device)

@@ -102,5 +102,7 @@ void 		USB_Host___Device_Enumeration_Finished			(uint8_t port_Number, uint8_t de
 uint16_t 	USB_Host___Get_Frame_Number						(uint8_t port_Number);
 void 		USB_Host___Set_Device_Disconnected_Callback		(uint8_t port_Number, void callback(uint8_t, uint8_t));
 void 		USB_Host___Set_Device_Connected_Callback		(uint8_t port_Number, void callback(uint8_t, uint8_t));
+void 		USB_Host___Set_Configuration					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, void callback(uint8_t, uint8_t, uint8_t));
+uint8_t 	USB_Host___Get_Number_Of_Devices_Connected		(uint8_t port_Number);
 
 #endif /* CORE_INC_USB_HOST_H_ */

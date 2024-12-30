@@ -42,7 +42,7 @@ void GPIO_init(void){
 
 }
 
-void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
+void USB_Set_Configuration_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t success)
 {
 	if(USB_VICE_Host___Is_Device_VICE_Device(port_Number, device_Address))
 	{
@@ -53,7 +53,12 @@ void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
 		printf("HID Device Connected!\n");
 		USB_HID_Host___Setup_HID_Device(port_Number, device_Address);
 	}
+}
 
+void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host___Set_Configuration(port_Number, device_Address, 1, USB_Set_Configuration_Callback);
+	printf("number of devices connected: %d\n", USB_Host___Get_Number_Of_Devices_Connected(port_Number));
 }
 
 int main(void) {
