@@ -206,6 +206,12 @@ void USB_Host_Hub___Handle_Port_Connection(uint8_t port_Number, uint8_t device_A
 {
 	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(port_Number, device_Address);
 
+	if(p_Hub_Node->hub.port[hub_Port_Number].p_Device != NULL)
+	{
+		USB_Host_Device_Manager___Device_Disconnected(port_Number, p_Hub_Node->hub.port[hub_Port_Number].p_Device->status.current_USB_Address);
+		p_Hub_Node->hub.port[hub_Port_Number].p_Device = NULL;
+	}
+
 	if(USB_Host_Device_Manager___Is_Port_Open(port_Number))
 	{
 		uint8_t device_Speed;
@@ -254,6 +260,7 @@ void USB_Host_Hub___Handle_Change_In_Port_Connection_Status(uint8_t port_Number,
 	if(wPortStatus & USB_Host_Hub___wPortStatus_PORT_CONNECTION_Msk >> USB_Host_Hub___wPortStatus_PORT_CONNECTION_Pos)
 	{
 		USB_Host_Hub___Handle_Port_Connection(port_Number, device_Address, hub_Port_Number, wPortChange, wPortStatus);
+
 	}
 	else
 	{
