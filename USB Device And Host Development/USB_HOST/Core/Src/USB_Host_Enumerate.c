@@ -394,6 +394,10 @@ void USB_Host_Enumerate___Setup_Stage_Completed(USB_Host_Enumerate___Enumerator_
 		break;
 
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR:
+		if(p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index != 0)
+		{
+			uint8_t i = 0;
+		}
 		USB_Host_Device_Manager___Device_Update_Configuration_Descriptor(port_Number, device_Address, p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index);
 		break;
 
@@ -561,6 +565,7 @@ uint8_t USB_Host_Enumerate___Enumerate_Device(uint8_t port_Number, uint8_t devic
 		new_Enumerator.current_USB_Device_Address = device_Address;
 		new_Enumerator.current_String_Descriptor_Type = 0;
 		new_Enumerator.current_String_Descriptor_Language_ID = 0;
+		new_Enumerator.current_Configuration_Descriptor_Index = 0;
 		new_Enumerator.setup_Stage = USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR;
 		Enumerator_Node->enumerator = new_Enumerator;
 

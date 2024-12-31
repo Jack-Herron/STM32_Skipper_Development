@@ -8,11 +8,15 @@
 #ifndef INC_USB_LL_INTERRUPTS_HOST_H_
 #define INC_USB_LL_INTERRUPTS_HOST_H_
 
+//#define USB_LL_Interrupts_Host___DEBUG_ON
+
 #ifdef USB_LL_Interrupts_Host___DEBUG_ON
-#define USB_LL_Interrupts_Host___DPRINTF 1
+	#define USB_LL_Interrupts_Host___DPRINTF 1
 #else
-#define USB_LL_Interrupts_Host___DPRINTF 0
+	#define USB_LL_Interrupts_Host___DPRINTF 0
 #endif
+
+
 #define USB_LL_Interrupts_Host___Debug_Log(...) if (USB_LL_Interrupts_Host___DPRINTF) printf(__VA_ARGS__)
 
 #define USB_LL_Interrupts_Host___LOW_SPEED_VALUE							0x00

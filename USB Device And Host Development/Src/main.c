@@ -73,6 +73,7 @@ int main(void) {
 	USB_VICE_Host___Setup_Device(0,0);
 	for(;;)
 	{
+		//Skipper_Clock___Delay_ms(100);
 		USB_Host___Process(0);
 	}
 }

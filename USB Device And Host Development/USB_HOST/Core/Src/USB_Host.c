@@ -188,8 +188,11 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 void USB_Host___Process(uint8_t port_Number)
 {
 	USB_Host___Process_Host_Interrupts(port_Number);
+	//printf("a\n");
 	USB_Host___Process_Device_Manager_Status(port_Number);
+	//printf("b\n");
 	USB_Host_Pipes___Process_Pipes(port_Number);
+	//printf("c\n");
 	USB_Host_Transfers___Process_URB(port_Number);
-
+	//printf("d\n");
 }
