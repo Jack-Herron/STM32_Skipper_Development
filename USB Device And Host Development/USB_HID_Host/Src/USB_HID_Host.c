@@ -168,9 +168,34 @@ void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uin
 	printf("Interface Disconnected at interface %d\n", interface_Number);
 }
 
+void USB_HID_Host___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+{
+	if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
+	{
+
+	}
+	else
+	{
+		// delete node, end device
+	}
+}
+
+void USB_HID_Host___Get_HID_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint16_t length, uint8_t* p_Buffer, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+{
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
+	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_INTERFACE_TO_HOST;
+	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
+	setup_Packet.wValue 		= (0x21 << 8);
+	setup_Packet.wIndex 		= interface_Number;
+	setup_Packet.wLength 		= length;
+
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, length, USB_HID_Host___STANDARD_NUMBER_OF_RETRIES, callback);
+}
+
 void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
 	USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(port_Number, device_Address, configuration_Number, interface_Number, USB_HID_Host___HID_Interface_Disconnected_Callback);
+
 	USB_HID_Host___HID_Node_TypeDef* 	HID_Node 	= USB_HID_Host___Create_HID_Node(port_Number);
 	USB_HID_Host___HID_Device_TypeDef* 	HID_Device 	= &HID_Node->HID_Device;
 
@@ -178,6 +203,27 @@ void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Addr
 	HID_Device->device_Address 			= device_Address;
 	HID_Device->configuration_Number 	= configuration_Number;
 	HID_Device->interface_Number		= interface_Number;
+	HID_Device->setup_Stage				= 0;
+
+	uint8_t num_Endpoints 				= (USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, configuration_Number, interface_Number)).bNumEndpoints;
+
+	for(uint8_t endpoint_Descriptor_Number = 0; endpoint_Descriptor_Number < num_Endpoints; endpoint_Descriptor_Number++)
+	{
+		USB_Host___Endpoint_Descriptor_TypeDef endpoint_Descriptor = USB_Host_Device_Manager___Device_Get_Endpoint_Descriptor(port_Number, device_Address, configuration_Number, interface_Number, endpoint_Descriptor_Number);
+
+		if((endpoint_Descriptor.bEndpointAddress >> 7) == 1)
+		{
+			HID_Device->interrupt_In_Endpoint_Number 	= endpoint_Descriptor.bEndpointAddress & 0x7f;
+			HID_Device->interrupt_In_Endpoint_Interval 	= endpoint_Descriptor.bInterval;
+		}
+		else
+		{
+			HID_Device->interrupt_Out_Endpoint_Number 	= endpoint_Descriptor.bEndpointAddress & 0x7f;
+			HID_Device->interrupt_Out_Endpoint_Interval = endpoint_Descriptor.bInterval;
+		}
+	}
+
+	USB_HID_Host___Get_HID_Descriptor(port_Number, device_Address, interface_Number, USB_HID_Host___HID_Descriptor_Base_Length, (uint8_t*)&(HID_Device->HID_Descriptor), USB_HID_Host___URB_Setup_Callback);
 
 	printf("interface %d is a HID interface\n", interface_Number);
 }

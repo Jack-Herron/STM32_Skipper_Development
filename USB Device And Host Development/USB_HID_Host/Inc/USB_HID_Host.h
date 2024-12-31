@@ -11,19 +11,36 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define USB_HID_Host___STANDARD_NUMBER_OF_RETRIES			0xff
 #define USB_HID_Host___DYNAMICALLY_ALLOCATE_HID_DEVICES		false
 #define USB_HID_Host___NUMBER_OF_HID_INSTANCES				0x10
 #define USB_HID_Host___HID_INTERFACE_CLASS					0x03
 #define USB_HID_Host___COMPOSITE_DEVICE_CLASS				0x00
+#define USB_HID_Host___HID_Descriptor_Base_Length			0x09
+
+typedef struct __attribute__((packed))
+{
+	uint8_t 	bLength;
+	uint8_t 	bDescriptorType;
+	uint16_t 	bcdHID;
+	uint8_t 	bCountryCode;
+	uint8_t 	bNumDescriptors;
+	uint8_t 	bReportDescriptorType;
+	uint16_t 	wDescriptorLength;
+} USB_HID_Host___HID_Descriptor;
 
 typedef struct
 {
-	uint8_t port_Number;
-	uint8_t device_Address;
-	uint8_t configuration_Number;
-	uint8_t interface_Number;
-	uint8_t interrupt_In_Endpoint_Number;
-	uint8_t interrupt_Out_Endpoint_Number;
+	uint8_t 						port_Number;
+	uint8_t 						device_Address;
+	uint8_t 						configuration_Number;
+	uint8_t 						interface_Number;
+	uint8_t 						setup_Stage;
+	uint8_t 						interrupt_In_Endpoint_Number;
+	uint8_t							interrupt_In_Endpoint_Interval;
+	uint8_t 						interrupt_Out_Endpoint_Number;
+	uint8_t							interrupt_Out_Endpoint_Interval;
+	USB_HID_Host___HID_Descriptor 	HID_Descriptor;
 } USB_HID_Host___HID_Device_TypeDef;
 
 typedef struct USB_HID_Host___HID_Node
