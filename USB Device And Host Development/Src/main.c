@@ -58,7 +58,6 @@ void USB_Set_Configuration_Callback(uint8_t port_Number, uint8_t device_Address,
 void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host___Set_Configuration(port_Number, device_Address, 1, USB_Set_Configuration_Callback);
-	printf("number of devices connected: %d\n", USB_Host___Get_Number_Of_Devices_Connected(port_Number));
 }
 
 int main(void) {
@@ -73,7 +72,6 @@ int main(void) {
 	USB_VICE_Host___Setup_Device(0,0);
 	for(;;)
 	{
-		//Skipper_Clock___Delay_ms(100);
 		USB_Host___Process(0);
 	}
 }

@@ -74,7 +74,7 @@ void USB_Host_Device_Manager___Remove_Polling_Process_Node_From_List(uint8_t por
 
 		if(p_Polling_Node == USB_Host_Device_Manager___Polling_List[port_Number].first_Node)
 		{
-			USB_Host_Device_Manager___Polling_List[port_Number].first_Node = NULL;
+			USB_Host_Device_Manager___Polling_List[port_Number].first_Node = p_Polling_Node->next_Node;
 		}
 		if(p_Polling_Node == USB_Host_Device_Manager___Polling_List[port_Number].last_Node)
 		{

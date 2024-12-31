@@ -88,19 +88,25 @@ void USB_HID_Host___Delete_HID_Node(uint8_t port_Number, USB_HID_Host___HID_Node
 {
 	if(p_HID_Node != NULL)
 	{
-		if (p_HID_Node -> previous_Node != NULL)
+		if(p_HID_Node == USB_HID_Host___HID_List[port_Number].first_Node)
 		{
-			p_HID_Node -> previous_Node -> next_Node = p_HID_Node -> next_Node;
-			p_HID_Node -> next_Node -> previous_Node = p_HID_Node -> previous_Node;
-		}
-		else
-		{
-			USB_HID_Host___HID_List[port_Number].first_Node = p_HID_Node -> next_Node;
+
+			USB_HID_Host___HID_List[port_Number].first_Node = p_HID_Node->next_Node;
 		}
 
-		if (USB_HID_Host___HID_List[port_Number].last_Node == p_HID_Node)
+		if(p_HID_Node == USB_HID_Host___HID_List[port_Number].last_Node)
 		{
 			USB_HID_Host___HID_List[port_Number].last_Node = p_HID_Node->previous_Node;
+		}
+
+		if(p_HID_Node -> previous_Node != NULL)
+		{
+			p_HID_Node->previous_Node -> next_Node 	= p_HID_Node -> next_Node;
+		}
+
+		if(p_HID_Node -> next_Node != NULL)
+		{
+			p_HID_Node->next_Node -> previous_Node 	= p_HID_Node -> previous_Node;
 		}
 
 		USB_HID_Host___Free_HID_Node(p_HID_Node);
@@ -156,12 +162,22 @@ uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_
 
 void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
+	USB_HID_Host___HID_Node_TypeDef* HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, configuration_Number, interface_Number);
+	USB_HID_Host___Delete_HID_Node(port_Number, HID_Node);
+
 	printf("Interface Disconnected at interface %d\n", interface_Number);
 }
 
 void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
 	USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(port_Number, device_Address, configuration_Number, interface_Number, USB_HID_Host___HID_Interface_Disconnected_Callback);
+	USB_HID_Host___HID_Node_TypeDef* 	HID_Node 	= USB_HID_Host___Create_HID_Node(port_Number);
+	USB_HID_Host___HID_Device_TypeDef* 	HID_Device 	= &HID_Node->HID_Device;
+
+	HID_Device->port_Number				= port_Number;
+	HID_Device->device_Address 			= device_Address;
+	HID_Device->configuration_Number 	= configuration_Number;
+	HID_Device->interface_Number		= interface_Number;
 
 	printf("interface %d is a HID interface\n", interface_Number);
 }
