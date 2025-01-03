@@ -22,7 +22,7 @@
 #define USB_Host_Config___MAX_USB_ENUMERATORS							USB_Host_Config___NUMBER_OF_HOST_PORTS_USED		// how many devices can be in the setup process at one time (only up to one per port is recommended)
 
 #define USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_HUBS                 false		// highly recommended to leave this option false
-#define USB_Host_Config___MAX_USB_HUBS                                  0x3
+#define USB_Host_Config___MAX_USB_HUBS                                  0x5
 #define USB_Host_Config___MAX_HUB_PORTS	                                0x10
 
 #define USB_Host_Config___GET_STRINGS                                   true

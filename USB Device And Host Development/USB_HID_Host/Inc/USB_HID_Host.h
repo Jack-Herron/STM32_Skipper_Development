@@ -11,12 +11,17 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define USB_HID_Host___STANDARD_NUMBER_OF_RETRIES			0xff
-#define USB_HID_Host___DYNAMICALLY_ALLOCATE_HID_DEVICES		false
-#define USB_HID_Host___NUMBER_OF_HID_INSTANCES				0x10
-#define USB_HID_Host___HID_INTERFACE_CLASS					0x03
-#define USB_HID_Host___COMPOSITE_DEVICE_CLASS				0x00
-#define USB_HID_Host___HID_Descriptor_Base_Length			0x09
+#define USB_HID_Host___STANDARD_NUMBER_OF_RETRIES				0xff
+#define USB_HID_Host___DYNAMICALLY_ALLOCATE_HID_DEVICES			false
+#define USB_HID_Host___NUMBER_OF_HID_INSTANCES					0x10
+#define USB_HID_Host___HID_INTERFACE_CLASS						0x03
+#define USB_HID_Host___COMPOSITE_DEVICE_CLASS					0x00
+#define USB_HID_Host___HID_Descriptor_Base_Length				0x09
+#define USB_HID_Host___PROTOCOL_BOOT							0x00
+#define USB_HID_Host___PROTOCOL_REPORT							0x01
+#define USB_HID_Host___REPORT_DESCRIPTOR_BUFFER_SIZE			0x100
+#define USB_HID_Host___SETUP_STAGE_GET_HID_DESCRIPTOR			0x00
+#define USB_HID_Host___SETUP_STAGE_GET_HID_REPORT_DESCRIPTOR	0x01
 
 typedef struct __attribute__((packed))
 {
@@ -33,14 +38,15 @@ typedef struct
 {
 	uint8_t 						port_Number;
 	uint8_t 						device_Address;
-	uint8_t 						configuration_Number;
 	uint8_t 						interface_Number;
+	uint8_t							current_Protocol;
 	uint8_t 						setup_Stage;
 	uint8_t 						interrupt_In_Endpoint_Number;
 	uint8_t							interrupt_In_Endpoint_Interval;
 	uint8_t 						interrupt_Out_Endpoint_Number;
 	uint8_t							interrupt_Out_Endpoint_Interval;
 	USB_HID_Host___HID_Descriptor 	HID_Descriptor;
+	uint8_t							HID_Report_Descriptor_Buffer[USB_HID_Host___REPORT_DESCRIPTOR_BUFFER_SIZE];
 } USB_HID_Host___HID_Device_TypeDef;
 
 typedef struct USB_HID_Host___HID_Node

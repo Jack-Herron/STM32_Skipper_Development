@@ -118,14 +118,14 @@ void USB_HID_Host___Polling_Callback(uint8_t port_Number, void* context)
 	printf("polling callback triggered\n");
 }
 
-USB_HID_Host___HID_Node_TypeDef* USB_HID_Host___Get_HID_Node_From_Device_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
+USB_HID_Host___HID_Node_TypeDef* USB_HID_Host___Get_HID_Node_From_Device_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
 	if (USB_HID_Host___HID_List[port_Number].first_Node != NULL)
 	{
 		USB_HID_Host___HID_Node_TypeDef* p_HID_Node = USB_HID_Host___HID_List[port_Number].first_Node;
 		while (p_HID_Node != NULL)
 		{
-			if (p_HID_Node->HID_Device.device_Address == device_Address && p_HID_Node->HID_Device.configuration_Number == configuration_Number && p_HID_Node->HID_Device.interface_Number == interface_Number)
+			if (p_HID_Node->HID_Device.device_Address == device_Address && p_HID_Node->HID_Device.interface_Number == interface_Number)
 			{
 				return (p_HID_Node);
 			}
@@ -162,22 +162,24 @@ uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_
 
 void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
-	USB_HID_Host___HID_Node_TypeDef* HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, configuration_Number, interface_Number);
+	USB_HID_Host___HID_Node_TypeDef* HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
 	USB_HID_Host___Delete_HID_Node(port_Number, HID_Node);
 
 	printf("Interface Disconnected at interface %d\n", interface_Number);
 }
 
-void USB_HID_Host___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
-{
-	if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
-	{
+void USB_HID_Host___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS);
 
-	}
-	else
-	{
-		// delete node, end device
-	}
+void USB_HID_Host___Get_HID_Report_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint16_t length, uint8_t* p_Buffer, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+{
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
+	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_INTERFACE_TO_HOST;
+	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
+	setup_Packet.wValue 		= 0x2200;
+	setup_Packet.wIndex 		= interface_Number;
+	setup_Packet.wLength 		= length;
+
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, length, USB_HID_Host___STANDARD_NUMBER_OF_RETRIES, callback);
 }
 
 void USB_HID_Host___Get_HID_Descriptor(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint16_t length, uint8_t* p_Buffer, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
@@ -185,11 +187,214 @@ void USB_HID_Host___Get_HID_Descriptor(uint8_t port_Number, uint8_t device_Addre
 	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
 	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_INTERFACE_TO_HOST;
 	setup_Packet.bRequest 		= USB_Host_Transfers___CONTROL_SETUP_PACKET_BREQUEST_GET_DESCRIPTOR;
-	setup_Packet.wValue 		= (0x21 << 8);
+	setup_Packet.wValue 		= 0x2100;
 	setup_Packet.wIndex 		= interface_Number;
 	setup_Packet.wLength 		= length;
 
 	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, length, USB_HID_Host___STANDARD_NUMBER_OF_RETRIES, callback);
+}
+
+void USB_HID_Host___Do_Setup_Stage(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+{
+	uint8_t port_Number 		= p_HID_Node->HID_Device.port_Number;
+	uint8_t device_Address	 	= p_HID_Node->HID_Device.device_Address;
+	uint8_t interface_Number 	= p_HID_Node->HID_Device.interface_Number;
+
+	switch(p_HID_Node->HID_Device.setup_Stage)
+	{
+	case USB_HID_Host___SETUP_STAGE_GET_HID_REPORT_DESCRIPTOR:
+		{
+			uint16_t 	report_Descriptor_Length = p_HID_Node->HID_Device.HID_Descriptor.wDescriptorLength;
+			uint8_t* 	report_Descriptor_Buffer = p_HID_Node->HID_Device.HID_Report_Descriptor_Buffer;
+
+			USB_HID_Host___Get_HID_Report_Descriptor(port_Number, device_Address, interface_Number, report_Descriptor_Length, report_Descriptor_Buffer, USB_HID_Host___URB_Setup_Callback);
+			break;
+		}
+	}
+}
+
+void print_Usage(uint16_t usage)
+{
+	switch(usage)
+	{
+	case 0x01:
+		printf("Pointer");
+		break;
+	case 0x02:
+		printf("Mouse");
+		break;
+	case 0x06:
+		printf("Keyboard");
+		break;
+	case 0x07:
+		printf("Keypad");
+		break;
+	case 0x30:
+		printf("X");
+		break;
+	case 0x31:
+		printf("Y");
+		break;
+	case 0x38:
+		printf("Wheel");
+		break;
+	default:
+		printf("%x", usage);
+		break;
+	}
+}
+
+void USB_HID_Host___Print_HID_Report_Descriptor(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+{
+	uint16_t 	report_Descriptor_Length = p_HID_Node->HID_Device.HID_Descriptor.wDescriptorLength;
+	uint8_t* 	report_Descriptor_Buffer = p_HID_Node->HID_Device.HID_Report_Descriptor_Buffer;
+
+	uint8_t 	cont = true;
+	uint16_t 	current_Index = 0;
+	printf("\n");
+	printf("Report descriptor: \n");
+
+	while(cont)
+	{
+		uint8_t item = report_Descriptor_Buffer[current_Index];
+		uint8_t item_Size_Value = item & 0x03;
+		uint8_t item_Size = 1;
+		uint8_t print_Bytes = 1;
+
+
+		switch(item_Size_Value)
+		{
+		case 1:
+			item_Size += 1;
+			break;
+		case 2:
+			item_Size += 2;
+			break;
+		case 3:
+			item_Size += 4;
+			break;
+		}
+
+		switch(item & 0xfc)
+		{
+		case 0x04:
+			printf("Usage page: ");
+			break;
+		case 0x14:
+			printf("Logical minimum: ");
+			break;
+		case 0x24:
+			printf("Logical maximum: ");
+			break;
+		case 0x34:
+			printf("Physical minimum: ");
+			break;
+		case 0x44:
+			printf("Physical maximum: ");
+			break;
+		case 0x80:
+			printf("Input: ");
+			break;
+		case 0x90:
+			printf("Output: ");
+			break;
+		case 0xb0:
+			printf("Feature: ");
+			break;
+		case 0xa0:
+			printf("Collection: ");
+			break;
+		case 0xc0:
+			printf("End collection: ");
+			break;
+		case 0x84:
+			printf("Report ID: ");
+			break;
+		case 0x74:
+			printf("Report size: ");
+			break;
+		case 0x94:
+			printf("Report count: ");
+			break;
+		case 0x08:
+			print_Bytes = 0;
+			printf("Usage: ");
+			{
+				uint16_t usage_Size = item_Size -1;
+				uint8_t usage = 0;
+				if(usage_Size == 1)
+				{
+					usage = report_Descriptor_Buffer[current_Index+1];
+				}
+				else
+				{
+					usage = report_Descriptor_Buffer[current_Index+2] | (report_Descriptor_Buffer[current_Index+1] << 8);
+				}
+				print_Usage(usage);
+			}
+
+			break;
+		case 0x18:
+			printf("Usage minimum: ");
+			break;
+		case 0x28:
+			printf("Usage maximum: ");
+			break;
+		case 0x78:
+			printf("String index: ");
+			break;
+		default:
+			printf("Undefined item: ");
+			break;
+		}
+		if(print_Bytes)
+		{
+			for(uint16_t i = 1; i < item_Size; i++)
+			{
+				printf("%d ", report_Descriptor_Buffer[current_Index+i]);
+			}
+		}
+		printf("\n");
+
+		current_Index+= item_Size;
+
+		if(current_Index >= report_Descriptor_Length)
+		{
+			cont = false;
+		}
+	}
+	printf("\n");
+}
+
+void USB_HID_Host___Set_Next_Setup_Stage(USB_HID_Host___HID_Node_TypeDef* p_HID_Node)
+{
+	switch(p_HID_Node->HID_Device.setup_Stage)
+	{
+	case USB_HID_Host___SETUP_STAGE_GET_HID_DESCRIPTOR:
+		p_HID_Node->HID_Device.setup_Stage = USB_HID_Host___SETUP_STAGE_GET_HID_REPORT_DESCRIPTOR;
+		break;
+	case USB_HID_Host___SETUP_STAGE_GET_HID_REPORT_DESCRIPTOR:
+		p_HID_Node->HID_Device.setup_Stage = USB_HID_Host___SETUP_STAGE_GET_HID_REPORT_DESCRIPTOR+1;
+		USB_HID_Host___Print_HID_Report_Descriptor(p_HID_Node);
+		break;
+	}
+}
+
+void USB_HID_Host___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+{
+	if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
+	{
+		USB_HID_Host___HID_Node_TypeDef* p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(URB.port_Number, URB.device_Address, URB.control_Setup_Packet.wIndex);
+		if(p_HID_Node != NULL)
+		{
+			USB_HID_Host___Set_Next_Setup_Stage(p_HID_Node);
+			USB_HID_Host___Do_Setup_Stage(p_HID_Node);
+		}
+	}
+	else
+	{
+		// delete node, end device
+	}
 }
 
 void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
@@ -201,7 +406,6 @@ void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Addr
 
 	HID_Device->port_Number				= port_Number;
 	HID_Device->device_Address 			= device_Address;
-	HID_Device->configuration_Number 	= configuration_Number;
 	HID_Device->interface_Number		= interface_Number;
 	HID_Device->setup_Stage				= 0;
 
