@@ -112,12 +112,14 @@ typedef struct USB_Host_Transfers___URB_Node
 	uint8_t											is_Allocated;
 	USB_Host_Transfers___URB_TypeDef				URB;
 	struct USB_Host_Transfers___URB_Node*			next_Node;
+	struct USB_Host_Transfers___URB_Node*			previous_Node;
 }USB_Host_Transfers___URB_Node_TypeDef;
 
 typedef struct
 {
-	USB_Host_Transfers___URB_Node_TypeDef* 			current_Node;
+	USB_Host_Transfers___URB_Node_TypeDef* 			first_Node;
 	USB_Host_Transfers___URB_Node_TypeDef*			last_Node;
+	uint16_t										num_URBs;
 }USB_Host_Transfers___URB_Queue_TypeDef;
 
 int8_t USB_Host_Transfers___Isochronous_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, uint8_t odd_Frame, uint8_t multi_Count, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
