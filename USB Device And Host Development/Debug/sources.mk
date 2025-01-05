@@ -46,7 +46,7 @@ USART/USART_LL/Src \
 USB_CDC_DEVICE/Core/Src \
 USB_HID_Host/Src \
 USB_HOST/Core/Src \
-USB_Keyboard/Src \
+USB_Keyboard_Host/Src \
 USB_LL_CORE/Src \
 USB_VICE_Host/Src \
 

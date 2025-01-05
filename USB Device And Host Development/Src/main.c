@@ -16,6 +16,8 @@
 #include <USB_HID_Host.h>
 #include <USART.h>
 #include <USB_CDC_Device.h>
+#include <USB_Keyboard_Host.h>
+#include <USB_Mouse_Host.h>
 
 void GPIO_init(void){
 	RCC->AHB1ENR |= (1<<3); 		// enable GPIOD clock
