@@ -45,15 +45,7 @@ void GPIO_init(void){
 
 void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
 {
-	if(USB_VICE_Host___Is_Device_VICE_Device(port_Number, device_Address))
-	{
-		printf("VICE Device Connected!\n");
-	}
-	if(USB_HID_Host___Is_Device_HID_Device(port_Number, device_Address))
-	{
-		printf("HID Device Connected!\n");
-		USB_HID_Host___Setup_HID_Device(port_Number, device_Address);
-	}
+
 }
 
 int main(void) {
@@ -65,6 +57,8 @@ int main(void) {
 	USB_Host___Init(0);
 	//USB_CDC_Device___Init(1);
 	USB_Host___Add_Device_Connected_Callback(0, USB_Device_Connected_Callback);
+	USB_Mouse_Host___Init(0);
+	USB_Keyboard_Host___Init(0);
 
 	for(;;)
 	{

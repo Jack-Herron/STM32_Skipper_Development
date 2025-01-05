@@ -48,5 +48,6 @@ USB_HID_Host/Src \
 USB_HOST/Core/Src \
 USB_Keyboard_Host/Src \
 USB_LL_CORE/Src \
+USB_Mouse_Host/Src \
 USB_VICE_Host/Src \
 
