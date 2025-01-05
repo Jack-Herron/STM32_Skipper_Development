@@ -39,10 +39,9 @@ void GPIO_init(void){
 
 	GPIOC->MODER |= (1<<0); 		// set PA2 to output
 	GPIOC->ODR &= ~(1<<0);			// set PA2 LOW
-
 }
 
-void USB_Set_Configuration_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t success)
+void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
 {
 	if(USB_VICE_Host___Is_Device_VICE_Device(port_Number, device_Address))
 	{
@@ -55,11 +54,6 @@ void USB_Set_Configuration_Callback(uint8_t port_Number, uint8_t device_Address,
 	}
 }
 
-void USB_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
-{
-	USB_Host___Set_Configuration(port_Number, device_Address, 1, USB_Set_Configuration_Callback);
-}
-
 int main(void) {
 	Skipper_Clock___Init();			// initiate the clock
 	Skipper_Clock___Systick_Init();
@@ -68,8 +62,8 @@ int main(void) {
 	USART___Set_Baud_Rate(1, 921600);
 	USB_Host___Init(0);
 	//USB_CDC_Device___Init(1);
-	USB_Host___Set_Device_Connected_Callback(0, USB_Device_Connected_Callback);
-	USB_VICE_Host___Setup_Device(0,0);
+	USB_Host___Add_Device_Connected_Callback(0, USB_Device_Connected_Callback);
+
 	for(;;)
 	{
 		USB_Host___Process(0);

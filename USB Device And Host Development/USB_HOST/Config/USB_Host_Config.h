@@ -11,6 +11,7 @@
 #include <stdbool.h>
 
 #define USB_Host_Config___NUMBER_OF_HOST_PORTS_USED						0x01
+#define USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS				0x08
 
 #define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					false		// highly recommended to leave this option false
 #define USB_Host_Config___PORT_DEVICE_LIMIT								0x8

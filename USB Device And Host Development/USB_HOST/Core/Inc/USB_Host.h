@@ -10,6 +10,7 @@
 
 #include <USB_LL_Definitions.h>
 #include <USB_LL_Host.h>
+#include "../../Config/USB_Host_Config.h"
 
 #define USB_Host___DEVICE_DESCRIPTOR_LENGTH			0x12
 #define USB_Host___CONFIGURATION_DESCRIPTOR_LENGTH	0x09
@@ -20,7 +21,8 @@
 #define USB_Host___CONFIGURATION_DESCRIPTOR_TYPE	0x02
 #define USB_Host___INTERFACE_DESCRIPTOR_TYPE		0x04
 #define USB_Host___ENDPOINT_DESCRIPTOR_TYPE			0x05
-
+#define USB_Host___COMPOSITE_DEVICE_CLASS			0x00
+#define USB_Host___HUB_DEVICE_CLASS					0x09
 
 #define USB_Host___NUMBER_OF_PORTS					USB_LL_Definitions___NUMBER_OF_PORTS
 #define USB_Host___TRANSFER_DIRECTION_OUT			USB_LL_Host___TRANSFER_DIRECTION_OUT
@@ -43,8 +45,8 @@
 #define USB_Host___ENDPOINT_FIFTEEN					0x0f
 
 typedef struct {
-	void (*USB_Host___Device_Disconnected_Callback)(uint8_t port_Number, uint8_t device_Address);
-	void (*USB_Host___Device_Connected_Callback)(uint8_t port_Number, uint8_t device_Address);
+	void (*USB_Host___Device_Disconnected_Callback	[USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS])	(uint8_t port_Number, uint8_t device_Address);
+	void (*USB_Host___Device_Connected_Callback		[USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS])	(uint8_t port_Number, uint8_t device_Address);
 }USB_Host___Host_Typedef;
 
 typedef struct __attribute__((packed)) {
@@ -100,8 +102,10 @@ void 		USB_Host___Init									(uint8_t port_Number);
 void 		USB_Host___Process								(uint8_t port_Number);
 void 		USB_Host___Device_Enumeration_Finished			(uint8_t port_Number, uint8_t device_Address, uint8_t success);
 uint16_t 	USB_Host___Get_Frame_Number						(uint8_t port_Number);
-void 		USB_Host___Set_Device_Disconnected_Callback		(uint8_t port_Number, void callback(uint8_t, uint8_t));
-void 		USB_Host___Set_Device_Connected_Callback		(uint8_t port_Number, void callback(uint8_t, uint8_t));
+uint8_t 	USB_Host___Add_Device_Disconnected_Callback		(uint8_t port_Number, void callback(uint8_t, uint8_t));
+uint8_t 	USB_Host___Add_Device_Connected_Callback		(uint8_t port_Number, void callback(uint8_t, uint8_t));
+uint8_t 	USB_Host___Remove_Device_Disconnected_Callback	(uint8_t port_Number, void callback(uint8_t, uint8_t));
+uint8_t 	USB_Host___Remove_Device_Connected_Callback		(uint8_t port_Number, void callback(uint8_t, uint8_t));
 void 		USB_Host___Set_Configuration					(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, void callback(uint8_t, uint8_t, uint8_t));
 uint8_t 	USB_Host___Get_Number_Of_Devices_Connected		(uint8_t port_Number);
 

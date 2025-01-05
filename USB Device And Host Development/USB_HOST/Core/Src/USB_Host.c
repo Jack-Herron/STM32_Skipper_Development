@@ -67,6 +67,17 @@ void USB_Debug___Print_Device_Name(uint8_t port_Number, uint8_t device_Address)
 	printf("%s %s", manufacturer_String, product_String);
 }
 
+void USB_Host___Composite_Set_Configuration_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t success)
+{
+	for(uint8_t i = 0; i < USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS; i++)
+	{
+		if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] != NULL)
+		{
+			USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i](port_Number, device_Address);
+		}
+	}
+}
+
 void USB_Host___Device_Enumeration_Finished(uint8_t port_Number, uint8_t device_Address, uint8_t success)
 {
 	if(success)
@@ -77,13 +88,23 @@ void USB_Host___Device_Enumeration_Finished(uint8_t port_Number, uint8_t device_
 		USB_Debug___Print_Device_Name(port_Number, device_Address);
 		printf("\n");
 
-		if(device_Class == USB_Host_Hub___HUB_DEVICE_CLASS)
+		if(device_Class == USB_Host___HUB_DEVICE_CLASS)
 		{
 			USB_Host_Hub___Initiate_Hub(port_Number, device_Address);
 		}
-		else if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback != NULL)
+		else if(device_Class == USB_Host___COMPOSITE_DEVICE_CLASS)
 		{
-			USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback(port_Number, device_Address);
+			USB_Host___Set_Configuration(port_Number, device_Address, 1, USB_Host___Composite_Set_Configuration_Callback);
+		}
+		else
+		{
+			for(uint8_t i = 0; i < USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS; i++)
+			{
+				if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] != NULL)
+				{
+					USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i](port_Number, device_Address);
+				}
+			}
 		}
 	}
 	else
@@ -146,9 +167,32 @@ uint16_t USB_Host___Get_Frame_Number(uint8_t port_Number)
 	return(USB_LL_Host___Host_Get_Frame_Number(port_Number));
 }
 
-void USB_Host___Set_Device_Disconnected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
+uint8_t USB_Host___Add_Device_Disconnected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
 {
-	USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback = callback;
+	for(uint8_t i = 0; i < USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS; i++)
+	{
+		if(USB_Host___Host[port_Number].USB_Host___Device_Disconnected_Callback[i] == NULL)
+		{
+			USB_Host___Host[port_Number].USB_Host___Device_Disconnected_Callback[i] = callback;
+			return(EXIT_SUCCESS);
+		}
+	}
+
+	return(EXIT_FAILURE);
+}
+
+uint8_t USB_Host___Remove_Device_Disconnected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
+{
+	for(uint8_t i = 0; i < USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS; i++)
+	{
+		if(USB_Host___Host[port_Number].USB_Host___Device_Disconnected_Callback[i] == callback)
+		{
+			USB_Host___Host[port_Number].USB_Host___Device_Disconnected_Callback[i] = NULL;
+			return(EXIT_SUCCESS);
+		}
+	}
+
+	return(EXIT_FAILURE);
 }
 
 void USB_Host___Set_Configuration(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, void callback(uint8_t, uint8_t, uint8_t))
@@ -156,9 +200,32 @@ void USB_Host___Set_Configuration(uint8_t port_Number, uint8_t device_Address, u
 	USB_Host_Device_Manager___Set_Configuration(port_Number, device_Address, configuration_Number, callback);
 }
 
-void USB_Host___Set_Device_Connected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
+uint8_t USB_Host___Add_Device_Connected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
 {
-	USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback = callback;
+	for(uint8_t i = 0; i < USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS; i++)
+	{
+		if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] == NULL)
+		{
+			USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] = callback;
+			return(EXIT_SUCCESS);
+		}
+	}
+
+	return(EXIT_FAILURE);
+}
+
+uint8_t USB_Host___Remove_Device_Connected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
+{
+	for(uint8_t i = 0; i < USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS; i++)
+	{
+		if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] == callback)
+		{
+			USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] = NULL;
+			return(EXIT_SUCCESS);
+		}
+	}
+
+	return(EXIT_FAILURE);
 }
 
 void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
@@ -188,11 +255,7 @@ void USB_Host___Process_Device_Manager_Status(uint8_t port_Number)
 void USB_Host___Process(uint8_t port_Number)
 {
 	USB_Host___Process_Host_Interrupts(port_Number);
-	//printf("a\n");
 	USB_Host___Process_Device_Manager_Status(port_Number);
-	//printf("b\n");
 	USB_Host_Pipes___Process_Pipes(port_Number);
-	//printf("c\n");
 	USB_Host_Transfers___Process_URB(port_Number);
-	//printf("d\n");
 }

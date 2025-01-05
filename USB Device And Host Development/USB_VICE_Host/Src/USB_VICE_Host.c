@@ -67,8 +67,3 @@ void USB_VICE_Host___Setup_VICE_Device(uint8_t port_Number, uint8_t device_Addre
 		}
 	}
 }
-
-void USB_VICE_Host___Setup_Device(uint8_t port_Number, uint8_t device_Address)
-{
-
-}
