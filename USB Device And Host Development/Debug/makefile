@@ -11,6 +11,7 @@ RM := rm -rf
 -include sources.mk
 -include USB_VICE_Host/Src/subdir.mk
 -include USB_LL_CORE/Src/subdir.mk
+-include USB_Keyboard/Src/subdir.mk
 -include USB_HOST/Core/Src/subdir.mk
 -include USB_HID_Host/Src/subdir.mk
 -include USB_CDC_DEVICE/Core/Src/subdir.mk
