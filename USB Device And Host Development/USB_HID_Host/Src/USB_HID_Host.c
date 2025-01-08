@@ -122,11 +122,6 @@ void USB_HID_Host___Delete_HID_Node(uint8_t port_Number, USB_HID_Host___HID_Inte
 	}
 }
 
-void USB_HID_Host___Polling_Callback(uint8_t port_Number, void* context)
-{
-	printf("polling callback triggered\n");
-}
-
 USB_HID_Host___HID_Interface_Node_TypeDef* USB_HID_Host___Get_HID_Node_From_Device_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
 	if (USB_HID_Host___HID_Interface_List[port_Number].first_Node != NULL)
@@ -143,6 +138,24 @@ USB_HID_Host___HID_Interface_Node_TypeDef* USB_HID_Host___Get_HID_Node_From_Devi
 	}
 	return(NULL);
 }
+
+USB_HID_Host___HID_Interface_Node_TypeDef* USB_HID_Host___Get_HID_Node_From_IN_Endpoint(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number)
+{
+	if (USB_HID_Host___HID_Interface_List[port_Number].first_Node != NULL)
+	{
+		USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node = USB_HID_Host___HID_Interface_List[port_Number].first_Node;
+		while (p_HID_Node != NULL)
+		{
+			if (p_HID_Node->HID_Device.device_Address == device_Address && p_HID_Node->HID_Device.interrupt_In_Endpoint_Number == endpoint_Number)
+			{
+				return (p_HID_Node);
+			}
+			p_HID_Node = p_HID_Node->next_Node;
+		}
+	}
+	return(NULL);
+}
+
 
 uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_Address)
 {
@@ -172,6 +185,16 @@ uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_
 void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
 {
 	USB_HID_Host___HID_Interface_Node_TypeDef* HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+
+	for (uint8_t i = 0; i < USB_HID_Host___MAX_APPLICATIONS; i++)
+	{
+		if (USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Disconnected_Callback[i] != NULL)
+		{
+			USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Disconnected_Callback[i](port_Number, device_Address, interface_Number);
+		}
+	}
+
+
 	USB_HID_Host___Delete_HID_Node(port_Number, HID_Node);
 
 	printf("Interface Disconnected at interface %d\n", interface_Number);
@@ -201,6 +224,109 @@ void USB_HID_Host___Get_HID_Descriptor(uint8_t port_Number, uint8_t device_Addre
 	setup_Packet.wLength 		= length;
 
 	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_IN, setup_Packet, p_Buffer, length, USB_HID_Host___STANDARD_NUMBER_OF_RETRIES, callback);
+}
+
+void USB_HID_Host___Set_Protocol_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t protocol, void callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS))
+{
+	USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet;
+	setup_Packet.bmRequestType 	= USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_CLASS_HOST_TO_INTERFACE;
+	setup_Packet.bRequest 		= USB_HID_Host___bRequest_SET_PROTOCOL;
+	setup_Packet.wValue 		= protocol;
+	setup_Packet.wIndex 		= interface_Number;
+	setup_Packet.wLength 		= 0;
+
+	USB_Host_Transfers___Control_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_ZERO, USB_Host___TRANSFER_DIRECTION_OUT, setup_Packet, 0, 0, USB_HID_Host___STANDARD_NUMBER_OF_RETRIES, callback);
+}
+
+void USB_HID_Host___Calculate_Report_Size(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	USB_HID_Host___HID_Interface_TypeDef* p_HID_Interface = &p_HID_Node->HID_Device;
+
+	if(p_HID_Interface->current_Protocol == USB_HID_Host___PROTOCOL_BOOT_MODE)
+	{
+		if (p_HID_Interface->device_Type == USB_HID_Host___DEVICE_TYPE_KEYBOARD)
+		{
+			p_HID_Interface->HID_IN_Report_Size = USB_HID_Host___REPORT_SIZE_BOOT_KEYBOARD;
+		}
+		else if (p_HID_Interface->device_Type == USB_HID_Host___DEVICE_TYPE_MOUSE)
+		{
+			p_HID_Interface->HID_IN_Report_Size = USB_HID_Host___REPORT_SIZE_BOOT_MOUSE;
+		}
+	}
+	else
+	{
+		// calculate from report descriptor
+	}
+}
+
+void USB_HID_Host___URB_Set_Protocol_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+{
+	if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
+	{
+		USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(URB.port_Number, URB.device_Address, URB.control_Setup_Packet.wIndex);
+		if(p_HID_Node != NULL)
+		{
+			p_HID_Node->HID_Device.current_Protocol = URB.control_Setup_Packet.wValue;
+
+			USB_HID_Host___Calculate_Report_Size(URB.port_Number, URB.device_Address, URB.control_Setup_Packet.wIndex);
+
+			if(p_HID_Node->HID_Device.set_Protocol_Callback != NULL)
+			{
+				p_HID_Node->HID_Device.set_Protocol_Callback(URB.port_Number, URB.device_Address, URB.control_Setup_Packet.wIndex);
+			}
+		}
+	}
+	else
+	{
+		// delete node, end device
+	}
+}
+
+void USB_HID_Host___Set_Protocol(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t protocol, void callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number))
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	p_HID_Node->HID_Device.set_Protocol_Callback = callback;
+	USB_HID_Host___Set_Protocol_Transfer(port_Number, device_Address, interface_Number, protocol, USB_HID_Host___URB_Set_Protocol_Callback);
+}
+
+uint32_t test_Num = 0;
+
+void USB_HID_Host___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node = USB_HID_Host___Get_HID_Node_From_IN_Endpoint(URB.port_Number, URB.device_Address, URB.endpoint_Number);
+
+	if(p_HID_Node != NULL)
+	{
+		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
+		{
+			printf("\n");
+			printf("Received report: ");
+			for(uint32_t i = 0; i < URB.transfer_Length; i++)
+			{
+				printf("%d ", (int8_t)URB.transfer_Buffer[i]);
+			}
+			printf("\n");
+			printf("%ld \n", test_Num++);
+
+		}
+	}
+}
+
+void USB_HID_Host___Polling_Callback(uint8_t port_Number, void* context)
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef *p_HID_Node = (USB_HID_Host___HID_Interface_Node_TypeDef*)context;
+	uint8_t odd_Frame = USB_Host___Get_Frame_Number(port_Number) %2;
+	USB_Host_Transfers___Interrupt_Transfer(port_Number, p_HID_Node->HID_Device.device_Address, p_HID_Node->HID_Device.interrupt_In_Endpoint_Number, USB_Host_Transfers___URB_DIRECTION_IN, p_HID_Node->HID_Device.HID_Report_Buffer, p_HID_Node->HID_Device.HID_IN_Report_Size, 0, odd_Frame, 1, USB_HID_Host___Interrupt_URB_Callback);
+}
+
+void USB_HID_Host___Start_Reporting(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef *p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+
+	uint8_t polling_Interval = p_HID_Node->HID_Device.interrupt_In_Endpoint_Interval;
+
+	USB_Host_Device_Manager___Add_Interface_Polling_Process(p_HID_Node->HID_Device.port_Number, p_HID_Node->HID_Device.device_Address, USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(p_HID_Node->HID_Device.port_Number, p_HID_Node->HID_Device.device_Address), p_HID_Node->HID_Device.interface_Number, polling_Interval, (void*)p_HID_Node, USB_HID_Host___Polling_Callback);
 }
 
 void USB_HID_Host___Do_Setup_Stage(USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node)
@@ -418,7 +544,7 @@ void USB_HID_Host___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMET
 	}
 }
 
-void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
+void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number, uint8_t boot_Mode_Supported, uint8_t device_Type)
 {
 	USB_Host_Device_Manager___Set_Interface_Disconnected_Callback(port_Number, device_Address, configuration_Number, interface_Number, USB_HID_Host___HID_Interface_Disconnected_Callback);
 
@@ -427,7 +553,9 @@ void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Addr
 
 	HID_Interface->port_Number				= port_Number;
 	HID_Interface->device_Address 			= device_Address;
-	HID_Interface->interface_Number		= interface_Number;
+	HID_Interface->interface_Number			= interface_Number;
+	HID_Interface->boot_Mode_Supported		= boot_Mode_Supported;
+	HID_Interface->device_Type				= device_Type;
 	HID_Interface->setup_Stage				= 0;
 
 	uint8_t num_Endpoints 				= (USB_Host_Device_Manager___Device_Get_Interface_Descriptor(port_Number, device_Address, configuration_Number, interface_Number)).bNumEndpoints;
@@ -469,7 +597,7 @@ void USB_HID_Host___Setup_HID_Device(uint8_t port_Number, uint8_t device_Address
 
 				if(interface_Descriptor.bInterfaceClass == USB_HID_Host___HID_INTERFACE_CLASS)
 				{
-					USB_HID_Host___Setup_HID_Interface(port_Number, device_Address, current_Configuration_Number, i);
+					USB_HID_Host___Setup_HID_Interface(port_Number, device_Address, current_Configuration_Number, i, interface_Descriptor.bInterfaceSubClass, interface_Descriptor.bInterfaceProtocol);
 				}
 			}
 		}
@@ -528,6 +656,82 @@ uint8_t USB_HID_Host___Add_Interface_Connected_Callback(uint8_t port_Number, voi
 		return (EXIT_SUCCESS);
 	}
 	return (EXIT_FAILURE);
+}
+
+uint8_t USB_HID_Host___Add_Interface_Disconnected_Callback(uint8_t port_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number))
+{
+	uint8_t first_Free_Index = 0;
+	uint8_t free_Index_Found = false;
+
+	for (uint8_t i = 0; i < USB_HID_Host___MAX_APPLICATIONS; i++)
+	{
+		if (USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Disconnected_Callback[i] == NULL && !free_Index_Found)
+		{
+			free_Index_Found = true;
+            first_Free_Index = i;
+		}
+		else if (USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Disconnected_Callback[i] == callback)
+		{
+			return (EXIT_SUCCESS);
+		}
+	}
+	if (free_Index_Found)
+	{
+		USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Disconnected_Callback[first_Free_Index] = callback;
+		return (EXIT_SUCCESS);
+	}
+	return (EXIT_FAILURE);
+}
+
+void USB_HID_Host___Set_Report_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t *report_Buffer, uint16_t report_Length))
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef *HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	if (HID_Node != NULL)
+	{
+		HID_Node->HID_Device.report_Callback = callback;
+	}
+}
+
+void USB_HID_Host___Remove_Interface_Disconnected_Callback(uint8_t port_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number))
+{
+	for (uint8_t i = 0; i < USB_HID_Host___MAX_APPLICATIONS; i++)
+	{
+		if (USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Disconnected_Callback[i] == callback)
+		{
+			USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Disconnected_Callback[i] = NULL;
+		}
+	}
+}
+
+uint8_t USB_HID_Host___Interface_Is_Boot_Mode_Supported(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef *HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	if (HID_Node != NULL)
+	{
+		return (HID_Node->HID_Device.boot_Mode_Supported);
+	}
+	return (EXIT_FAILURE);
+}
+
+uint8_t USB_HID_Host___Interface_Get_Device_Type(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef *HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	if (HID_Node != NULL)
+	{
+		return(HID_Node->HID_Device.device_Type);
+	}
+    return (0);
+}
+
+void USB_HID_Host___Remove_Interface_Connected_Callback(uint8_t port_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number))
+{
+	for (uint8_t i = 0; i < USB_HID_Host___MAX_APPLICATIONS; i++)
+	{
+		if (USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Connected_Callback[i] == callback)
+		{
+			USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Connected_Callback[i] = NULL;
+		}
+	}
 }
 
 void USB_HID_Host___Init(uint8_t port_Number)
