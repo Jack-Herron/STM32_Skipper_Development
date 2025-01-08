@@ -202,13 +202,26 @@ void USB_Host___Set_Configuration(uint8_t port_Number, uint8_t device_Address, u
 
 uint8_t USB_Host___Add_Device_Connected_Callback(uint8_t port_Number, void callback(uint8_t, uint8_t))
 {
+	uint8_t is_Open_Spot 	= 0;
+	uint8_t first_Open_Spot = 0;
+
 	for(uint8_t i = 0; i < USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS; i++)
 	{
 		if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] == NULL)
 		{
-			USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i] = callback;
-			return(EXIT_SUCCESS);
+			is_Open_Spot = 1;
+			first_Open_Spot = i;
 		}
+		else if(USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[i]== callback)
+		{
+			return (EXIT_SUCCESS);
+		}
+	}
+
+	if (is_Open_Spot)
+	{
+		USB_Host___Host[port_Number].USB_Host___Device_Connected_Callback[first_Open_Spot] = callback;
+		return(EXIT_SUCCESS);
 	}
 
 	return(EXIT_FAILURE);

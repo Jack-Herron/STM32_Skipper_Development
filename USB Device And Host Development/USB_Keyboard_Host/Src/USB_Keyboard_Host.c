@@ -14,16 +14,14 @@
 #include "../Inc/USB_Keyboard_Host.h"
 
 
-void USB_Keyboard_Host___Composite_Device_Connected_Callback(uint8_t port_Number, uint8_t device_Address)
+
+void USB_Keyboard_Host___HID_Interface_Connected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
-	if(USB_HID_Host___Is_Device_HID_Device(port_Number, device_Address))
-	{
-		printf("HID Device Connected!\n");
-		USB_HID_Host___Setup_HID_Device(port_Number, device_Address);
-	}
+	printf("Keyboard driver received interface connected\n");
 }
 
 void USB_Keyboard_Host___Init(uint8_t port_Number)
 {
-	USB_Host___Add_Device_Connected_Callback(port_Number, USB_Keyboard_Host___Composite_Device_Connected_Callback);
+	USB_HID_Host___Init(port_Number);
+	USB_HID_Host___Add_Interface_Connected_Callback(port_Number, USB_Keyboard_Host___HID_Interface_Connected_Callback);
 }
