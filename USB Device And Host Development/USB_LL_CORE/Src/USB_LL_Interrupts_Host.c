@@ -198,14 +198,14 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 	uint8_t 					channel_Number 	= POSITION_VAL(USB_Host -> HAINT);
 	USB_OTG_HostChannelTypeDef* USB_Host_Ch 	= USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
 	uint8_t 					device_Address 	= USB_LL_Hardware___GET_BIT_SEGMENT(USB_Host_Ch -> HCCHAR, USB_OTG_HCCHAR_DAD_Msk, USB_OTG_HCCHAR_DAD_Pos);
-	USB_LL_Interrupts_Host___Debug_Log("USB channel interrupt: ");
+
 	while((USB_Host_Ch -> HCINT) & USB_LL_Host___CHANNEL_INTERRUPTS_MASK)
 	{
 		switch(POSITION_VAL((USB_Host_Ch -> HCINT) & USB_LL_Host___CHANNEL_INTERRUPTS_MASK))
 		{
 		case USB_OTG_HCINT_XFRC_Pos: 								// XFER Complete received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_XFRC_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("XFRC");
+			//USB_LL_Interrupts_Host___Debug_Log("XFRC\n");
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE;
@@ -213,7 +213,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_CHH_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("CHH");
+			//USB_LL_Interrupts_Host___Debug_Log("CHH\n");
 			if(USB_LL_Host___Channel_Get_Retry_After_Halt(port_Number, channel_Number))
 			{
 				if (USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
@@ -231,6 +231,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_STALL_Pos: 								// channel Stall received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_STALL_Msk;
+			USB_LL_Interrupts_Host___Debug_Log("STALL\n");
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_STALL;
@@ -239,7 +240,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_HCINT_NAK_Pos: 								// NAK received
 		{
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_NAK_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("NAK");
+			//USB_LL_Interrupts_Host___Debug_Log("NAK\n");
 			uint16_t retries_Remaining = USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number);
 			if (retries_Remaining > 0)
 			{
@@ -266,7 +267,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_ACK_Pos: 										// ACK received
 			USB_Host_Ch->HCINT = USB_OTG_HCINT_ACK_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("ACK");
+			//USB_LL_Interrupts_Host___Debug_Log("ACK\n");
 			if(USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
 			{
 				USB_LL_Host___Channel_Out_Packet_Acknowledged(port_Number, channel_Number);
@@ -279,7 +280,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("TXERR");
+			USB_LL_Interrupts_Host___Debug_Log("TXERR %d\n", device_Address);
 			uint16_t retries_Remaining = USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number);
 			if (retries_Remaining > 0)
 			{
@@ -306,7 +307,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("FRMOR");
+			USB_LL_Interrupts_Host___Debug_Log("FRMOR %d\n", device_Address);
 			USB_LL_Host___Channel_Halt(port_Number, channel_Number);
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
@@ -315,6 +316,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_DTERR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_DTERR_Msk;
+			USB_LL_Interrupts_Host___Debug_Log("DTERR %d\n", device_Address);
 			USB_LL_Host___Channel_Halt(port_Number, channel_Number);
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
@@ -322,5 +324,4 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			break;
 		}
 	}
-	USB_LL_Interrupts_Host___Debug_Log("\n");
 }

@@ -86,7 +86,7 @@ void USB_Host___Device_Enumeration_Finished(uint8_t port_Number, uint8_t device_
 
 		printf("Device Connected: ");
 		USB_Debug___Print_Device_Name(port_Number, device_Address);
-		printf("\n");
+		printf(": %d\n", device_Address);
 
 		if(device_Class == USB_Host___HUB_DEVICE_CLASS)
 		{
@@ -159,7 +159,7 @@ void USB_Host___Process_Device_Disconnect(uint8_t port_Number, uint8_t device_Ad
 {
 	printf("Device disconnected: ");
 	USB_Debug___Print_Device_Name(port_Number, device_Address);
-	printf("\n");
+	printf(": %d\n", device_Address);
 }
 
 uint16_t USB_Host___Get_Frame_Number(uint8_t port_Number)

@@ -8,7 +8,7 @@
 #ifndef INC_USB_LL_INTERRUPTS_HOST_H_
 #define INC_USB_LL_INTERRUPTS_HOST_H_
 
-//#define USB_LL_Interrupts_Host___DEBUG_ON
+#define USB_LL_Interrupts_Host___DEBUG_ON
 
 #ifdef USB_LL_Interrupts_Host___DEBUG_ON
 	#define USB_LL_Interrupts_Host___DPRINTF 1

@@ -382,6 +382,15 @@ void USB_Host_Transfers___Process_URB(uint8_t port_Number)
 
 	uint32_t device_Busy_Mask[4] = {0};
 
+	if (URB_Queue[port_Number].num_URBs >= 60)
+	{
+		printf("URB OVERFLOW\n");
+	}
+	else if (URB_Queue[port_Number].num_URBs >= 10)
+	{
+		printf("URB WARNING\n");
+	}
+
 	while(current_Node != NULL)
 	{
 		uint8_t device_Address = current_Node->URB.device_Address;
