@@ -127,6 +127,6 @@ int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t devi
 int8_t USB_Host_Transfers___Bulk_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
 int8_t USB_Host_Transfers___Control_Transfer(uint8_t port_Number, uint8_t device_Address, uint8_t endpoint_Number, uint8_t transfer_Direction, USB_Host_Transfers___Control_Setup_Packet_TypeDef setup_Packet, uint8_t* transfer_Buffer, uint32_t transfer_Length, uint16_t number_Of_Retries, void URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS));
 
-void USB_Host_Transfers___Process_URB(uint8_t port_Number);
+void USB_Host_Transfers___Process_All_URBs(uint8_t port_Number);
 
 #endif /* CORE_INC_USB_HOST_TRANSFERS_H_ */
