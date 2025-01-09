@@ -309,7 +309,6 @@ void USB_Host_Hub___Get_Port_Status(uint8_t port_Number, uint8_t device_Address,
 void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
 {
 	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
-
 	if(p_Hub_Node != NULL)
 	{
 		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)

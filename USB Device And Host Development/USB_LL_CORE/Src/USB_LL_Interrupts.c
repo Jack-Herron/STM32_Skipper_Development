@@ -96,6 +96,7 @@ void USB_LL_Interrupts___Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_GINTSTS_PXFR_INCOMPISOOUT_Pos:								// Incomplete periodic transfer
 			USB -> GINTSTS = (USB_OTG_GINTSTS_PXFR_INCOMPISOOUT);
+			printf("INCOMPISOOUT \n");
 			break;
 
 		case USB_OTG_GINTSTS_HPRTINT_Pos:										// Host Port Interrupt

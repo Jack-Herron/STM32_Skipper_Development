@@ -8,7 +8,9 @@
 #ifndef INC_USB_LL_INTERRUPTS_HOST_H_
 #define INC_USB_LL_INTERRUPTS_HOST_H_
 
-#define USB_LL_Interrupts_Host___DEBUG_ON
+//#define USB_LL_Interrupts_Host___DEBUG_ON
+
+#include "../Inc/USB_LL_Host.h"
 
 #ifdef USB_LL_Interrupts_Host___DEBUG_ON
 	#define USB_LL_Interrupts_Host___DPRINTF 1
@@ -27,9 +29,11 @@
 #define USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_STALL		0x02
 #define USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR		0x03
 #define USB_LL_Interrupts_Host___CHANNEL_STATUS_CHANNEL_HALTED				0x04
+
 typedef struct {
 	uint8_t												status_Change_Flag;
 	uint8_t										 		status;
+	uint8_t 											is_Busy;
 	uint8_t 											device_Address;
 } USB_LL_Interrupts_Host___Channel_Status_TypeDef;
 
@@ -60,5 +64,7 @@ void USB_LL_Interrupts_Host___Clear_Channel_Status_Change_Flag(uint8_t port_Numb
 void USB_LL_Interrupts_Host___Start_Of_Frame_Interrupt_Received(uint8_t port_Number);
 uint8_t USB_LL_Interrupts_Host___Is_Start_Of_Frame(uint8_t port_Number);
 void USB_LL_Interrupts_Host___Clear_Start_Of_Frame(uint8_t port_Number);
+uint8_t USB_LL_Interrupts_Host___Channel_Is_Busy(uint8_t port_Number, uint8_t channel_Number);
+void USB_LL_Interrupts_Host___Channel_Set_Is_Busy(uint8_t port_Number, uint8_t channel_Number, uint8_t is_Free);
 
 #endif /* INC_USB_LL_INTERRUPTS_HOST_H_ */

@@ -51,11 +51,12 @@ int main(void) {
 	USART___Set_Baud_Rate(1, 921600);
 	USB_Host___Init(0);
 	//USB_CDC_Device___Init(1);
-	USB_Mouse_Host___Init(0);
-	USB_Keyboard_Host___Init(0);
+	//USB_Mouse_Host___Init(0);
+	//USB_Keyboard_Host___Init(0);
 
 	for(;;)
 	{
+		//Skipper_Clock___Delay_us(500);
 		USB_Host___Process(0);
 	}
 }

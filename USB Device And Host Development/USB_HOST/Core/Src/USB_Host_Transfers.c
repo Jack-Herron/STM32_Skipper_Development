@@ -55,12 +55,14 @@ static USB_Host_Transfers___URB_Queue_TypeDef URB_Queue[USB_Host___NUMBER_OF_POR
 
 void USB_Debug___Print_URB(USB_Host_Transfers___URB_TypeDef URB)
 {
+	/*
 	USB_Host_Transfers___Debug_Log("--URB--\n");
 	USB_Host_Transfers___Debug_Log("Port number    : %d\n",URB.port_Number);
 	USB_Host_Transfers___Debug_Log("Device address : %d\n",URB.device_Address);
 	USB_Host_Transfers___Debug_Log("Transfer type  : %d\n",URB.transfer_Type);
 	USB_Host_Transfers___Debug_Log("Transfer stage : %d\n",URB.transfer_Stage);
-	USB_Host_Transfers___Debug_Log("\n");
+	USB_Host_Transfers___Debug_Log("\n");*/
+	//, (URB_Queue.num_URBs));
 }
 
 USB_Host_Transfers___URB_Node_TypeDef* USB_Host_Transfers___Create_URB_Node(uint8_t port_Number)
@@ -381,15 +383,6 @@ void USB_Host_Transfers___Process_URB(uint8_t port_Number)
 	USB_Host_Transfers___URB_Node_TypeDef* current_Node = URB_Queue[port_Number].first_Node;
 
 	uint32_t device_Busy_Mask[4] = {0};
-
-	if (URB_Queue[port_Number].num_URBs >= 60)
-	{
-		printf("URB OVERFLOW\n");
-	}
-	else if (URB_Queue[port_Number].num_URBs >= 10)
-	{
-		printf("URB WARNING\n");
-	}
 
 	while(current_Node != NULL)
 	{

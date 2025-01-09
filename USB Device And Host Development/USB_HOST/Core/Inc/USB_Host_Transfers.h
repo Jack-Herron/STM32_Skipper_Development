@@ -13,7 +13,7 @@
 #include <USB_LL_Interrupts_Host.h>
 struct USB_Host_Transfers___URB;
 
-//#define USB_Host_Transfers___DEBUG_ON
+#define USB_Host_Transfers___DEBUG_ON
 
 #ifdef USB_Host_Transfers___DEBUG_ON
 #define USB_Host_Transfers___DPRINTF 1

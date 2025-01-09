@@ -314,7 +314,6 @@ void USB_HID_Host___Polling_Callback(uint8_t port_Number, void* context)
 {
 	USB_HID_Host___HID_Interface_Node_TypeDef *p_HID_Node = (USB_HID_Host___HID_Interface_Node_TypeDef*)context;
 	uint8_t odd_Frame = USB_Host___Get_Frame_Number(port_Number) %2;
-	printf("%d\n", p_HID_Node->HID_Device.device_Address);
 	USB_Host_Transfers___Interrupt_Transfer(port_Number, p_HID_Node->HID_Device.device_Address, p_HID_Node->HID_Device.interrupt_In_Endpoint_Number, USB_Host_Transfers___URB_DIRECTION_IN, p_HID_Node->HID_Device.HID_Report_Buffer, p_HID_Node->HID_Device.HID_IN_Report_Size, 0, odd_Frame, 1, USB_HID_Host___Interrupt_URB_Callback);
 }
 

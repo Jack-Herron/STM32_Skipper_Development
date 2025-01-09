@@ -14,6 +14,7 @@
 #include "../Inc/USB_LL_Definitions.h"
 #include "../Inc/USB_LL_Hardware.h"
 #include "../Inc/USB_LL_Interrupts.h"
+#include "../Inc/USB_LL_Interrupts_Host.h"
 #include "../Inc/USB_LL_Host.h"
 
 static USB_LL_Host___Host_Port_TypeDef USB_LL_Host___Host_Port[USB_LL_Definitions___NUMBER_OF_PORTS];
@@ -225,7 +226,8 @@ void USB_LL_Host___Channel_Set_Characteristics
 			endpoint_Type 		<< USB_OTG_HCCHAR_EPTYP_Pos |
 			multi_Count 		<< USB_OTG_HCCHAR_MC_Pos 	|
 			device_Address 		<< USB_OTG_HCCHAR_DAD_Pos 	|
-			odd_Frame 			<< USB_OTG_HCCHAR_ODDFRM_Pos
+			(USB_LL_Host___Host_Get_Frame_Number(port_Number) % 2) << USB_OTG_HCCHAR_ODDFRM_Pos
+			//odd_Frame 			<< USB_OTG_HCCHAR_ODDFRM_Pos
 			);
 	USB_Host_Channel -> HCCHAR = channel_Characteristics;
 }
@@ -257,12 +259,14 @@ void USB_LL_Host___Transfer_Next_Packet(uint8_t port_Number, uint8_t channel_Num
 void USB_LL_Host___Channel_Begin_Transfer_In(uint8_t port_Number, uint8_t channel_Number)
 {
 	USB_OTG_HostChannelTypeDef *USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_LL_Interrupts_Host___Channel_Set_Is_Busy(port_Number, channel_Number, 1);
 	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
 }
 
 void USB_LL_Host___Channel_Begin_Transfer_Out(uint8_t port_Number, uint8_t channel_Number)
 {
 	USB_OTG_HostChannelTypeDef *USB_Host_Channel = USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_LL_Interrupts_Host___Channel_Set_Is_Busy(port_Number, channel_Number, 1);
 	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
 
 	USB_LL_Host___Transfer_Next_Packet(port_Number, channel_Number);

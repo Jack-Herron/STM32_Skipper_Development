@@ -20,7 +20,7 @@ uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number)
 {
 	for (uint8_t i = 0; i < USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS_PER_PORT; i++)
 	{
-		if (USB_Host_Pipes___Pipe[port_Number][i].is_Allocated == 0)
+		if ((USB_Host_Pipes___Pipe[port_Number][i].is_Allocated == 0) && !(USB_LL_Interrupts_Host___Channel_Is_Busy(port_Number, i)))
 		{
 			USB_Host_Pipes___Pipe[port_Number][i].is_Allocated = 1;
 			return (i);
@@ -81,11 +81,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
 	USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
 
-	if(USB_Host_Pipes___Pipe[port_Number][pipe_Number].endpoint_Number == 1)
-	{
-		GPIOC->ODR |= (1<<0);
-		GPIOC->ODR &= ~(1<<0);
-	}
+	USB_Host_Pipes___Debug_Log("P %d opened\n", pipe_Number);
 
 	return(pipe_Number);
 }
@@ -114,9 +110,9 @@ void USB_Host_Pipes___Begin_Transfer(uint8_t port_Number, uint8_t pipe_Number)
 
 void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 {
-	if(USB_LL_Interrupts_Host___Get_All_Channels_Status_Change_Flag(port_Number))
-	{
-		USB_LL_Interrupts_Host___Clear_All_Channels_Status_Change_Flag(port_Number);
+	//if(USB_LL_Interrupts_Host___Get_All_Channels_Status_Change_Flag(port_Number))
+	//{
+		//USB_LL_Interrupts_Host___Clear_All_Channels_Status_Change_Flag(port_Number);
 		for(uint8_t i = 0; i < USB_Host_Pipes___NUMBER_OF_PIPES; i++)
 		{
 			if(USB_LL_Interrupts_Host___Get_Channel_Status_Change_Flag(port_Number, i))
@@ -126,17 +122,17 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 
 				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
 				{
-					USB_Host_Pipes___Debug_Log("Channel closed with status : SUCCESS\n");
+					USB_Host_Pipes___Debug_Log("P %d closed : SUCCESS\n", i);
 					USB_Host_Pipes___Debug_Log("\n\n");
 				}
 				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
 				{
-					USB_Host_Pipes___Debug_Log("Channel closed with status : NAK\n");
+					USB_Host_Pipes___Debug_Log("P %d closed : NAK\n", i);
 					USB_Host_Pipes___Debug_Log("\n");
 				}
 				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR)
 				{
-					USB_Host_Pipes___Debug_Log("Channel closed with status : ERROR\n");
+					USB_Host_Pipes___Debug_Log("P %d closed : ERROR\n", i);
 					USB_Host_Pipes___Debug_Log("\n");
 				}
 
@@ -147,7 +143,7 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 
 					USB_Host_Pipes___Pipe[port_Number][i].callback(port_Number, i, USB_Host_Pipes___Pipe[port_Number][i].context, channel_Status, USB_Host_Pipes___Pipe[port_Number][i].p_Buffer, USB_Host_Pipes___Pipe[port_Number][i].transfer_Length);
 				}
-			}
+			//}
 		}
 	}
 }

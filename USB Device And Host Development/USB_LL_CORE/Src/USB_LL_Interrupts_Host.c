@@ -192,12 +192,25 @@ void USB_LL_Interrupts_Host___Port_Interrupt_Handler(uint8_t port_Number)
 	}
 }
 
+uint8_t USB_LL_Interrupts_Host___Channel_Is_Busy(uint8_t port_Number, uint8_t channel_Number)
+{
+	return(host_Status[port_Number].channel_Status[channel_Number].is_Busy);
+}
+
+void USB_LL_Interrupts_Host___Channel_Set_Is_Busy(uint8_t port_Number, uint8_t channel_Number, uint8_t is_Busy)
+{
+	host_Status[port_Number].channel_Status[channel_Number].is_Busy = is_Busy;
+}
+
+
 void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 {
 	USB_OTG_HostTypeDef*		USB_Host 		= USB_LL_Hardware___Get_USB_Host(port_Number);
 	uint8_t 					channel_Number 	= POSITION_VAL(USB_Host -> HAINT);
 	USB_OTG_HostChannelTypeDef* USB_Host_Ch 	= USB_LL_Hardware___Get_USB_Host_Channel(port_Number, channel_Number);
 	uint8_t 					device_Address 	= USB_LL_Hardware___GET_BIT_SEGMENT(USB_Host_Ch -> HCCHAR, USB_OTG_HCCHAR_DAD_Msk, USB_OTG_HCCHAR_DAD_Pos);
+
+	USB_LL_Interrupts_Host___Debug_Log("INT %d %lx\n", channel_Number, USB_Host_Ch -> HCINT);
 
 	while((USB_Host_Ch -> HCINT) & USB_LL_Host___CHANNEL_INTERRUPTS_MASK)
 	{
@@ -206,6 +219,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_HCINT_XFRC_Pos: 								// XFER Complete received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_XFRC_Msk;
 			//USB_LL_Interrupts_Host___Debug_Log("XFRC\n");
+			host_Status[port_Number].channel_Status[channel_Number].is_Busy = false;
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
 			host_Status[port_Number].channel_Status[channel_Number].status = USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE;
@@ -213,7 +227,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_CHH_Msk;
-			//USB_LL_Interrupts_Host___Debug_Log("CHH\n");
+
 			if(USB_LL_Host___Channel_Get_Retry_After_Halt(port_Number, channel_Number))
 			{
 				if (USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
@@ -226,6 +240,10 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 				}
 
 				USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, false);
+			}
+			else
+			{
+				host_Status[port_Number].channel_Status[channel_Number].is_Busy = false;
 			}
 			break;
 
@@ -240,7 +258,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_HCINT_NAK_Pos: 								// NAK received
 		{
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_NAK_Msk;
-			//USB_LL_Interrupts_Host___Debug_Log("NAK\n");
+			USB_LL_Interrupts_Host___Debug_Log("NAK %d\n", channel_Number);
 			uint16_t retries_Remaining = USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number);
 			if (retries_Remaining > 0)
 			{
@@ -280,7 +298,7 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("TXERR %d\n", device_Address);
+			printf("TXERR %d\n", device_Address);
 			uint16_t retries_Remaining = USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number);
 			if (retries_Remaining > 0)
 			{
@@ -307,7 +325,8 @@ void USB_LL_Interrupts_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
-			USB_LL_Interrupts_Host___Debug_Log("FRMOR %d\n", device_Address);
+			printf("FRMOR %d\n", channel_Number);
+
 			USB_LL_Host___Channel_Halt(port_Number, channel_Number);
 			USB_LL_Interrupts_Host___Set_Channel_Status_Change_Flag(port_Number, channel_Number);
 			host_Status[port_Number].channel_Status[channel_Number].device_Address = device_Address;
