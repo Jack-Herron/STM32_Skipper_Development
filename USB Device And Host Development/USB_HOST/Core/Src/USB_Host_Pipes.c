@@ -10,7 +10,6 @@
 #include <stdio.h>
 #include <USB_LL_Definitions.h>
 #include <USB_LL_Host.h>
-#include <USB_LL_Interrupts_Host.h>
 #include "../Inc/USB_Host.h"
 #include <Skipper_Clock.h>
 #include "USB_Host_Device_Manager.h"
@@ -20,7 +19,7 @@ uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number)
 {
 	for (uint8_t i = 0; i < USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS_PER_PORT; i++)
 	{
-		if ((USB_Host_Pipes___Pipe[port_Number][i].is_Allocated == 0) && !(USB_LL_Interrupts_Host___Channel_Is_Busy(port_Number, i)))
+		if ((USB_Host_Pipes___Pipe[port_Number][i].is_Allocated == 0) && !(USB_LL_Host___Channel_Is_Busy(port_Number, i)))
 		{
 			USB_Host_Pipes___Pipe[port_Number][i].is_Allocated = 1;
 			return (i);
@@ -110,27 +109,27 @@ void USB_Host_Pipes___Begin_Transfer(uint8_t port_Number, uint8_t pipe_Number)
 
 void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 {
-	//if(USB_LL_Interrupts_Host___Get_All_Channels_Status_Change_Flag(port_Number))
+	//if(USB_LL_Host___Get_All_Channels_Status_Change_Flag(port_Number))
 	//{
-		//USB_LL_Interrupts_Host___Clear_All_Channels_Status_Change_Flag(port_Number);
+		//USB_LL_Host___Clear_All_Channels_Status_Change_Flag(port_Number);
 		for(uint8_t i = 0; i < USB_Host_Pipes___NUMBER_OF_PIPES; i++)
 		{
-			if(USB_LL_Interrupts_Host___Get_Channel_Status_Change_Flag(port_Number, i))
+			if(USB_LL_Host___Get_Channel_Status_Change_Flag(port_Number, i))
 			{
-				USB_LL_Interrupts_Host___Clear_Channel_Status_Change_Flag(port_Number, i);
-				uint8_t channel_Status = USB_LL_Interrupts_Host___Get_Channel_Status(port_Number, i);
+				USB_LL_Host___Clear_Channel_Status_Change_Flag(port_Number, i);
+				uint8_t channel_Status = USB_LL_Host___Get_Channel_Status(port_Number, i);
 
-				if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
+				if(channel_Status == USB_LL_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
 				{
 					USB_Host_Pipes___Debug_Log("P %d closed : SUCCESS\n", i);
 					USB_Host_Pipes___Debug_Log("\n\n");
 				}
-				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
+				else if(channel_Status == USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK)
 				{
 					USB_Host_Pipes___Debug_Log("P %d closed : NAK\n", i);
 					USB_Host_Pipes___Debug_Log("\n");
 				}
-				else if(channel_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR)
+				else if(channel_Status == USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR)
 				{
 					USB_Host_Pipes___Debug_Log("P %d closed : ERROR\n", i);
 					USB_Host_Pipes___Debug_Log("\n");

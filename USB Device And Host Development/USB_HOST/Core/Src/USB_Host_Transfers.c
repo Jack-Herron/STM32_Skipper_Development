@@ -168,6 +168,8 @@ int8_t USB_Host_Transfers___Interrupt_Transfer(uint8_t port_Number, uint8_t devi
 
 	if(p_URB != NULL)
 	{
+		//printf("%d,%d\n", device_Address, transfer_Length);
+
 		p_URB -> port_Number 		= port_Number;
 		p_URB -> endpoint_Number	= endpoint_Number;
 		p_URB -> transfer_Type 		= USB_Host_Transfers___URB_TYPE_INTERRUPT;
@@ -240,7 +242,7 @@ void USB_Host_Transfers___Set_Next_URB_Transfer_Stage(USB_Host_Transfers___URB_N
 {
 	USB_Host_Transfers___URB_TypeDef* 		p_URB = &p_URB_Node->URB;
 
-	if((p_URB->transfer_Type == USB_Host_Transfers___URB_TYPE_CONTROL) && (p_URB->transfer_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE))
+	if((p_URB->transfer_Type == USB_Host_Transfers___URB_TYPE_CONTROL) && (p_URB->transfer_Status == USB_Host_Transfers___PIPE_STATUS_TRANSFER_COMPLETE))
 	{
 		if(p_URB -> transfer_Stage == USB_Host_Transfers___URB_STAGE_SETUP)
 		{

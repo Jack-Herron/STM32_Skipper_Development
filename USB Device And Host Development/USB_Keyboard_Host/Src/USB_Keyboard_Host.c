@@ -15,13 +15,11 @@
 
 void USB_Keyboard_Host___Set_Protocol_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
-	printf("Keyboard protocol set\n");
 	USB_HID_Host___Start_Reporting(port_Number, device_Address, interface_Number);
 }
 
 void USB_Keyboard_Host___Setup_Keyboard(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
-	printf("Keyboard connected\n");
 	USB_HID_Host___Set_Protocol(port_Number, device_Address, interface_Number, USB_HID_Host___PROTOCOL_BOOT_MODE, USB_Keyboard_Host___Set_Protocol_Callback);
 }
 
@@ -35,7 +33,7 @@ void USB_Keyboard_Host___HID_Interface_Connected_Callback(uint8_t port_Number, u
 
 void USB_Keyboard_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
-	printf("Keyboard driver received interface disconnected\n");
+
 }
 
 void USB_Keyboard_Host___Init(uint8_t port_Number)

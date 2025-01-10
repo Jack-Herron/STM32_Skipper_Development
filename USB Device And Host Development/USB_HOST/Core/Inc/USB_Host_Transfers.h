@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include "../Inc/USB_Host_Device_Manager.h"
-#include <USB_LL_Interrupts_Host.h>
+
 struct USB_Host_Transfers___URB;
 
 #define USB_Host_Transfers___DEBUG_ON
@@ -36,10 +36,12 @@ struct USB_Host_Transfers___URB;
 #define USB_Host_Transfers___URB_FIFO_QUEUE_LENGTH												USB_Host_Config___MAX_USB_REQUEST_BLOCKS
 #define USB_Host_Transfers___URB_CALLBACK_PARAMETERS											struct USB_Host_Transfers___URB URB
 
-#define USB_Host_Transfers___URB_STATUS_SUCCESS													USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE
-#define USB_Host_Transfers___URB_STATUS_NAK														USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK
-#define USB_Host_Transfers___URB_STATUS_ERROR													USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR
-#define USB_Host_Transfers___URB_STATUS_STALL													USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_FAILED_STALL
+#define USB_Host_Transfers___URB_STATUS_SUCCESS													USB_LL_Host___CHANNEL_STATUS_TRANSFER_COMPLETE
+#define USB_Host_Transfers___URB_STATUS_NAK														USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_NAK
+#define USB_Host_Transfers___URB_STATUS_ERROR													USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR
+#define USB_Host_Transfers___URB_STATUS_STALL													USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_STALL
+
+#define USB_Host_Transfers___PIPE_STATUS_TRANSFER_COMPLETE										USB_LL_Host___CHANNEL_STATUS_TRANSFER_COMPLETE
 
 #define USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_DEVICE_TO_HOST			0X80
 #define USB_Host_Transfers___CONTROL_SETUP_PACKET_BMREQUESTTYPE_STANDARD_INTERFACE_TO_HOST		0X81

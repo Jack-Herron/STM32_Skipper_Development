@@ -410,7 +410,7 @@ void USB_Host_Enumerate___URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMET
 
 	if(p_Enumerator_Node != NULL)
 	{
-		if(URB.transfer_Status == USB_LL_Interrupts_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
+		if(URB.transfer_Status == USB_Host_Transfers___PIPE_STATUS_TRANSFER_COMPLETE)
 		{
 		USB_Host_Enumerate___Setup_Stage_Completed(p_Enumerator_Node);
 		USB_Host_Enumerate___Set_Next_Setup_Stage(p_Enumerator_Node);

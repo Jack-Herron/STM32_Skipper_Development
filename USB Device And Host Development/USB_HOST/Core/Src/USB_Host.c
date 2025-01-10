@@ -11,9 +11,8 @@
 #include <Skipper_Clock.h>
 #include <stdio.h>
 
-#include <USB_LL_Hardware.h>
+#include <USB_LL.h>
 #include <USB_LL_Host.h>
-#include <USB_LL_Interrupts_Host.h>
 #include "../Inc/USB_Host_Hub.h"
 #include "../Inc/USB_Host_Device_Manager.h"
 #include "../Inc/USB_Host_Transfers.h"
@@ -25,18 +24,18 @@ USB_Host___Host_Typedef USB_Host___Host[USB_Host___NUMBER_OF_PORTS];
 
 void USB_Host___Init(uint8_t port_Number)
 {
-	USB_LL_Hardware___GPIO_Init(port_Number);
-	USB_LL_Hardware___Init(port_Number, USB_LL_Hardware___HOST_MODE);
+	USB_LL___GPIO_Init(port_Number);
+	USB_LL___Init(port_Number, USB_LL___HOST_MODE);
 	USB_LL_Host___Set_FIFO_Size(port_Number, 0x80, 0x80, 0x40);
 }
 
 uint8_t USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manager_Speed(uint8_t USB_Interrupts_Host_Speed)
 {
-	if(USB_Interrupts_Host_Speed == USB_LL_Interrupts_Host___LOW_SPEED_VALUE)
+	if(USB_Interrupts_Host_Speed == USB_LL_Host___LOW_SPEED_VALUE)
 	{
 		return(USB_Host_Device_Manager___LOW_SPEED_DEVICE);
 	}
-	else if(USB_Interrupts_Host_Speed == USB_LL_Interrupts_Host___HIGH_SPEED_VALUE)
+	else if(USB_Interrupts_Host_Speed == USB_LL_Host___HIGH_SPEED_VALUE)
 	{
 		return(USB_Host_Device_Manager___HIGH_SPEED_DEVICE);
 	}
@@ -120,33 +119,33 @@ uint8_t USB_Host___Get_Number_Of_Devices_Connected(uint8_t port_Number)
 
 void USB_Host___Process_Host_Interrupts(uint8_t port_Number)
 {
-	if(USB_LL_Interrupts_Host___Is_Root_Device_Connection_Status_Change(port_Number))
+	if(USB_LL_Host___Is_Root_Device_Connection_Status_Change(port_Number))
 	{
-		if(USB_LL_Interrupts_Host___Is_Root_Device_Connected(port_Number))
+		if(USB_LL_Host___Is_Root_Device_Connected(port_Number))
 		{
 			Skipper_Clock___Delay_ms(50);
 
-			uint8_t USB_LL_Interrupts_Host_Speed = USB_LL_Interrupts_Host___Get_Root_Device_Speed(port_Number);
+			uint8_t USB_LL_Interrupts_Host_Speed = USB_LL_Host___Get_Root_Device_Speed(port_Number);
 
 			uint8_t device_Manager_Speed = USB_Host___Convert_USB_LL_Interrupts_Host_Speed_To_USB_Host_Device_Manager_Speed(USB_LL_Interrupts_Host_Speed);
 
 			if(USB_Host_Device_Manager___Allocate_Device_At_Address_Zero(port_Number, device_Manager_Speed, true) == EXIT_SUCCESS)
 			{
 				USB_Host_Device_Manager___Enable_Device(port_Number, 0);
-				USB_LL_Interrupts_Host___Clear_Connection_Status_Change(port_Number);
+				USB_LL_Host___Clear_Connection_Status_Change(port_Number);
 			}
 		}
 		else
 		{
 			uint8_t root_Device_Address = USB_Host_Device_Manager___Port_Get_Root_Device_Address(port_Number);
 			USB_Host_Device_Manager___Device_Disconnected(port_Number, root_Device_Address);
-			USB_LL_Interrupts_Host___Clear_Connection_Status_Change(port_Number);
+			USB_LL_Host___Clear_Connection_Status_Change(port_Number);
 		}
 	}
-	if(USB_LL_Interrupts_Host___Is_Start_Of_Frame(port_Number))
+	if(USB_LL_Host___Is_Start_Of_Frame(port_Number))
 	{
 		USB_Host_Device_Manager___Handle_Start_Of_Frame(port_Number);
-		USB_LL_Interrupts_Host___Clear_Start_Of_Frame(port_Number);
+		USB_LL_Host___Clear_Start_Of_Frame(port_Number);
 	}
 }
 

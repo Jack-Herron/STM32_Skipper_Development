@@ -196,8 +196,6 @@ void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uin
 
 
 	USB_HID_Host___Delete_HID_Node(port_Number, HID_Node);
-
-	printf("Interface Disconnected at interface %d\n", interface_Number);
 }
 
 void USB_HID_Host___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS);
@@ -298,7 +296,7 @@ void USB_HID_Host___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PAR
 	{
 		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
 		{
-			printf("\n");
+
 			printf("Received report: ");
 			for(uint32_t i = 0; i < URB.transfer_Length; i++)
 			{
@@ -574,8 +572,6 @@ void USB_HID_Host___Setup_HID_Interface(uint8_t port_Number, uint8_t device_Addr
 	}
 
 	USB_HID_Host___Get_HID_Descriptor(port_Number, device_Address, interface_Number, USB_HID_Host___HID_Descriptor_Base_Length, (uint8_t*)&(HID_Interface->HID_Descriptor), USB_HID_Host___URB_Setup_Callback);
-
-	printf("interface %d is a HID interface\n", interface_Number);
 }
 
 void USB_HID_Host___Setup_HID_Device(uint8_t port_Number, uint8_t device_Address)
@@ -625,7 +621,6 @@ void USB_HID_Host___Device_Connected_Callback(uint8_t port_Number, uint8_t devic
 {
 	if(USB_HID_Host___Is_Device_HID_Device(port_Number, device_Address))
 	{
-		printf("HID Device Connected!\n");
 		USB_HID_Host___Setup_HID_Device(port_Number, device_Address);
 	}
 }
