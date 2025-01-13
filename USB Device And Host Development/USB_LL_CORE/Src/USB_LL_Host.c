@@ -20,6 +20,7 @@ static USB_LL_Host___Host_Port_TypeDef USB_LL_Host___Host_Port[USB_LL_Definition
 
 // ---------------------------- USB HOST CONTROL SECTION -----------------------------
 
+
 void USB_LL_Host___Reset_Port(uint8_t port_Number)
 {
 	USB_OTG_HostPortTypeDef* USB_Host_Port = USB_LL___Get_USB_Host_Port(port_Number);
@@ -273,7 +274,6 @@ void USB_LL_Host___Channel_Begin_Transfer_In(uint8_t port_Number, uint8_t channe
 	USB_Host_Channel -> HCCHAR &= ~(USB_OTG_HCCHAR_ODDFRM_Msk);
 	USB_Host_Channel -> HCCHAR |= ((USB_LL_Host___Host_Get_Frame_Number(port_Number) % 2)) << USB_OTG_HCCHAR_ODDFRM_Pos;
 
-	USB_LL_Host___Channel_Set_Is_Busy(port_Number, channel_Number, 1);
 	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
 }
 
@@ -515,23 +515,10 @@ void USB_LL_Host___Port_Interrupt_Handler(uint8_t port_Number)
 
 uint8_t USB_LL_Host___Channel_Is_Busy(uint8_t port_Number, uint8_t channel_Number)
 {
-	return(host_Status[port_Number].channel_Status[channel_Number].is_Busy);
+	USB_OTG_HostChannelTypeDef* USB_Host_Ch = USB_LL___Get_USB_Host_Channel(port_Number, channel_Number);
+	uint8_t is_Busy = (USB_Host_Ch -> HCCHAR & USB_OTG_HCCHAR_CHENA_Msk) ||  (USB_Host_Ch -> HCCHAR & USB_OTG_HCCHAR_CHDIS_Msk);
+	return(is_Busy);
 }
-
-void USB_LL_Host___Channel_Set_Is_Busy(uint8_t port_Number, uint8_t channel_Number, uint8_t is_Busy)
-{
-	if(is_Busy != 1)
-	{
-		uint8_t i = 0;
-	}
-	if(!(host_Status[port_Number].channel_Status[channel_Number].is_Busy))
-	{
-		host_Status[port_Number].channel_Status[channel_Number].is_Busy = true;
-		open_Channels++;
-
-	}
-}
-
 
 void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 {
@@ -570,8 +557,7 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			}
 			else
 			{
-				host_Status[port_Number].channel_Status[channel_Number].is_Busy = false;
-				open_Channels--;
+
 			}
 			break;
 

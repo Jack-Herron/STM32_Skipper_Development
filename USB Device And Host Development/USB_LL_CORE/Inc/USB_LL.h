@@ -48,5 +48,7 @@ void 							USB_LL___FIFO_Transfer_Out		(uint32_t* Source, uint8_t* Destination,
 void 							USB_LL___FIFO_Transfer_In		(uint8_t* Source, uint32_t* Destination, uint32_t transfer_Size);
 void 							USB_LL___Init					(uint8_t port_Number, uint8_t port_Mode);
 void 							USB_LL___GPIO_Init				(uint8_t port_Number);
+void USB_LL___Disable_IRQ(uint8_t port_Number);
+void USB_LL___Enable_IRQ(uint8_t port_Number);
 
 #endif /* INC_USB_LL_H_ */

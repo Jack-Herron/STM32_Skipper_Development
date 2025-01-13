@@ -107,7 +107,6 @@ void 		USB_LL_Host___Channel_Set_Retries_Remaining		(uint8_t port_Number, uint8_
 typedef struct {
 	uint8_t												status_Change_Flag;
 	uint8_t										 		status;
-	uint8_t 											is_Busy;
 	uint8_t 											device_Address;
 } USB_LL_Host___Channel_Status_TypeDef;
 
@@ -118,7 +117,7 @@ typedef struct {
 	uint8_t 											is_Root_Device_Disconnected;
 	uint8_t 											root_Device_Speed;
 	uint8_t												all_Channels_Status_Change_Flag;
-	USB_LL_Host___Channel_Status_TypeDef		channel_Status[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
+	USB_LL_Host___Channel_Status_TypeDef				channel_Status[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
 } USB_LL_Host___Status_TypeDef;
 
 USB_LL_Host___Status_TypeDef* 	USB_LL_Host___Get_Host_Status							(uint8_t port_Number);
@@ -139,6 +138,5 @@ void 							USB_LL_Host___Start_Of_Frame_Interrupt_Received			(uint8_t port_Numb
 uint8_t 						USB_LL_Host___Is_Start_Of_Frame							(uint8_t port_Number);
 void 							USB_LL_Host___Clear_Start_Of_Frame						(uint8_t port_Number);
 uint8_t 						USB_LL_Host___Channel_Is_Busy							(uint8_t port_Number, uint8_t channel_Number);
-void 							USB_LL_Host___Channel_Set_Is_Busy						(uint8_t port_Number, uint8_t channel_Number, uint8_t is_Free);
 
 #endif /* INC_USB_LL_HOST_H_ */

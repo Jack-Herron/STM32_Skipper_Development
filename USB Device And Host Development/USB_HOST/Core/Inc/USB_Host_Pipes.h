@@ -12,7 +12,7 @@
 #include <USB_LL_Host.h>
 #include <stdint.h>
 
-#define USB_Host_Pipes___DEBUG_ON
+//#define USB_Host_Pipes___DEBUG_ON
 
 #ifdef USB_Host_Pipes___DEBUG_ON
 #define USB_Host_Pipes___DPRINTF 1

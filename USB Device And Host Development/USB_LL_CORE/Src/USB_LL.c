@@ -96,6 +96,30 @@ void USB_LL___GPIO_Init(uint8_t port_Number)
 	}
 }
 
+void USB_LL___Disable_IRQ(uint8_t port_Number)
+{
+	if (port_Number == USB_LL___PORT_0)
+	{
+		NVIC_DisableIRQ(OTG_FS_IRQn);
+	}
+	else if (port_Number == USB_LL___PORT_1)
+	{
+		NVIC_DisableIRQ(OTG_HS_IRQn);
+	}
+}
+
+USB_LL___Enable_IRQ(uint8_t port_Number)
+{
+	if (port_Number == USB_LL___PORT_0)
+	{
+		NVIC_EnableIRQ(OTG_FS_IRQn);
+	}
+	else if (port_Number == USB_LL___PORT_1)
+	{
+		NVIC_EnableIRQ(OTG_HS_IRQn);
+	}
+}
+
 void USB_LL___Init(uint8_t port_Number, uint8_t port_Mode)
 {
 	USB_OTG_GlobalTypeDef* USB = USB_LL___Get_USB(port_Number);
