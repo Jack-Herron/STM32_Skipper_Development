@@ -54,33 +54,36 @@ uint8_t USB_Host_Pipes___Create_Pipe
 {
 	uint8_t pipe_Number = USB_Host_Pipes___Allocate_Pipe(port_Number);
 
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].context					= context;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Type 				= pipe_Type;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Direction 			= pipe_Direction;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].device_Address 			= device_Address;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].endpoint_Number 		= endpoint_Number;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].max_Packet_Size 		= max_Packet_Size;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].p_Buffer 				= p_Buffer;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].transfer_Length 		= transfer_Length;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].is_Odd_Frame 			= is_Odd_Frame;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].is_Low_Speed 			= is_Low_Speed;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].multi_Count 			= multi_Count;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets				= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets_Remaining 	= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
-	USB_Host_Pipes___Pipe[port_Number][pipe_Number].callback 				= callback;
-
-	if(USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets == 0)
+	if(pipe_Number != 0xff)
 	{
-		USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets = 1;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].context					= context;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Type 				= pipe_Type;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].pipe_Direction 			= pipe_Direction;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].device_Address 			= device_Address;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].endpoint_Number 		= endpoint_Number;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].max_Packet_Size 		= max_Packet_Size;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].p_Buffer 				= p_Buffer;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].transfer_Length 		= transfer_Length;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].is_Odd_Frame 			= is_Odd_Frame;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].is_Low_Speed 			= is_Low_Speed;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].multi_Count 			= multi_Count;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets				= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets_Remaining 	= (transfer_Length + max_Packet_Size-1) / max_Packet_Size;
+		USB_Host_Pipes___Pipe[port_Number][pipe_Number].callback 				= callback;
+
+		if(USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets == 0)
+		{
+			USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets = 1;
+		}
+
+		USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
+		USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
+		USB_LL_Host___Channel_Set_Retries_Remaining(port_Number, pipe_Number, number_Of_Retries);
+		USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
+		USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
+
+		USB_Host_Pipes___Debug_Log("P %d opened\n", pipe_Number);
 	}
-
-	USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
-	USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
-	USB_LL_Host___Channel_Set_Retries_Remaining(port_Number, pipe_Number, number_Of_Retries);
-	USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
-	USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
-
-	USB_Host_Pipes___Debug_Log("P %d opened\n", pipe_Number);
 
 	return(pipe_Number);
 }

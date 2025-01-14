@@ -394,10 +394,6 @@ void USB_Host_Enumerate___Setup_Stage_Completed(USB_Host_Enumerate___Enumerator_
 		break;
 
 	case USB_Host_Device_Manager___SETUP_STAGE_GET_FULL_CONFIGURATION_DESCRIPTOR:
-		if(p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index != 0)
-		{
-			uint8_t i = 0;
-		}
 		USB_Host_Device_Manager___Device_Update_Configuration_Descriptor(port_Number, device_Address, p_Enumerator_Node->enumerator.current_Configuration_Descriptor_Index);
 		break;
 
@@ -554,6 +550,18 @@ void USB_Host_Enumerate___Do_Setup_Stage(USB_Host_Enumerate___Enumerator_Node_Ty
 	}
 }
 
+void USB_Host_Enumerate___Disconnection_Callback(uint8_t port_Number, uint8_t device_Address)
+{
+	USB_Host_Enumerate___Enumerator_Node_TypeDef* p_Enumerator_Node = USB_Host_Enumerate___Get_Enumerator_Node_From_Device_Address(port_Number, device_Address);
+
+	if(p_Enumerator_Node != NULL)
+	{
+		USB_Host___Device_Enumeration_Finished(port_Number, device_Address, false);
+		USB_Host_Enumerate___Delete_Enumerator_Node(port_Number, p_Enumerator_Node);
+
+	}
+}
+
 uint8_t USB_Host_Enumerate___Enumerate_Device(uint8_t port_Number, uint8_t device_Address)
 {
 	USB_Host_Enumerate___Enumerator_Node_TypeDef* Enumerator_Node = USB_Host_Enumerate___Create_Enumerator(port_Number);
@@ -568,6 +576,8 @@ uint8_t USB_Host_Enumerate___Enumerate_Device(uint8_t port_Number, uint8_t devic
 		new_Enumerator.current_Configuration_Descriptor_Index = 0;
 		new_Enumerator.setup_Stage = USB_Host_Device_Manager___SETUP_STAGE_GET_FIRST_EIGHT_DEVICE_DESCRIPTOR;
 		Enumerator_Node->enumerator = new_Enumerator;
+
+		USB_Host_Device_Manager___Device_Add_Disconnection_Callback(port_Number, device_Address, USB_Host_Enumerate___Disconnection_Callback);
 
 		USB_Host_Device_Manager___Device_Set_In_Endpoint_Max_Packet_Size(port_Number, device_Address, 0, USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE);
 		USB_Host_Device_Manager___Device_Set_Out_Endpoint_Max_Packet_Size(port_Number, device_Address, 0, USB_Host_Enumerate___DEFAULT_MAX_PACKET_SIZE);

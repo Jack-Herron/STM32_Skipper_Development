@@ -108,7 +108,7 @@ void USB_LL___Disable_IRQ(uint8_t port_Number)
 	}
 }
 
-USB_LL___Enable_IRQ(uint8_t port_Number)
+void USB_LL___Enable_IRQ(uint8_t port_Number)
 {
 	if (port_Number == USB_LL___PORT_0)
 	{

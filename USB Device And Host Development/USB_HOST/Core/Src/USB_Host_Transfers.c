@@ -295,8 +295,6 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_Node_
 {
 	USB_Host_Transfers___URB_TypeDef* 		p_URB = &p_URB_Node->URB;
 
-	p_URB -> busy = true;
-	p_URB -> transfer_Status = 0;
 	uint8_t pipe_Number = USB_Host_Pipes___Create_Pipe
 	(
 		p_URB->port_Number,
@@ -316,15 +314,18 @@ void USB_Host_Transfers___Process_URB_Setup_Stage(USB_Host_Transfers___URB_Node_
 		pipe_Callback
 	);
 
-	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
+	if(pipe_Number != 0xff)
+	{
+		p_URB -> busy = true;
+		p_URB -> transfer_Status = 0;
+		USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
+	}
 }
 
 void USB_Host_Transfers___Process_URB_Data_Stage(USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node)
 {
 	USB_Host_Transfers___URB_TypeDef* 		p_URB = &p_URB_Node->URB;
 
-	p_URB -> busy = true;
-	p_URB -> transfer_Status = 0;
 	uint8_t pipe_Number;
 
 	uint16_t max_Packet_Size;
@@ -357,15 +358,18 @@ void USB_Host_Transfers___Process_URB_Data_Stage(USB_Host_Transfers___URB_Node_T
 		pipe_Callback
 	);
 
-	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
+	if(pipe_Number != 0xff)
+	{
+		p_URB -> busy = true;
+		p_URB -> transfer_Status = 0;
+		USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
+	}
 }
 
 void USB_Host_Transfers___Process_URB_Status_Stage(USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node)
 {
 	USB_Host_Transfers___URB_TypeDef* 		p_URB = &p_URB_Node->URB;
 
-	p_URB -> busy = true;
-	p_URB -> transfer_Status = 0;
 	uint8_t pipe_Number;
 
 	pipe_Number = USB_Host_Pipes___Create_Pipe
@@ -387,7 +391,12 @@ void USB_Host_Transfers___Process_URB_Status_Stage(USB_Host_Transfers___URB_Node
 		pipe_Callback
 	);
 
-	USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
+	if(pipe_Number != 0xff)
+	{
+		p_URB -> busy = true;
+		p_URB -> transfer_Status = 0;
+		USB_Host_Pipes___Begin_Transfer(p_URB->port_Number, pipe_Number);
+	}
 }
 
 void USB_Host_Transfers___Process_Periodic_URBs(uint8_t port_Number)
