@@ -40,14 +40,23 @@ typedef struct {
 	uint16_t									packet_Size;
 	uint16_t									retries_Remaining;
 	uint8_t  									retry_After_Halt;
+	uint8_t 									transfer_Complete;
+	uint8_t										transfer_Complete_Flag;
+	uint8_t										exit_Status;
 	uint8_t										transfer_Direction;
 	uint8_t* 									p_Buffer;
 	uint32_t 									buffer_Fill_Level;
-} USB_LL_Host___Host_Channel_Buffer_TypeDef;
+} USB_LL_Host___Channel_Status_TypeDef;
 
 typedef struct {
-	USB_LL_Host___Host_Channel_Buffer_TypeDef			channel_Buffer[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
-} USB_LL_Host___Host_Port_TypeDef;
+	uint8_t                                             is_Start_Of_Frame;
+	uint8_t												is_Root_Device_Connection_Status_Change;
+	uint8_t 											is_Root_Device_Connected;
+	uint8_t 											is_Root_Device_Disconnected;
+	uint8_t 											root_Device_Speed;
+	uint8_t												all_Channels_Status_Change_Flag;
+	USB_LL_Host___Channel_Status_TypeDef				channel_Status[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
+} USB_LL_Host___Status_TypeDef;
 
 uint16_t 	USB_LL_Host___Host_Get_Frame_Number				(uint8_t port_Number);
 uint32_t 	USB_LL_Host___Host_Get_FIFO_Space_Available		(uint8_t port_Number, uint8_t FIFO_Type);
@@ -58,7 +67,7 @@ void 		USB_LL_Host___Channel_Halt_And_Wait				(uint8_t port_Number, uint8_t chan
 uint8_t 	USB_LL_Host___Channel_Get_Current_PID			(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Channel_Set_Interrupts			(uint8_t port_Number, uint8_t channel_Number);
 int8_t 		USB_LL_Host___Channel_RX_POP					(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status);
-void 		USB_LL_Host___Channel_Set_Characteristics		(uint8_t port_Number, uint8_t channel_Number, uint16_t max_Packet_Size, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t low_Speed_Device, uint8_t endpoint_Type, uint8_t multi_Count, uint8_t device_Address, uint8_t odd_Frame);
+void 		USB_LL_Host___Setup_Channel						(uint8_t port_Number, uint8_t channel_Number, uint16_t max_Packet_Size, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t low_Speed_Device, uint8_t endpoint_Type, uint8_t multi_Count, uint8_t device_Address, uint8_t odd_Frame);
 void 		USB_LL_Host___Channel_Load_HCTSIZ				(uint8_t port_Number, uint8_t channel_Number, uint32_t transfer_Size_In_Bytes, uint32_t packet_Count, uint8_t packet_ID);
 void 		USB_LL_Host___Channel_Enable					(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Reset_Port						(uint8_t port_Number);
@@ -104,21 +113,7 @@ void 		USB_LL_Host___Channel_Set_Retries_Remaining		(uint8_t port_Number, uint8_
 #define USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR		0x03
 #define USB_LL_Host___CHANNEL_STATUS_CHANNEL_HALTED				0x04
 
-typedef struct {
-	uint8_t												status_Change_Flag;
-	uint8_t										 		status;
-	uint8_t 											device_Address;
-} USB_LL_Host___Channel_Status_TypeDef;
 
-typedef struct {
-	uint8_t                                             is_Start_Of_Frame;
-	uint8_t												is_Root_Device_Connection_Status_Change;
-	uint8_t 											is_Root_Device_Connected;
-	uint8_t 											is_Root_Device_Disconnected;
-	uint8_t 											root_Device_Speed;
-	uint8_t												all_Channels_Status_Change_Flag;
-	USB_LL_Host___Channel_Status_TypeDef				channel_Status[USB_LL_Host___MAX_NUMBER_OF_CHANNELS];
-} USB_LL_Host___Status_TypeDef;
 
 USB_LL_Host___Status_TypeDef* 	USB_LL_Host___Get_Host_Status							(uint8_t port_Number);
 void 							USB_LL_Host___Channel_Interrupt_Handler					(uint8_t port_Number);
@@ -130,7 +125,8 @@ uint8_t 						USB_LL_Host___Is_Root_Device_Disconnected				(uint8_t port_Number)
 uint8_t 						USB_LL_Host___Get_Root_Device_Speed						(uint8_t port_Number);
 void 							USB_LL_Host___Clear_Connection_Status_Change			(uint8_t port_Number);
 uint8_t 						USB_LL_Host___Get_All_Channels_Status_Change_Flag		(uint8_t port_Number);
-uint8_t 						USB_LL_Host___Get_Channel_Status_Change_Flag			(uint8_t port_Number, uint8_t channel_Number);
+uint8_t 						USB_LL_Host___Get_Transfer_Complete_Flag				(uint8_t port_Number, uint8_t channel_Number);
+void	 						USB_LL_Host___Clear_Transfer_Complete_Flag				(uint8_t port_Number, uint8_t channel_Number);
 uint8_t 						USB_LL_Host___Get_Channel_Status						(uint8_t port_Number, uint8_t channel_Number);
 void 							USB_LL_Host___Clear_All_Channels_Status_Change_Flag		(uint8_t port_Number);
 void 							USB_LL_Host___Clear_Channel_Status_Change_Flag			(uint8_t port_Number,  uint8_t channel_Number);

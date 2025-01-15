@@ -79,7 +79,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 		USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
 		USB_LL_Host___Channel_Setup_Buffer(port_Number, pipe_Number, p_Buffer, transfer_Length);
 		USB_LL_Host___Channel_Set_Retries_Remaining(port_Number, pipe_Number, number_Of_Retries);
-		USB_LL_Host___Channel_Set_Characteristics(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
+		USB_LL_Host___Setup_Channel(port_Number, pipe_Number, max_Packet_Size, endpoint_Number, pipe_Direction, is_Low_Speed, pipe_Type, multi_Count, device_Address, is_Odd_Frame);
 		USB_LL_Host___Channel_Set_Interrupts(port_Number, pipe_Number);
 
 		USB_Host_Pipes___Debug_Log("P %d opened\n", pipe_Number);
@@ -117,9 +117,9 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 		//USB_LL_Host___Clear_All_Channels_Status_Change_Flag(port_Number);
 		for(uint8_t i = 0; i < USB_Host_Pipes___NUMBER_OF_PIPES; i++)
 		{
-			if(USB_LL_Host___Get_Channel_Status_Change_Flag(port_Number, i))
+			if(USB_LL_Host___Get_Transfer_Complete_Flag(port_Number, i))
 			{
-				USB_LL_Host___Clear_Channel_Status_Change_Flag(port_Number, i);
+				USB_LL_Host___Clear_Transfer_Complete_Flag(port_Number, i);
 				uint8_t channel_Status = USB_LL_Host___Get_Channel_Status(port_Number, i);
 
 				if(channel_Status == USB_LL_Host___CHANNEL_STATUS_TRANSFER_COMPLETE)
