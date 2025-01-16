@@ -32,9 +32,16 @@
 
 	static USB_Host_Transfers___URB_Node_TypeDef USB_Host_Transfers___URB_Node_Pool[USB_Host_Config___MAX_USB_REQUEST_BLOCKS];
 
-	USB_Host_Transfers___URB_Node_TypeDef* USB_Host_Transfers___Allocate_URB_Node()
+	USB_Host_Transfers___URB_Node_TypeDef* USB_Host_Transfers___Allocate_URB_Node(uint8_t URB_Type)
 	{
-		for(uint32_t i = 0; i < USB_Host_Config___MAX_USB_REQUEST_BLOCKS; i++)
+		uint8_t start_Index = 0;
+
+		if(!URB_Type == USB_Host_Transfers___URB_TYPE_CONTROL)
+		{
+			start_Index = USB_Host_Config___MIN_CONTROL_URBS;
+		}
+
+		for(uint32_t i = start_Index; i < USB_Host_Config___MAX_USB_REQUEST_BLOCKS; i++)
 		{
 			if(!USB_Host_Transfers___URB_Node_Pool[i].is_Allocated)
 			{
@@ -56,7 +63,7 @@ static USB_Host_Transfers___URB_Queue_TypeDef non_Periodic_URB_Queue[USB_Host___
 
 USB_Host_Transfers___URB_Node_TypeDef* USB_Host_Transfers___Create_URB_Node(uint8_t port_Number, uint8_t URB_Type)
 {
-	USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node = USB_Host_Transfers___Allocate_URB_Node();
+	USB_Host_Transfers___URB_Node_TypeDef* p_URB_Node = USB_Host_Transfers___Allocate_URB_Node(URB_Type);
 
 	if(p_URB_Node != NULL)
 	{

@@ -119,27 +119,27 @@ void USART_LL_Driver___Enable_Interrupt(uint8_t USART_Number)
 	{
 	case 1:
 		NVIC_EnableIRQ(USART1_IRQn);
-		NVIC_SetPriority(USART1_IRQn, 1);
+		NVIC_SetPriority(USART1_IRQn, 5);
 		break;
 	case 2:
 		NVIC_EnableIRQ(USART2_IRQn);
-		NVIC_SetPriority(USART2_IRQn, 1);
+		NVIC_SetPriority(USART2_IRQn, 5);
 		break;
 	case 3:
 		NVIC_EnableIRQ(USART3_IRQn);
-		NVIC_SetPriority(USART3_IRQn, 1);
+		NVIC_SetPriority(USART3_IRQn, 5);
 		break;
 	case 4:
 		NVIC_EnableIRQ(UART4_IRQn);
-		NVIC_SetPriority(UART4_IRQn, 1);
+		NVIC_SetPriority(UART4_IRQn, 5);
 		break;
 	case 5:
 		NVIC_EnableIRQ(UART5_IRQn);
-		NVIC_SetPriority(UART5_IRQn, 1);
+		NVIC_SetPriority(UART5_IRQn, 5);
 		break;
 	case 6:
 		NVIC_EnableIRQ(USART6_IRQn);
-		NVIC_SetPriority(USART6_IRQn, 1);
+		NVIC_SetPriority(USART6_IRQn, 5);
 		break;
 	}
 }

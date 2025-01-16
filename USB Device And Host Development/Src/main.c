@@ -39,8 +39,8 @@ void GPIO_init(void){
 	GPIOA->MODER |= (1<<4); 		// set PA2 to output
 	GPIOA->ODR &= ~(1<<2);			// set PA2 HIGH
 
-	GPIOC->MODER |= (1<<0); 		// set PA2 to output
-	GPIOC->ODR &= ~(1<<0);			// set PA2 LOW
+	GPIOC->MODER |= (1<<0); 		// set PC0 to output
+	GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
 }
 
 int main(void) {
@@ -48,7 +48,7 @@ int main(void) {
 	Skipper_Clock___Systick_Init();
 	GPIO_init();					//initiate the GPIO to be used in this program.
 	USART___Init(1);
-	USART___Set_Baud_Rate(1, 921600);
+	USART___Set_Baud_Rate(1, 2000000);
 	USB_Host___Init(0);
 	//USB_CDC_Device___Init(1);
 	USB_Mouse_Host___Init(0);
@@ -56,7 +56,7 @@ int main(void) {
 
 	for(;;)
 	{
-		//Skipper_Clock___Delay_us(500);
+		//Skipper_Clock___Delay_us(50);
 		USB_Host___Process(0);
 	}
 }

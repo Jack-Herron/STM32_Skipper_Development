@@ -40,6 +40,7 @@ typedef struct {
 	uint16_t									packet_Size;
 	uint16_t									retries_Remaining;
 	uint8_t  									retry_After_Halt;
+	uint8_t										busy;
 	uint8_t 									transfer_Complete;
 	uint8_t										transfer_Complete_Flag;
 	uint8_t										exit_Status;

@@ -76,19 +76,10 @@ uint16_t USB_LL_Host___Host_Get_Frame_Number(uint8_t port_Number)
 
 // ---------------------------- USB CHANNEL_CONTROL_SECTION --------------------------
 
-uint16_t USB_LL_Host___Channel_Get_Retries_Remaining(uint8_t port_Number, uint8_t channel_Number)
-{
-	return (USB_LL_Host___Status[port_Number].channel_Status[channel_Number].retries_Remaining);
-}
-
+//
 void USB_LL_Host___Channel_Set_Retries_Remaining(uint8_t port_Number, uint8_t channel_Number, uint16_t number_Of_Retries)
 {
 	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].retries_Remaining = number_Of_Retries;
-}
-
-uint8_t USB_LL_Host___Channel_Get_Retry_After_Halt(uint8_t port_Number, uint8_t channel_Number)
-{
-	return (USB_LL_Host___Status[port_Number].channel_Status[channel_Number].retry_After_Halt);
 }
 
 uint32_t USB_LL_Host___Channel_Get_Transfer_Size(uint8_t port_Number, uint8_t channel_Number)
@@ -226,6 +217,7 @@ void USB_LL_Host___Setup_Channel
 	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Direction 	= endpoint_Direction;
 	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete		= false;
 	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag = false;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].busy 					= true;
 
 	USB_OTG_HostChannelTypeDef* USB_Host_Channel = USB_LL___Get_USB_Host_Channel(port_Number, channel_Number);
 
@@ -241,7 +233,7 @@ void USB_LL_Host___Setup_Channel
 			multi_Count 		<< USB_OTG_HCCHAR_MC_Pos 	|
 			device_Address 		<< USB_OTG_HCCHAR_DAD_Pos
 			);
-
+	//printf("S%d\n", channel_Number);
 	USB_Host_Channel -> HCCHAR = channel_Characteristics;
 
 }
@@ -275,7 +267,7 @@ void USB_LL_Host___Channel_Begin_Transfer_In(uint8_t port_Number, uint8_t channe
 	USB_OTG_HostChannelTypeDef *USB_Host_Channel = USB_LL___Get_USB_Host_Channel(port_Number, channel_Number);
 
 	USB_Host_Channel -> HCCHAR &= ~(USB_OTG_HCCHAR_ODDFRM_Msk);
-	USB_Host_Channel -> HCCHAR |= ((USB_LL_Host___Host_Get_Frame_Number(port_Number) % 2)) << USB_OTG_HCCHAR_ODDFRM_Pos;
+	USB_Host_Channel -> HCCHAR |= !((USB_LL_Host___Host_Get_Frame_Number(port_Number) % 2)) << USB_OTG_HCCHAR_ODDFRM_Pos;
 
 	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
 }
@@ -285,7 +277,7 @@ void USB_LL_Host___Channel_Begin_Transfer_Out(uint8_t port_Number, uint8_t chann
 	USB_OTG_HostChannelTypeDef *USB_Host_Channel = USB_LL___Get_USB_Host_Channel(port_Number, channel_Number);
 
 	USB_Host_Channel -> HCCHAR &= ~(USB_OTG_HCCHAR_ODDFRM_Msk);
-	USB_Host_Channel -> HCCHAR |= ((USB_LL_Host___Host_Get_Frame_Number(port_Number) % 2)) << USB_OTG_HCCHAR_ODDFRM_Pos;
+	USB_Host_Channel -> HCCHAR |= !((USB_LL_Host___Host_Get_Frame_Number(port_Number) % 2)) << USB_OTG_HCCHAR_ODDFRM_Pos;
 
 	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
 
@@ -339,65 +331,61 @@ void USB_LL_Host___Channel_Retry_Transfer_In(uint8_t port_Number, uint8_t channe
 
 // -----------------------------------------------------------------------------------
 
-static USB_LL_Host___Status_TypeDef host_Status[USB_LL_Definitions___NUMBER_OF_PORTS];
-
-uint8_t open_Channels = 0;
-
 uint8_t USB_LL_Host___Is_Start_Of_Frame(uint8_t port_Number)
 {
-	return(host_Status[port_Number].is_Start_Of_Frame);
+	return(USB_LL_Host___Status[port_Number].is_Start_Of_Frame);
 }
 
 void USB_LL_Host___Clear_Start_Of_Frame(uint8_t port_Number)
 {
-	host_Status[port_Number].is_Start_Of_Frame = false;
+	USB_LL_Host___Status[port_Number].is_Start_Of_Frame = false;
 }
 
 uint8_t USB_LL_Host___Get_Root_Device_Speed(uint8_t port_Number)
 {
-	uint8_t return_Value = host_Status[port_Number].root_Device_Speed;
+	uint8_t return_Value = USB_LL_Host___Status[port_Number].root_Device_Speed;
 	return(return_Value);
 }
 
 void USB_LL_Host___Clear_Connection_Status_Change(uint8_t port_Number)
 {
-	host_Status[port_Number].is_Root_Device_Connection_Status_Change = false;
+	USB_LL_Host___Status[port_Number].is_Root_Device_Connection_Status_Change = false;
 }
 
 uint8_t USB_LL_Host___Is_Root_Device_Connection_Status_Change(uint8_t port_Number)
 {
-	uint8_t return_Value = host_Status[port_Number].is_Root_Device_Connection_Status_Change;
+	uint8_t return_Value = USB_LL_Host___Status[port_Number].is_Root_Device_Connection_Status_Change;
 	return(return_Value);
 }
 
 uint8_t USB_LL_Host___Is_Root_Device_Connected(uint8_t port_Number)
 {
-	return(host_Status[port_Number].is_Root_Device_Connected);
+	return(USB_LL_Host___Status[port_Number].is_Root_Device_Connected);
 }
 
 uint8_t USB_LL_Host___Is_Root_Device_Disconnected(uint8_t port_Number)
 {
-	return(host_Status[port_Number].is_Root_Device_Disconnected);
+	return(USB_LL_Host___Status[port_Number].is_Root_Device_Disconnected);
 }
 
 uint8_t USB_LL_Host___Get_All_Channels_Status_Change_Flag(uint8_t port_Number)
 {
-	return (host_Status[port_Number].all_Channels_Status_Change_Flag);
+	return (USB_LL_Host___Status[port_Number].all_Channels_Status_Change_Flag);
 }
 
 void USB_LL_Host___Clear_All_Channels_Status_Change_Flag(uint8_t port_Number)
 {
-	host_Status[port_Number].all_Channels_Status_Change_Flag = false;
+	USB_LL_Host___Status[port_Number].all_Channels_Status_Change_Flag = false;
 }
 
 uint8_t USB_LL_Host___Get_Channel_Status(uint8_t port_Number, uint8_t channel_Number)
 {
-	return(host_Status[port_Number].channel_Status[channel_Number].exit_Status);
+	return(USB_LL_Host___Status[port_Number].channel_Status[channel_Number].exit_Status);
 }
 
 uint8_t USB_LL_Host___Get_Channel_Status_Change_Flag(uint8_t port_Number, uint8_t channel_Number)
 {
-	return (host_Status[port_Number].channel_Status[channel_Number].transfer_Complete);
+	return (USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete);
 }
 
 void USB_LL_Host___Packet_Received(uint8_t port_Number)
@@ -457,24 +445,24 @@ void USB_LL_Host___Device_Connect_Detected(uint8_t port_Number)
 			speed = USB_LL_Host___HIGH_SPEED_VALUE;
 		}
 
-		host_Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
-		host_Status[port_Number].is_Root_Device_Connected 					= true;
-		host_Status[port_Number].is_Root_Device_Disconnected 				= false;
-		host_Status[port_Number].root_Device_Speed 							= speed;
+		USB_LL_Host___Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
+		USB_LL_Host___Status[port_Number].is_Root_Device_Connected 					= true;
+		USB_LL_Host___Status[port_Number].is_Root_Device_Disconnected 				= false;
+		USB_LL_Host___Status[port_Number].root_Device_Speed 							= speed;
 	}
 }
 
 
 void USB_LL_Host___Device_Disconnect_Detected(uint8_t port_Number)
 {
-	host_Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
-	host_Status[port_Number].is_Root_Device_Connected 					= 	false;
-	host_Status[port_Number].is_Root_Device_Disconnected 				= 	true;
+	USB_LL_Host___Status[port_Number].is_Root_Device_Connection_Status_Change 	= true;
+	USB_LL_Host___Status[port_Number].is_Root_Device_Connected 					= 	false;
+	USB_LL_Host___Status[port_Number].is_Root_Device_Disconnected 				= 	true;
 }
 
 void USB_LL_Host___Start_Of_Frame_Interrupt_Received(uint8_t port_Number)
 {
-	host_Status[port_Number].is_Start_Of_Frame = true;
+	USB_LL_Host___Status[port_Number].is_Start_Of_Frame = true;
 }
 
 void USB_LL_Host___Port_Interrupt_Handler(uint8_t port_Number)
@@ -507,32 +495,31 @@ void USB_LL_Host___Port_Interrupt_Handler(uint8_t port_Number)
 
 uint8_t USB_LL_Host___Channel_Is_Busy(uint8_t port_Number, uint8_t channel_Number)
 {
-	USB_OTG_HostChannelTypeDef* USB_Host_Ch = USB_LL___Get_USB_Host_Channel(port_Number, channel_Number);
-	uint8_t is_Busy = (USB_Host_Ch -> HCCHAR & USB_OTG_HCCHAR_CHENA_Msk) ||  (USB_Host_Ch -> HCCHAR & USB_OTG_HCCHAR_CHDIS_Msk);
-	return(is_Busy);
+	return(USB_LL_Host___Status[port_Number].channel_Status[channel_Number].busy);
 }
 
 void USB_LL_Host___Transfer_Complete(uint8_t port_Number, uint8_t channel_Number, uint8_t status)
 {
-	host_Status[port_Number].channel_Status[channel_Number].transfer_Complete 		= true;
-	host_Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag 	= true;
-	host_Status[port_Number].channel_Status[channel_Number].exit_Status 			= status;
+	//printf("E%d\n", channel_Number);
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete 		= true;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag 	= true;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].exit_Status 			= status;
 }
 
 uint8_t USB_LL_Host___Get_Transfer_Complete_Flag(uint8_t port_Number, uint8_t channel_Number)
 {
-	return(host_Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag);
+	return(USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag);
 }
 
 void USB_LL_Host___Clear_Transfer_Complete_Flag(uint8_t port_Number, uint8_t channel_Number)
 {
-	host_Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag = false;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag = false;
 }
 
 // returns true if retransmission was successful, false if no retries remaining
 uint8_t USB_LL_Host___Channel_Attempt_Retransmission(uint8_t port_Number, uint8_t channel_Number, uint8_t always_Halt)
 {
-	uint16_t retries_Remaining = USB_LL_Host___Channel_Get_Retries_Remaining(port_Number, channel_Number);
+	uint16_t retries_Remaining = USB_LL_Host___Status[port_Number].channel_Status[channel_Number].retries_Remaining;
 
 	if (retries_Remaining > 0)
 	{
@@ -561,11 +548,12 @@ uint8_t USB_LL_Host___Channel_Attempt_Retransmission(uint8_t port_Number, uint8_
 void USB_LL_Host___Channel_Interrupt_Transfer_Complete(uint8_t port_Number, uint8_t channel_Number)
 {
 	USB_LL_Host___Transfer_Complete(port_Number, channel_Number, USB_LL_Host___CHANNEL_STATUS_TRANSFER_COMPLETE);
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].busy = false;
 }
 
 void USB_LL_Host___Channel_Interrupt_Channel_Halted(uint8_t port_Number, uint8_t channel_Number)
 {
-	if(USB_LL_Host___Channel_Get_Retry_After_Halt(port_Number, channel_Number))
+	if(USB_LL_Host___Status[port_Number].channel_Status[channel_Number].retry_After_Halt)
 	{
 		if (USB_LL_Host___Channel_Get_Transfer_Direction(port_Number, channel_Number) == USB_LL_Host___TRANSFER_DIRECTION_OUT)
 		{
@@ -577,6 +565,14 @@ void USB_LL_Host___Channel_Interrupt_Channel_Halted(uint8_t port_Number, uint8_t
 		}
 
 		USB_LL_Host___Channel_Set_Retry_After_Halt(port_Number, channel_Number, false);
+	}
+	else
+	{
+		if(!USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete)
+		{
+			USB_LL_Host___Transfer_Complete(port_Number, channel_Number, USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR);
+		}
+		USB_LL_Host___Status[port_Number].channel_Status[channel_Number].busy = false;
 	}
 }
 
@@ -645,7 +641,7 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_XFRC_Msk;
 
 			USB_LL_Host___Channel_Interrupt_Transfer_Complete(port_Number, channel_Number);
-
+			printf("XFRC %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			break;
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted
@@ -664,7 +660,7 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_NAK_Pos: 								// NAK received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_NAK_Msk;
-
+			printf("NAK %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_No_Acknowledgment(port_Number, channel_Number);
 
 			break;
@@ -679,13 +675,14 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
 
+			printf("TX Error %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_Channel_TX_Error(port_Number, channel_Number);
 
 			break;
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
-
+			printf("Frame Error %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_Frame_Error(port_Number, channel_Number);
 
 			break;
@@ -693,6 +690,7 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_HCINT_DTERR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_DTERR_Msk;
 
+			printf("DTOG Error %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_Data_Toggle_Error(port_Number, channel_Number);
 
 			break;

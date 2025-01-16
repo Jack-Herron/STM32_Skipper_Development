@@ -27,6 +27,8 @@
 #define USB_Host_Pipes___PID_DATA1						USB_LL_Host___CHANNEL_PACKET_ID_DATA_ONE
 #define USB_Host_Pipes___PID_DATA2						USB_LL_Host___CHANNEL_PACKET_ID_DATA_TWO
 #define USB_Host_Pipes___Callback_Parameters		 	uint8_t port_Number, uint8_t pipe_Number, void* context, uint8_t status, uint8_t* p_Buffer, uint32_t transfer_Size
+#define USB_Host_Pipes___TRANSFER_TYPE_CONTROL			0
+
 typedef struct {
 	uint8_t 	is_Allocated;
 	void* 		context;

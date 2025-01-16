@@ -15,9 +15,16 @@
 #include "USB_Host_Device_Manager.h"
 static USB_Host_Pipes___Pipe_TypeDef USB_Host_Pipes___Pipe[USB_LL_Definitions___NUMBER_OF_PORTS][USB_Host_Pipes___NUMBER_OF_PIPES];
 
-uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number)
+uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number, uint8_t transfer_Type)
 {
-	for (uint8_t i = 0; i < USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS_PER_PORT; i++)
+	uint8_t start_Index = 0;
+
+	if (transfer_Type != USB_Host_Pipes___TRANSFER_TYPE_CONTROL)
+	{
+		start_Index = 1;
+	}
+
+	for (uint8_t i = start_Index; i < /*USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS_PER_PORT*/2; i++)
 	{
 		if ((USB_Host_Pipes___Pipe[port_Number][i].is_Allocated == 0) && !(USB_LL_Host___Channel_Is_Busy(port_Number, i)))
 		{
@@ -52,7 +59,7 @@ uint8_t USB_Host_Pipes___Create_Pipe
 		void		callback(USB_Host_Pipes___Callback_Parameters)
 		)
 {
-	uint8_t pipe_Number = USB_Host_Pipes___Allocate_Pipe(port_Number);
+	uint8_t pipe_Number = USB_Host_Pipes___Allocate_Pipe(port_Number, pipe_Type);
 
 	if(pipe_Number != 0xff)
 	{
@@ -74,6 +81,11 @@ uint8_t USB_Host_Pipes___Create_Pipe
 		if(USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets == 0)
 		{
 			USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets = 1;
+		}
+
+		if(max_Packet_Size > 1000)
+		{
+			uint8_t temp = 0;
 		}
 
 		USB_LL_Host___Channel_Load_HCTSIZ(port_Number, pipe_Number, transfer_Length, USB_Host_Pipes___Pipe[port_Number][pipe_Number].num_Packets, packet_ID);
