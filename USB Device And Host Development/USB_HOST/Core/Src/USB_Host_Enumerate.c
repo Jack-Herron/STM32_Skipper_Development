@@ -404,20 +404,27 @@ void USB_Host_Enumerate___URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMET
 {
 	USB_Host_Enumerate___Enumerator_Node_TypeDef* p_Enumerator_Node = USB_Host_Enumerate___Get_Enumerator_Node_From_Device_Address(URB.port_Number, URB.device_Address);
 
-	if(p_Enumerator_Node != NULL)
+	if(USB_Host_Device_Manager___Is_Device_Connected(URB.port_Number, URB.device_Address))
 	{
-		if(URB.transfer_Status == USB_Host_Transfers___PIPE_STATUS_TRANSFER_COMPLETE)
+		if(p_Enumerator_Node != NULL)
 		{
-		USB_Host_Enumerate___Setup_Stage_Completed(p_Enumerator_Node);
-		USB_Host_Enumerate___Set_Next_Setup_Stage(p_Enumerator_Node);
-		USB_Host_Enumerate___Do_Setup_Stage(p_Enumerator_Node);
+			if(URB.transfer_Status == USB_Host_Transfers___PIPE_STATUS_TRANSFER_COMPLETE)
+			{
+			USB_Host_Enumerate___Setup_Stage_Completed(p_Enumerator_Node);
+			USB_Host_Enumerate___Set_Next_Setup_Stage(p_Enumerator_Node);
+			USB_Host_Enumerate___Do_Setup_Stage(p_Enumerator_Node);
 
+			}
+			else
+			{
+				USB_Host___Device_Enumeration_Finished(URB.port_Number, URB.device_Address, false);
+				USB_Host_Enumerate___Delete_Enumerator_Node(URB.port_Number, p_Enumerator_Node);
+			}
 		}
-		else
-		{
-			USB_Host___Device_Enumeration_Finished(URB.port_Number, URB.device_Address, false);
-			USB_Host_Enumerate___Delete_Enumerator_Node(URB.port_Number, p_Enumerator_Node);
-		}
+	}
+	else
+	{
+		printf("AHHHHHH--------------------------\n");
 	}
 }
 
@@ -556,7 +563,7 @@ void USB_Host_Enumerate___Disconnection_Callback(uint8_t port_Number, uint8_t de
 
 	if(p_Enumerator_Node != NULL)
 	{
-		USB_Host___Device_Enumeration_Finished(port_Number, device_Address, false);
+		//USB_Host___Device_Enumeration_Finished(port_Number, device_Address, false);
 		USB_Host_Enumerate___Delete_Enumerator_Node(port_Number, p_Enumerator_Node);
 
 	}
@@ -585,6 +592,7 @@ uint8_t USB_Host_Enumerate___Enumerate_Device(uint8_t port_Number, uint8_t devic
 		USB_Host_Enumerate___Do_Setup_Stage(Enumerator_Node);
 
 		return(EXIT_SUCCESS);
+
 	}
 	return(EXIT_FAILURE);
 }

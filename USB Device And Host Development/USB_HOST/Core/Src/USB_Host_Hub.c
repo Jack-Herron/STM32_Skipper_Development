@@ -270,25 +270,28 @@ void USB_Host_Hub___Handle_Change_In_Port_Connection_Status(uint8_t port_Number,
 
 void USB_Host_Hub___Get_Port_Status_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
 {
-	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
-
-	if(p_Hub_Node != NULL)
+	if (URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
 	{
-		uint16_t 						wPortStatus 	= *((uint16_t*)&(URB.transfer_Buffer[0]));
-		uint16_t 						wPortChange 	= *((uint16_t*)&(URB.transfer_Buffer[2]));
-		uint8_t							hub_Port_Number = URB.control_Setup_Packet.wIndex;
-		while(wPortChange)
+		USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
+
+		if(p_Hub_Node != NULL)
 		{
-			switch(POSITION_VAL(wPortChange))
+			uint16_t 						wPortStatus 	= *((uint16_t*)&(URB.transfer_Buffer[0]));
+			uint16_t 						wPortChange 	= *((uint16_t*)&(URB.transfer_Buffer[2]));
+			uint8_t							hub_Port_Number = URB.control_Setup_Packet.wIndex;
+			while(wPortChange)
 			{
-			case USB_Host_Hub___wPortChange_C_PORT_CONNECTION_Pos:
-				USB_Host_Hub___Handle_Change_In_Port_Connection_Status(URB.port_Number, URB.device_Address, hub_Port_Number, wPortChange, wPortStatus);
-				wPortChange &= ~(1 << USB_Host_Hub___wPortChange_C_PORT_CONNECTION_Pos);
-				break;
-			case USB_Host_Hub___wPortChange_C_PORT_RESET_Pos:
-				USB_Host_Hub___Handle_Change_In_Port_Reset_Status(URB.port_Number, URB.device_Address, hub_Port_Number, wPortChange, wPortStatus);
-				wPortChange &= ~(1 << USB_Host_Hub___wPortChange_C_PORT_RESET_Pos);
-				break;
+				switch(POSITION_VAL(wPortChange))
+				{
+				case USB_Host_Hub___wPortChange_C_PORT_CONNECTION_Pos:
+					USB_Host_Hub___Handle_Change_In_Port_Connection_Status(URB.port_Number, URB.device_Address, hub_Port_Number, wPortChange, wPortStatus);
+					wPortChange &= ~(1 << USB_Host_Hub___wPortChange_C_PORT_CONNECTION_Pos);
+					break;
+				case USB_Host_Hub___wPortChange_C_PORT_RESET_Pos:
+					USB_Host_Hub___Handle_Change_In_Port_Reset_Status(URB.port_Number, URB.device_Address, hub_Port_Number, wPortChange, wPortStatus);
+					wPortChange &= ~(1 << USB_Host_Hub___wPortChange_C_PORT_RESET_Pos);
+					break;
+				}
 			}
 		}
 	}
@@ -309,6 +312,7 @@ void USB_Host_Hub___Get_Port_Status(uint8_t port_Number, uint8_t device_Address,
 void USB_Host_Hub___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS)
 {
 	USB_Host_Hub___Hub_Node_TypeDef* p_Hub_Node = USB_Host_Hub___Get_Hub_Node_From_Device_Address(URB.port_Number, URB.device_Address);
+
 	if(p_Hub_Node != NULL)
 	{
 		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)

@@ -641,7 +641,6 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_XFRC_Msk;
 
 			USB_LL_Host___Channel_Interrupt_Transfer_Complete(port_Number, channel_Number);
-			printf("XFRC %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			break;
 
 		case USB_OTG_HCINT_CHH_Pos: 								// channel halted
@@ -660,7 +659,7 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_NAK_Pos: 								// NAK received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_NAK_Msk;
-			printf("NAK %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
+			//printf("NAK %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_No_Acknowledgment(port_Number, channel_Number);
 
 			break;
@@ -674,23 +673,18 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_TXERR_Pos: 								// TX ERROR received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_TXERR_Msk;
-
-			printf("TX Error %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_Channel_TX_Error(port_Number, channel_Number);
 
 			break;
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
-			printf("Frame Error %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_Frame_Error(port_Number, channel_Number);
 
 			break;
 
 		case USB_OTG_HCINT_DTERR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_DTERR_Msk;
-
-			printf("DTOG Error %ld\n", (USB_Host_Ch->HCCHAR & USB_OTG_HCCHAR_DAD_Msk) >> USB_OTG_HCCHAR_DAD_Pos);
 			USB_LL_Host___Channel_Interrupt_Data_Toggle_Error(port_Number, channel_Number);
 
 			break;

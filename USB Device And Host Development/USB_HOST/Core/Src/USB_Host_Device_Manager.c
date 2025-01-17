@@ -664,6 +664,7 @@ uint8_t USB_Host_Device_Manager___Is_Device_Connected(uint8_t port_Number, uint8
 	{
 		return(p_Device -> status.is_Connected);
 	}
+
 	return(0);
 }
 

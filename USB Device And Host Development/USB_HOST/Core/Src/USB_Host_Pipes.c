@@ -24,7 +24,7 @@ uint8_t USB_Host_Pipes___Allocate_Pipe(uint8_t port_Number, uint8_t transfer_Typ
 		start_Index = 1;
 	}
 
-	for (uint8_t i = start_Index; i < /*USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS_PER_PORT*/2; i++)
+	for (uint8_t i = start_Index; i < /*USB_LL_Definitions___MAX_NUMBER_OF_CHANNELS_PER_PORT*/8; i++)
 	{
 		if ((USB_Host_Pipes___Pipe[port_Number][i].is_Allocated == 0) && !(USB_LL_Host___Channel_Is_Busy(port_Number, i)))
 		{
@@ -151,12 +151,12 @@ void USB_Host_Pipes___Process_Pipes(uint8_t port_Number)
 				}
 
 
-				USB_Host_Pipes___Free_Pipe(port_Number, i);
 				if(USB_Host_Pipes___Pipe[port_Number][i].callback != NULL)
 				{
-
 					USB_Host_Pipes___Pipe[port_Number][i].callback(port_Number, i, USB_Host_Pipes___Pipe[port_Number][i].context, channel_Status, USB_Host_Pipes___Pipe[port_Number][i].p_Buffer, USB_Host_Pipes___Pipe[port_Number][i].transfer_Length);
 				}
+
+				USB_Host_Pipes___Free_Pipe(port_Number, i);
 			//}
 		}
 	}
