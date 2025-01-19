@@ -263,6 +263,7 @@ void USB_HID_Host___URB_Set_Protocol_Callback(USB_Host_Transfers___URB_CALLBACK_
 	if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
 	{
 		USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(URB.port_Number, URB.device_Address, URB.control_Setup_Packet.wIndex);
+
 		if(p_HID_Node != NULL)
 		{
 			p_HID_Node->HID_Device.current_Protocol = URB.control_Setup_Packet.wValue;
@@ -321,7 +322,7 @@ void USB_HID_Host___Start_Reporting(uint8_t port_Number, uint8_t device_Address,
 {
 	USB_HID_Host___HID_Interface_Node_TypeDef *p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
 
-	uint8_t polling_Interval = p_HID_Node->HID_Device.interrupt_In_Endpoint_Interval;
+	uint8_t polling_Interval = 255;//p_HID_Node->HID_Device.interrupt_In_Endpoint_Interval;
 
 	USB_Host_Device_Manager___Add_Interface_Polling_Process(p_HID_Node->HID_Device.port_Number, p_HID_Node->HID_Device.device_Address, USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(p_HID_Node->HID_Device.port_Number, p_HID_Node->HID_Device.device_Address), p_HID_Node->HID_Device.interface_Number, polling_Interval, (void*)p_HID_Node, USB_HID_Host___Polling_Callback);
 }

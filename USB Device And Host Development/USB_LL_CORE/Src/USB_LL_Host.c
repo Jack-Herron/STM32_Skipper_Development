@@ -304,13 +304,13 @@ void USB_LL_Host___Channel_In_Packet_Acknowledged(uint8_t port_Number, uint8_t c
 	uint16_t  packet_Size 				= USB_LL_Host___Channel_Get_Packet_Size(port_Number, channel_Number);
 	uint16_t  size_Transfered 			= USB_LL_Host___GET_MIN(packet_Size, (USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number)));
 
-	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress += size_Transfered;
+	//USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress += size_Transfered;
 
 	uint16_t  transfer_Size_Remaining 	= USB_LL_Host___Channel_Get_Transfer_Size(port_Number, channel_Number) - USB_LL_Host___Channel_Get_Transfer_Progress(port_Number, channel_Number);
 
 	if(transfer_Size_Remaining > 0)
 	{
-		USB_LL_Host___Channel_Begin_Transfer_In(port_Number, channel_Number);
+		//USB_LL_Host___Channel_Begin_Transfer_In(port_Number, channel_Number);
 	}
 }
 
@@ -388,6 +388,26 @@ uint8_t USB_LL_Host___Get_Channel_Status_Change_Flag(uint8_t port_Number, uint8_
 	return (USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete);
 }
 
+uint8_t USB_LL_Host___Channel_Is_Busy(uint8_t port_Number, uint8_t channel_Number)
+{
+	return(USB_LL_Host___Status[port_Number].channel_Status[channel_Number].busy);
+}
+
+void USB_LL_Host___Transfer_Complete(uint8_t port_Number, uint8_t channel_Number, uint8_t status)
+{
+	//printf("E%d\n", channel_Number);
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete 		= true;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag 	= true;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].exit_Status 			= status;
+}
+
+void USB_LL_Host___Channel_Receive_Overflow(uint8_t port_Number, uint8_t channel_Number)
+{
+	// currently working on this.
+	USB_LL_Host___Channel_Halt(port_Number, channel_Number);
+	USB_LL_Host___Transfer_Complete(port_Number, channel_Number, USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR);
+}
+
 void USB_LL_Host___Packet_Received(uint8_t port_Number)
 {
 	USB_OTG_GlobalTypeDef* 		USB 				= USB_LL___Get_USB(port_Number);
@@ -403,6 +423,14 @@ void USB_LL_Host___Packet_Received(uint8_t port_Number)
 
 	if(packet_Status == USB_LL_Host___RX_PACKET_STATUS_DATA_PACKET_RECIEVED)
 	{
+		if(byte_Count + USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress > USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Size)
+		{
+			byte_Count = 0;
+			USB_LL_Host___Channel_Receive_Overflow(port_Number, channel_Number);
+		}
+
+		USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress += byte_Count;
+
 		if(byte_Count > 0)
 		{
 
@@ -491,19 +519,6 @@ void USB_LL_Host___Port_Interrupt_Handler(uint8_t port_Number)
 			break;
 		}
 	}
-}
-
-uint8_t USB_LL_Host___Channel_Is_Busy(uint8_t port_Number, uint8_t channel_Number)
-{
-	return(USB_LL_Host___Status[port_Number].channel_Status[channel_Number].busy);
-}
-
-void USB_LL_Host___Transfer_Complete(uint8_t port_Number, uint8_t channel_Number, uint8_t status)
-{
-	//printf("E%d\n", channel_Number);
-	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete 		= true;
-	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag 	= true;
-	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].exit_Status 			= status;
 }
 
 uint8_t USB_LL_Host___Get_Transfer_Complete_Flag(uint8_t port_Number, uint8_t channel_Number)
@@ -679,6 +694,7 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
+			printf("FRMOR\n");
 			USB_LL_Host___Channel_Interrupt_Frame_Error(port_Number, channel_Number);
 
 			break;
