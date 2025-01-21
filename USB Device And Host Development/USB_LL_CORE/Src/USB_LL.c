@@ -303,7 +303,7 @@ void USB_LL___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_PXFR_INCOMPISOOUT_Pos:								// Incomplete periodic transfer
-			printf("This is bad\n");
+			//printf("This is bad\n");
 			USB -> GINTSTS = (USB_OTG_GINTSTS_PXFR_INCOMPISOOUT);
 			break;
 

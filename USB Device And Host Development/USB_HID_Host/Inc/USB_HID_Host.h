@@ -14,7 +14,7 @@
 #define USB_HID_Host___MAX_APPLICATIONS							0x08
 #define USB_HID_Host___STANDARD_NUMBER_OF_RETRIES				0xff
 #define USB_HID_Host___DYNAMICALLY_ALLOCATE_HID_DEVICES			false
-#define USB_HID_Host___NUMBER_OF_HID_INSTANCES					0x08
+#define USB_HID_Host___NUMBER_OF_HID_INSTANCES					0x10
 #define USB_HID_Host___HID_INTERFACE_CLASS						0x03
 #define USB_HID_Host___COMPOSITE_DEVICE_CLASS					0x00
 #define USB_HID_Host___HID_Descriptor_Base_Length				0x09

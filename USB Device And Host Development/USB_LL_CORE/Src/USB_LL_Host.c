@@ -143,12 +143,11 @@ void USB_LL_Host___Flush_RX_FIFO(uint8_t port_Number)
 	while(USB -> GRSTCTL & USB_OTG_GRSTCTL_RXFFLSH);
 }
 
-int8_t USB_LL_Host___Channel_RX_POP(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status)
+int8_t USB_LL_Host___Channel_RX_POP(uint8_t port_Number, uint8_t channel_Number, uint8_t* p_Buffer, uint32_t RX_Status)
 {
 	uint32_t 	USB_offset 				= USB_LL___Get_USB_BASE(port_Number);
 	uint32_t 	transfer_Size 			= USB_LL___GET_BIT_SEGMENT(RX_Status,USB_OTG_GRXSTSP_BCNT_Msk,USB_OTG_GRXSTSP_BCNT_Pos);
 	uint32_t* 	fifo 					= (uint32_t*)(USB_offset + USB_OTG_FIFO_BASE + (USB_OTG_FIFO_SIZE * channel_Number));
-	uint8_t* 	p_Buffer	  			= USB_LL_Host___Status[port_Number].channel_Status[channel_Number].p_Buffer + USB_LL_Host___Status[port_Number].channel_Status[channel_Number].buffer_Fill_Level;
 
 	if((USB_LL_Host___Status[port_Number].channel_Status[channel_Number].buffer_Fill_Level + transfer_Size) <= USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Size)
 	{
@@ -209,7 +208,10 @@ void USB_LL_Host___Setup_Channel
 			uint8_t endpoint_Type,
 			uint8_t multi_Count,
 			uint8_t device_Address,
-			uint8_t odd_Frame
+			uint8_t odd_Frame,
+			uint32_t transfer_Size,
+			uint32_t packet_Count,
+			uint8_t packet_ID
 			)
 {
 
@@ -223,6 +225,11 @@ void USB_LL_Host___Setup_Channel
 
 	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].retry_After_Halt = 0;
 
+	if(transfer_Size < max_Packet_Size)
+	{
+		max_Packet_Size = transfer_Size;
+	}
+
 	uint32_t channel_Characteristics =
 			(
 			max_Packet_Size 	<< USB_OTG_HCCHAR_MPSIZ_Pos |
@@ -233,6 +240,8 @@ void USB_LL_Host___Setup_Channel
 			multi_Count 		<< USB_OTG_HCCHAR_MC_Pos 	|
 			device_Address 		<< USB_OTG_HCCHAR_DAD_Pos
 			);
+
+	USB_Host_Channel -> HCTSIZ = (transfer_Size << USB_OTG_HCTSIZ_XFRSIZ_Pos | packet_Count << USB_OTG_HCTSIZ_PKTCNT_Pos | packet_ID << USB_OTG_HCTSIZ_DPID_Pos);
 	//printf("S%d\n", channel_Number);
 	USB_Host_Channel -> HCCHAR = channel_Characteristics;
 
@@ -268,6 +277,13 @@ void USB_LL_Host___Channel_Begin_Transfer_In(uint8_t port_Number, uint8_t channe
 
 	USB_Host_Channel -> HCCHAR &= ~(USB_OTG_HCCHAR_ODDFRM_Msk);
 	USB_Host_Channel -> HCCHAR |= !((USB_LL_Host___Host_Get_Frame_Number(port_Number) % 2)) << USB_OTG_HCCHAR_ODDFRM_Pos;
+
+	/*if((USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Size-USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress) < USB_LL_Host___Status[port_Number].channel_Status[channel_Number].packet_Size)
+	{
+		USB_Host_Channel -> HCCHAR &= ~USB_OTG_HCCHAR_MPSIZ_Msk;
+		USB_Host_Channel -> HCCHAR |= (USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Size-USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress) << USB_OTG_HCCHAR_MPSIZ_Pos;
+		//printf("adjusted %d to %ld\n", USB_LL_Host___Status[port_Number].channel_Status[channel_Number].packet_Size, USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Size-USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress);
+	}*/
 
 	USB_Host_Channel->HCCHAR |= USB_OTG_HCCHAR_CHENA;
 }
@@ -396,16 +412,27 @@ uint8_t USB_LL_Host___Channel_Is_Busy(uint8_t port_Number, uint8_t channel_Numbe
 void USB_LL_Host___Transfer_Complete(uint8_t port_Number, uint8_t channel_Number, uint8_t status)
 {
 	//printf("E%d\n", channel_Number);
-	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete 		= true;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete 			= true;
 	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Complete_Flag 	= true;
-	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].exit_Status 			= status;
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].exit_Status 				= status;
+}
+
+void USB_LL_Host___Channel_Clear_Request_Queue(uint8_t port_Number, uint8_t channel_Number)
+{
+	USB_OTG_HostChannelTypeDef* USB_Host_Channel 	= USB_LL___Get_USB_Host_Channel(port_Number, channel_Number);
+	USB_OTG_GlobalTypeDef* USB = USB_LL___Get_USB(port_Number);
+
+	//USB->GRSTCTL |= (USB_OTG_GRSTCTL_RXFFLSH);
+	//while(USB->GRSTCTL & USB_OTG_GRSTCTL_RXFFLSH);
 }
 
 void USB_LL_Host___Channel_Receive_Overflow(uint8_t port_Number, uint8_t channel_Number)
 {
-	// currently working on this.
-	USB_LL_Host___Channel_Halt(port_Number, channel_Number);
+	USB_LL_Host___Channel_Clear_Request_Queue(port_Number, channel_Number);
+	//USB_LL_Host___Channel_Halt(port_Number, channel_Number);
+	printf("OVERFLOW\n");
 	USB_LL_Host___Transfer_Complete(port_Number, channel_Number, USB_LL_Host___CHANNEL_STATUS_TRANSFER_FAILED_ERROR);
+	USB_LL_Host___Status[port_Number].channel_Status[channel_Number].busy = false;
 }
 
 void USB_LL_Host___Packet_Received(uint8_t port_Number)
@@ -421,11 +448,18 @@ void USB_LL_Host___Packet_Received(uint8_t port_Number)
 	uint8_t 					packet_Status 		= USB_LL___GET_BIT_SEGMENT(RX_Status, USB_OTG_GRXSTSP_PKTSTS_Msk, USB_OTG_GRXSTSP_PKTSTS_Pos);
 	uint8_t 					byte_Count			= USB_LL___GET_BIT_SEGMENT(RX_Status, USB_OTG_GRXSTSP_BCNT_Msk, USB_OTG_GRXSTSP_BCNT_Pos);
 
+	uint8_t* 					p_Channel_Buffer    = USB_LL_Host___Status[port_Number].channel_Status[channel_Number].p_Buffer + USB_LL_Host___Status[port_Number].channel_Status[channel_Number].buffer_Fill_Level;
+
 	if(packet_Status == USB_LL_Host___RX_PACKET_STATUS_DATA_PACKET_RECIEVED)
 	{
 		if(byte_Count + USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Progress > USB_LL_Host___Status[port_Number].channel_Status[channel_Number].transfer_Size)
 		{
+			uint8_t temp[byte_Count];
+
 			byte_Count = 0;
+
+			(void)USB_LL_Host___Channel_RX_POP(port_Number, channel_Number, temp, RX_Status);
+
 			USB_LL_Host___Channel_Receive_Overflow(port_Number, channel_Number);
 		}
 
@@ -433,8 +467,7 @@ void USB_LL_Host___Packet_Received(uint8_t port_Number)
 
 		if(byte_Count > 0)
 		{
-
-			(void)USB_LL_Host___Channel_RX_POP(port_Number, channel_Number, RX_Status);
+			(void)USB_LL_Host___Channel_RX_POP(port_Number, channel_Number, p_Channel_Buffer, RX_Status);
 
 			if(packets_Remaining > 0)
 			{
@@ -695,6 +728,13 @@ void USB_LL_Host___Channel_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_HCINT_FRMOR_Pos: 								// Frame Error received
 			USB_Host_Ch -> HCINT = USB_OTG_HCINT_FRMOR_Msk;
 			printf("FRMOR\n");
+			USB_LL_Host___Channel_Interrupt_Frame_Error(port_Number, channel_Number);
+
+			break;
+
+		case USB_OTG_HCINT_BBERR_Pos: 								// Frame Error received
+			USB_Host_Ch -> HCINT = USB_OTG_HCINT_BBERR_Msk;
+			printf("BBERR%d\n", channel_Number);
 			USB_LL_Host___Channel_Interrupt_Frame_Error(port_Number, channel_Number);
 
 			break;

@@ -14,7 +14,7 @@
 #define USB_Host_Config___MAX_DEVICE_CONNECTED_CALLBACKS				0x08
 
 #define USB_Host_Config___DYNAMICALLY_ALLOCATE_DEVICES 					false		// highly recommended to leave this option false
-#define USB_Host_Config___PORT_DEVICE_LIMIT								0x8
+#define USB_Host_Config___PORT_DEVICE_LIMIT								0x10
 
 #define USB_Host_Config___DYNAMICALLY_ALLOCATE_USB_REQUEST_BLOCKS		false		// highly recommended to leave this option false
 #define USB_Host_Config___MAX_USB_REQUEST_BLOCKS						0x40

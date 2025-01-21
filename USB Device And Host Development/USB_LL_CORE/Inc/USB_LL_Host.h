@@ -25,7 +25,7 @@
 #define USB_LL_Host___EXIT_SUCCESS								 (0x01)
 #define USB_LL_Host___EXIT_FAILURE_BUFFER_OVERFLOW				-(0x02)
 #define USB_LL_Host___PORT_INTERRUPTS_MASK						0x000a
-#define USB_LL_Host___CHANNEL_INTERRUPTS_MASK					0x06bb
+#define USB_LL_Host___CHANNEL_INTERRUPTS_MASK					0x07bb
 #define USB_LL_Host___CHANNEL_PACKET_ID_DATA_ZERO				0x00
 #define USB_LL_Host___CHANNEL_PACKET_ID_DATA_ONE				0x02
 #define USB_LL_Host___CHANNEL_PACKET_ID_DATA_TWO				0x01
@@ -67,8 +67,7 @@ void 		USB_LL_Host___Channel_Halt						(uint8_t port_Number, uint8_t channel_Num
 void 		USB_LL_Host___Channel_Halt_And_Wait				(uint8_t port_Number, uint8_t channel_Number);
 uint8_t 	USB_LL_Host___Channel_Get_Current_PID			(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Channel_Set_Interrupts			(uint8_t port_Number, uint8_t channel_Number);
-int8_t 		USB_LL_Host___Channel_RX_POP					(uint8_t port_Number, uint8_t channel_Number, uint32_t RX_Status);
-void 		USB_LL_Host___Setup_Channel						(uint8_t port_Number, uint8_t channel_Number, uint16_t max_Packet_Size, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t low_Speed_Device, uint8_t endpoint_Type, uint8_t multi_Count, uint8_t device_Address, uint8_t odd_Frame);
+void 		USB_LL_Host___Setup_Channel						(uint8_t port_Number, uint8_t channel_Number, uint16_t max_Packet_Size, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t low_Speed_Device, uint8_t endpoint_Type, uint8_t multi_Count, uint8_t device_Address, uint8_t odd_Frame, uint32_t transfer_Size, uint32_t packet_Count, uint8_t packet_ID);
 void 		USB_LL_Host___Channel_Load_HCTSIZ				(uint8_t port_Number, uint8_t channel_Number, uint32_t transfer_Size_In_Bytes, uint32_t packet_Count, uint8_t packet_ID);
 void 		USB_LL_Host___Channel_Enable					(uint8_t port_Number, uint8_t channel_Number);
 void 		USB_LL_Host___Reset_Port						(uint8_t port_Number);
