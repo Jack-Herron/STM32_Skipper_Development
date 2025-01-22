@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #define USB_HID_Host___MAX_APPLICATIONS							0x08
+#define USB_HID_Host___MAX_SUBSEQUENT_TRANSFER_ERRORS			0xff
 #define USB_HID_Host___STANDARD_NUMBER_OF_RETRIES				0xff
 #define USB_HID_Host___DYNAMICALLY_ALLOCATE_HID_DEVICES			false
 #define USB_HID_Host___NUMBER_OF_HID_INSTANCES					0x10
@@ -69,6 +70,7 @@ typedef struct
 	uint8_t							HID_Report_Descriptor_Buffer[USB_HID_Host___REPORT_DESCRIPTOR_BUFFER_SIZE];
 	uint8_t	                        HID_Report_Buffer[USB_HID_Host___REPORT_BUFFER_SIZE];
 	uint16_t 						HID_IN_Report_Size;
+	uint16_t 						subsequent_Transfer_Error_Count;
 	void 		(*set_Protocol_Callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
 	void 		(*report_Callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t* report_Buffer, uint16_t report_Length);
 } USB_HID_Host___HID_Interface_TypeDef;
@@ -98,5 +100,6 @@ void 	USB_HID_Host___Set_Report_Callback						(uint8_t port_Number, uint8_t devi
 uint8_t USB_HID_Host___Interface_Is_Boot_Mode_Supported			(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
 uint8_t USB_HID_Host___Interface_Get_Device_Type				(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
 void 	USB_HID_Host___Set_Protocol								(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t protocol, void callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number));
-void 	USB_HID_Host___Start_Reporting							(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
+void 	USB_HID_Host___Start_Reporting							(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, void callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t *report_Buffer, uint16_t report_Length));
+uint8_t USB_HID_Host___Register_Interface						(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
 #endif /* INC_USB_HID_HOST_H_ */

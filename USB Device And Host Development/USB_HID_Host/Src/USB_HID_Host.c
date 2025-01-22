@@ -182,9 +182,10 @@ uint8_t USB_HID_Host___Is_Device_HID_Device(uint8_t port_Number, uint8_t device_
 	return(num_HID_Interfaces);
 }
 
-void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
+void USB_HID_Host___Close_HID_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
-	USB_HID_Host___HID_Interface_Node_TypeDef* HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	USB_HID_Host___HID_Interface_Node_TypeDef *		p_HID_Node				= USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	uint8_t 										configuration_Number	= USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(port_Number, device_Address);
 
 	for (uint8_t i = 0; i < USB_HID_Host___MAX_APPLICATIONS; i++)
 	{
@@ -194,8 +195,13 @@ void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uin
 		}
 	}
 
+	USB_Host_Device_Manager___Remove_Interface_Polling_Process(port_Number, device_Address, configuration_Number ,interface_Number);
+	USB_HID_Host___Delete_HID_Node(port_Number, p_HID_Node);
+}
 
-	USB_HID_Host___Delete_HID_Node(port_Number, HID_Node);
+void USB_HID_Host___HID_Interface_Disconnected_Callback(uint8_t port_Number, uint8_t device_Address, uint8_t configuration_Number, uint8_t interface_Number)
+{
+	USB_HID_Host___Close_HID_Interface(port_Number, device_Address, interface_Number);
 }
 
 void USB_HID_Host___URB_Setup_Callback(USB_Host_Transfers___URB_CALLBACK_PARAMETERS);
@@ -297,14 +303,34 @@ void USB_HID_Host___Interrupt_URB_Callback(USB_Host_Transfers___URB_CALLBACK_PAR
 	{
 		if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_SUCCESS)
 		{
+			p_HID_Node->HID_Device.subsequent_Transfer_Error_Count = 0;
 
-			printf("Received report: ");
+			if (p_HID_Node->HID_Device.report_Callback != NULL)
+			{
+				p_HID_Node->HID_Device.report_Callback(URB.port_Number, URB.device_Address, p_HID_Node->HID_Device.interface_Number, URB.transfer_Buffer, URB.transfer_Length);
+			}
+
+			/*printf("Received report: ");
 			for(uint32_t i = 0; i < URB.transfer_Length; i++)
 			{
 				printf("%d ", (int8_t)URB.transfer_Buffer[i]);
 			}
-			printf("\n");
+			printf("\n");*/
 
+		}
+		else if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_NAK)
+		{
+			p_HID_Node->HID_Device.subsequent_Transfer_Error_Count = 0;
+		}
+		else if(URB.transfer_Status == USB_Host_Transfers___URB_STATUS_ERROR)
+		{
+			p_HID_Node->HID_Device.subsequent_Transfer_Error_Count++;
+			if (p_HID_Node->HID_Device.subsequent_Transfer_Error_Count > USB_HID_Host___MAX_SUBSEQUENT_TRANSFER_ERRORS)
+			{
+				printf("Too many subsequent transfer errors\n");
+
+				USB_HID_Host___Close_HID_Interface(p_HID_Node->HID_Device.port_Number, p_HID_Node->HID_Device.device_Address, p_HID_Node->HID_Device.interface_Number);
+			}
 		}
 	}
 }
@@ -316,13 +342,20 @@ void USB_HID_Host___Polling_Callback(uint8_t port_Number, void* context)
 	USB_Host_Transfers___Interrupt_Transfer(port_Number, p_HID_Node->HID_Device.device_Address, p_HID_Node->HID_Device.interrupt_In_Endpoint_Number, USB_Host_Transfers___URB_DIRECTION_IN, p_HID_Node->HID_Device.HID_Report_Buffer, p_HID_Node->HID_Device.HID_IN_Report_Size, 0, odd_Frame, 1, USB_HID_Host___Interrupt_URB_Callback);
 }
 
-void USB_HID_Host___Start_Reporting(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+void USB_HID_Host___Start_Reporting(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, void callback(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t* report_Buffer, uint16_t report_Length))
 {
 	USB_HID_Host___HID_Interface_Node_TypeDef *p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
 
-	uint8_t polling_Interval = 10;// p_HID_Node->HID_Device.interrupt_In_Endpoint_Interval;
+	uint8_t polling_Interval = p_HID_Node->HID_Device.interrupt_In_Endpoint_Interval;
+	p_HID_Node->HID_Device.report_Callback = callback;
 
 	USB_Host_Device_Manager___Add_Interface_Polling_Process(p_HID_Node->HID_Device.port_Number, p_HID_Node->HID_Device.device_Address, USB_Host_Device_Manager___Get_Device_Current_Configuration_Number(p_HID_Node->HID_Device.port_Number, p_HID_Node->HID_Device.device_Address), p_HID_Node->HID_Device.interface_Number, polling_Interval, (void*)p_HID_Node, USB_HID_Host___Polling_Callback);
+}
+
+uint8_t USB_HID_Host___Is_Interface_Registered(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+{
+	USB_HID_Host___HID_Interface_Node_TypeDef *p_HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+	return(p_HID_Node->HID_Device.HID_Descriptor.interface_Registered);
 }
 
 void USB_HID_Host___Do_Setup_Stage(USB_HID_Host___HID_Interface_Node_TypeDef* p_HID_Node)
@@ -351,6 +384,13 @@ void USB_HID_Host___Do_Setup_Stage(USB_HID_Host___HID_Interface_Node_TypeDef* p_
 					USB_HID_Host___Application_Callbacks[port_Number].HID_Interface_Connected_Callback[i](port_Number, device_Address, interface_Number);
 				}
 			}
+
+			if(USB_HID_Host___Is_Interface_Registered(port_Number, device_Address, interface_Number) == false)
+			{
+				printf("Device not registered so it was deleted\n");
+				USB_HID_Host___Close_HID_Interface(port_Number, device_Address, interface_Number);
+			}
+
 			break;
 		}
 	}
@@ -601,6 +641,7 @@ void USB_HID_Host___Setup_HID_Device(uint8_t port_Number, uint8_t device_Address
 uint8_t USB_HID_Host___Register_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
 	USB_HID_Host___HID_Interface_Node_TypeDef* HID_Node = USB_HID_Host___Get_HID_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+
 	if (HID_Node != NULL)
 	{
 		if (HID_Node->HID_Device.HID_Descriptor.interface_Registered == false)
@@ -610,6 +651,7 @@ uint8_t USB_HID_Host___Register_Interface(uint8_t port_Number, uint8_t device_Ad
 		}
 		return (EXIT_SUCCESS);
 	}
+
 	return (EXIT_FAILURE);
 }
 
