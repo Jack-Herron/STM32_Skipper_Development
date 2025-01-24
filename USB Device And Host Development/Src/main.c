@@ -49,15 +49,17 @@ int main(void) {
 	GPIO_init();					//initiate the GPIO to be used in this program.
 	USART___Init(1);
 	USART___Set_Baud_Rate(1, 2000000);
-	USB_Host___Init(0);
-	//USB_CDC_Device___Init(1);
-	USB_Mouse_Host___Init(0);
-	USB_Keyboard_Host___Init(0);
+
+	USB_CDC_Device___Init(1);
+
+	//USB_Host___Init(0);
+	//USB_Mouse_Host___Init(0);
+	//USB_Keyboard_Host___Init(0);
 
 	for(;;)
 	{
-		//Skipper_Clock___Delay_us(50);
-		USB_Host___Process(0);
+		//Skipper_Clock___Delay_ms(100);
+		//USB_Host___Process(0);
 	}
 }
 
