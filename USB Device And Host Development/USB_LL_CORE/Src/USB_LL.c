@@ -291,11 +291,11 @@ void USB_LL___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_IEPINT_Pos:										// IN End-point interrupt
-
+			USB_LL_Device___IN_Endpoint_Interrupt_Handler(port_Number);
 			break;
 
 		case USB_OTG_GINTSTS_OEPINT_Pos:										// OUT End-point interrupt
-
+			USB_LL_Device___OUT_Endpoint_Interrupt_Handler(port_Number);
 			break;
 
 		case USB_OTG_GINTSTS_IISOIXFR_Pos:										// Incomplete isochronous IN transfer Interrupt
