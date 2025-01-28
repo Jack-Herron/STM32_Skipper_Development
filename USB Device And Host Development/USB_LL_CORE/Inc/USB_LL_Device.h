@@ -37,4 +37,6 @@ void USB_LL_Device___Host_Enumerated(uint8_t port_Number);
 void USB_LL_Device___USB_Suspend(uint8_t port_Number);
 void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number);
 void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number);
+void USB_LL_Device___Init(uint8_t port_Number);
+
 #endif /* INC_USB_LL_DEVICE_H_ */

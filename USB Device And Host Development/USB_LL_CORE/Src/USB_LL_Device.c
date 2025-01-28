@@ -115,11 +115,68 @@ void USB_LL_Device___Host_Enumerated(uint8_t port_Number)
 
 void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 {
-	uint8_t endpoint_Number = POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT & 0xff);
+	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT & 0xff);
+	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
 
+	while(USB_Device_In_Endpoint->DIEPINT & UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK)
+	{
+		switch(POSITION_VAL((USB_Device_In_Endpoint->DIEPINT) & UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK))
+		{
+		case USB_OTG_DIEPINT_XFRC_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_XFRC;
+			break;
+		case USB_OTG_DIEPINT_EPDISD_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_EPDISD;
+			break;
+		case USB_OTG_DIEPINT_TOC_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_TOC;
+			break;
+		case USB_OTG_DIEPINT_ITTXFE_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_ITTXFE;
+			break;
+		case USB_OTG_DIEPINT_INEPNE_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_INEPNE;
+			break;
+		case USB_OTG_DIEPINT_TXFE_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_TXFE;
+			break;
+		case USB_OTG_DIEPINT_TXFIFOUDRN_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_TXFIFOUDRN;
+			break;
+		case USB_OTG_DIEPINT_NAK_Pos:
+			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_NAK;
+			break;
+		}
+	}
 }
 
 void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number)
 {
-	uint8_t endpoint_Number = POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT >> 16);
+	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT >> 16);
+	USB_OTG_OUTEndpointTypeDef*	USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
+
+	while(USB_Device_Out_Endpoint->DOEPINT & UBS_LL_Device___OUT_ENDPOINT_INTERRUPT_MASK)
+	{
+		switch(POSITION_VAL((USB_Device_Out_Endpoint->DOEPINT) & UBS_LL_Device___OUT_ENDPOINT_INTERRUPT_MASK))
+		{
+		case USB_OTG_DOEPINT_XFRC_Pos:
+			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_XFRC;
+			break;
+		case USB_OTG_DOEPINT_EPDISD_Pos:
+			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_EPDISD;
+			break;
+		case USB_OTG_DOEPINT_STUP_Pos:
+			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_STUP;
+			break;
+		case USB_OTG_DOEPINT_OTEPDIS_Pos:
+			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_OTEPDIS;
+			break;
+		case USB_OTG_DOEPINT_B2BSTUP_Pos:
+			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_B2BSTUP;
+			break;
+		case USB_OTG_DOEPINT_NAK_Pos:
+			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_NAK;
+			break;
+		}
+	}
 }
