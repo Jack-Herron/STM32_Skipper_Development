@@ -14,10 +14,13 @@
 #include <stdio.h>
 
 #include "../Inc/USB_Device.h"
+#include "../Inc/USB_Device_Descriptors.h"
 #include <USB_LL.h>
 #include <USB_LL_Device.h>
 
 void USB_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS);
+
+struct USB_Device___Control_Transfer USB_Device___Control_Transfer[USB_Device___NUM_PORTS][USB_Device___NUM_ENDPOINTS];
 
 void USB_Device___Init(uint8_t port_Number)
 {
@@ -29,8 +32,41 @@ void USB_Device___Init(uint8_t port_Number)
 	USB_LL___GPIO_Init(port_Number);
 	USB_LL___Init(port_Number, USB_LL___DEVICE_MODE);
 	USB_LL_Device___Init(port_Number);
+	USB_LL_Device___Setup_Endpoint(port_Number, 0, USB_LL_Device___ENDPOINT_DERECTION_OUT, USB_LL_Device___ENDPOINT_TYPE_CONTROL, 64);
+	USB_LL_Device___Setup_Endpoint(port_Number, 0, USB_LL_Device___ENDPOINT_DERECTION_IN, USB_LL_Device___ENDPOINT_TYPE_CONTROL, 64);
 	USB_LL_Device___Set_FIFO_Size(port_Number, FIFO_Config);
 	USB_LL_Device___Set_RX_Callback(port_Number, USB_Device___RX_Callback);
+}
+
+void USB_Device___Handle_Control_Transfer(uint8_t port_Number, uint8_t endpoint_Number)
+{
+	struct USB_Device___Control_Transfer control_Transfer = USB_Device___Control_Transfer[port_Number][endpoint_Number];
+
+	if (!(control_Transfer.Setup_Packet.bmRequestType & 0x80) && control_Transfer.Setup_Packet.wLength > 0)
+	{
+		if(control_Transfer.data == NULL)
+		{
+			USB_LL_Device___Endpoint_Clear_NAK(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_OUT);
+		}
+	}
+	else
+	{
+		if(control_Transfer.Setup_Packet.bRequest == USB_Device___bRequest_GET_DESCRIPTOR)
+		{
+			USB_Device_Descriptors___Entry_TypeDef* descriptor = USB_Device_Descriptors___Get_Descriptor(port_Number, control_Transfer.Setup_Packet.wValue >> 8, control_Transfer.Setup_Packet.wValue & 0xFF);
+
+			if (descriptor != NULL)
+			{
+				uint16_t length = USB_Device___GET_MIN(control_Transfer.Setup_Packet.wLength, descriptor->descriptor_Size));
+				USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, descriptor->descriptor, length);
+			}
+		}
+		else if(control_Transfer.Setup_Packet.bRequest == USB_Device___bRequest_SET_ADDRESS)
+		{
+			USB_LL_Device___Set_Address(port_Number, control_Transfer.Setup_Packet.wValue);
+			USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, NULL, 0);
+		}
+	}
 }
 
 void USB_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
@@ -45,6 +81,19 @@ void USB_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
 		}
 
 		printf("\n");
+
+		struct USB_Device___Setup_Packet setup_Packet;
+
+		for (uint8_t i = 0; i < USB_Device___SETUP_PACKET_SIZE && i < length; i++)
+		{
+			((uint8_t*) &setup_Packet)[i] = data[i];
+		}
+
+		USB_Device___Control_Transfer[port_Number][endpoint_Number].Setup_Packet = setup_Packet;
+		USB_Device___Control_Transfer[port_Number][endpoint_Number].data         = NULL;
+
+		USB_Device___Handle_Control_Transfer(port_Number, endpoint_Number);
+
 	}
 	else if (packet_Type == USB_LL_Device___PACKET_TYPE_DATA)
 	{
