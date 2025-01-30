@@ -25,21 +25,27 @@
 #define USB_Device___bRequest_SET_DESCRIPTOR		(0x07)
 #define USB_Device___bRequest_GET_CONFIGURATION		(0x08)
 #define USB_Device___bRequest_SET_CONFIGURATION		(0x09)
+#define USB_Device___bRequest_GET_INTERFACE			(0x0A)
+#define USB_Device___bRequest_SET_INTERFACE			(0x0B)
 
-struct __attribute__((packed)) USB_Device___Setup_Packet
+typedef struct __attribute__((packed)) USB_Device___Setup_Packet
 {
 	uint8_t 								bmRequestType;
 	uint8_t 								bRequest;
 	uint16_t 								wValue;
 	uint16_t 								wIndex;
 	uint16_t 								wLength;
-};
+} USB_Device___Setup_Packet_TypeDef;
 
-struct USB_Device___Control_Transfer
+#define USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS	uint8_t port_Number, uint8_t endpoint_Number, USB_Device___Setup_Packet_TypeDef setup_Packet, uint8_t* data, uint16_t data_Size
+
+typedef struct USB_Device___Control_Transfer
 {
 	struct USB_Device___Setup_Packet 		Setup_Packet;
 	uint8_t*								data;
-};
+	uint16_t								data_Size;
+	void (*callback)(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS);
+}USB_Device___Control_Transfer_TypeDef;
 
 struct USB_Device___Endpoint
 {
@@ -51,5 +57,5 @@ struct USB_Device___Endpoint
 };
 
 void USB_Device___Init(uint8_t port_Number);
-
+void USB_Device___Set_Control_Transfer_Callback(uint8_t port_Number, uint8_t endpoint_Number, void callback(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS));
 #endif /* CORE_INC_USB_DEVICE_H_ */

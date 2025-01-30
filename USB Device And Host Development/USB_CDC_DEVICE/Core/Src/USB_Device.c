@@ -18,9 +18,14 @@
 #include <USB_LL.h>
 #include <USB_LL_Device.h>
 
-void USB_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS);
+void USB_Device___EP0_RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS);
+void USB_Device___EP0_TX_Callback( USB_LL_Device___TX_CALLBACK_PARAMETERS);
+
+uint8_t test_Buffer[64];
 
 struct USB_Device___Control_Transfer USB_Device___Control_Transfer[USB_Device___NUM_PORTS][USB_Device___NUM_ENDPOINTS];
+
+
 
 void USB_Device___Init(uint8_t port_Number)
 {
@@ -31,23 +36,28 @@ void USB_Device___Init(uint8_t port_Number)
 
 	USB_LL___GPIO_Init(port_Number);
 	USB_LL___Init(port_Number, USB_LL___DEVICE_MODE);
+	USB_LL_Device___Set_FIFO_Size(port_Number, FIFO_Config);
+
 	USB_LL_Device___Init(port_Number);
 	USB_LL_Device___Setup_Endpoint(port_Number, 0, USB_LL_Device___ENDPOINT_DERECTION_OUT, USB_LL_Device___ENDPOINT_TYPE_CONTROL, 64);
 	USB_LL_Device___Setup_Endpoint(port_Number, 0, USB_LL_Device___ENDPOINT_DERECTION_IN, USB_LL_Device___ENDPOINT_TYPE_CONTROL, 64);
-	USB_LL_Device___Set_FIFO_Size(port_Number, FIFO_Config);
-	USB_LL_Device___Set_RX_Callback(port_Number, USB_Device___RX_Callback);
+	USB_LL_Device___Endpoint_Transfer_Out(port_Number, 0, 0, test_Buffer, 64);
+	USB_LL_Device___Set_RX_Callback(port_Number, 0, USB_Device___EP0_RX_Callback);
+	USB_LL_Device___Set_TX_Callback(port_Number, 0, USB_Device___EP0_TX_Callback);
+}
+
+void USB_Device___Set_Control_Transfer_Callback(uint8_t port_Number, uint8_t endpoint_Number, void callback(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS))
+{
+	USB_Device___Control_Transfer[port_Number][endpoint_Number].callback = callback;
 }
 
 void USB_Device___Handle_Control_Transfer(uint8_t port_Number, uint8_t endpoint_Number)
 {
 	struct USB_Device___Control_Transfer control_Transfer = USB_Device___Control_Transfer[port_Number][endpoint_Number];
 
-	if (!(control_Transfer.Setup_Packet.bmRequestType & 0x80) && control_Transfer.Setup_Packet.wLength > 0)
+	if (!(control_Transfer.Setup_Packet.bmRequestType & 0x80) && control_Transfer.Setup_Packet.wLength > 0 && control_Transfer.data == NULL)
 	{
-		if(control_Transfer.data == NULL)
-		{
-			USB_LL_Device___Endpoint_Clear_NAK(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_OUT);
-		}
+		USB_LL_Device___Endpoint_Transfer_Out(port_Number, 0, 0, test_Buffer, 64);
 	}
 	else
 	{
@@ -66,10 +76,32 @@ void USB_Device___Handle_Control_Transfer(uint8_t port_Number, uint8_t endpoint_
 			USB_LL_Device___Set_Address(port_Number, control_Transfer.Setup_Packet.wValue);
 			USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, NULL, 0);
 		}
+		else if(control_Transfer.Setup_Packet.bRequest == USB_Device___bRequest_GET_STATUS)
+		{
+			uint8_t status[] = {0,0};
+			USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, status, 2);
+		}
+		else if(control_Transfer.Setup_Packet.bRequest == USB_Device___bRequest_SET_CONFIGURATION)
+		{
+			USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, NULL, 0);
+		}
+		else if(control_Transfer.Setup_Packet.bRequest == USB_Device___bRequest_SET_INTERFACE)
+		{
+			USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, NULL, 0);
+		}
+		else if(control_Transfer.callback != NULL)
+		{
+			control_Transfer.callback(port_Number, endpoint_Number, control_Transfer.Setup_Packet, control_Transfer.data, control_Transfer.data_Size);
+		}
 	}
 }
 
-void USB_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
+void USB_Device___EP0_TX_Callback( USB_LL_Device___TX_CALLBACK_PARAMETERS)
+{
+	USB_LL_Device___Endpoint_Transfer_Out(port_Number, 0, 0, test_Buffer, 64);
+}
+
+void USB_Device___EP0_RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
 {
 	if (packet_Type == USB_LL_Device___PACKET_TYPE_SETUP)
 	{
@@ -103,7 +135,13 @@ void USB_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
 		{
 			printf("%2.2x ", data[i]);
 		}
-
 		printf("\n");
+
+		if(length > 0)
+		{
+			USB_Device___Control_Transfer[port_Number][endpoint_Number].data = data;
+			USB_Device___Control_Transfer[port_Number][endpoint_Number].data_Size = length;
+			USB_Device___Handle_Control_Transfer(port_Number, endpoint_Number);
+		}
 	}
 }

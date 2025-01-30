@@ -15,8 +15,6 @@
 #include <USB_Device.h>
 #include <USB_Device_Descriptors.h>
 
-void USB_CDC_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS);
-
 static uint16_t language_String_Descriptor[] 				= 	{0x0409};
 static uint16_t manufacturer_String_Descriptor[] 			= 	{'V', 'I', 'K', 'I' , 'N', 'G', ' ', 'L', 'A', 'B', 'S'};
 static uint16_t product_String_Descriptor[] 				= 	{'S', 'K' ,'I', 'P', 'P' , 'E', 'R'};
@@ -115,7 +113,10 @@ static uint8_t USB_CDC_Device___Configuration_Descriptor[] =
 	0x00							// Endpoint.bInterval
 };
 
-
+void USB_CDC_Device___Control_Transfer_Callback(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS)
+{
+	uint8_t i = 0;
+}
 
 void USB_CDC_Device___Init(uint8_t port_Number)
 {
@@ -125,6 +126,8 @@ void USB_CDC_Device___Init(uint8_t port_Number)
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		1, (uint8_t*)manufacturer_String_Descriptor, 	sizeof(manufacturer_String_Descriptor));
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		2, (uint8_t*)product_String_Descriptor, 		sizeof(product_String_Descriptor));
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		3, (uint8_t*)serial_Number_String_Descriptor, 	sizeof(serial_Number_String_Descriptor));
+
+	USB_Device___Set_Control_Transfer_Callback(port_Number, 0, USB_CDC_Device___Control_Transfer_Callback);
 
 	USB_Device___Init(port_Number);
 }

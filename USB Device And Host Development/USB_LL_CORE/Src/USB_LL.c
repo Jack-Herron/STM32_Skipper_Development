@@ -162,8 +162,6 @@ void USB_LL___Init(uint8_t port_Number, uint8_t port_Mode)
 	{
 		USB_OTG_DeviceTypeDef* USB_Device = USB_LL___Get_USB_Device(port_Number);
 
-		USB_Device 	-> 		DIEPMSK		= 	USB_LL___IN_ENDPOINT_INTERRUPTS_MASK;
-		USB_Device 	-> 		DOEPMSK 	= 	USB_LL___OUT_ENDPOINT_INTERRUPTS_MASK;
 		USB 	   	-> 		GUSBCFG		|= 	USB_OTG_GUSBCFG_FDMOD;
 		USB 		-> 		GCCFG 		|= 	USB_OTG_GCCFG_NOVBUSSENS;
 

@@ -16,7 +16,8 @@
 #include "../../USB_LL_CORE/Inc/USB_LL_Definitions.h"
 #include "../../USB_LL_CORE/Inc/USB_LL.h"
 
-void (*RX_Callback[USB_LL_Definitions___NUMBER_OF_PORTS])(USB_LL_Device___RX_CALLBACK_PARAMETERS);
+struct USB_LL_Device___RX_Endpoint USB_LL_Device___RX_Endpoint[USB_LL_Device___PORT_COUNT][USB_LL_Device___ENDPOINT_COUNT];
+struct USB_LL_Device___TX_Endpoint USB_LL_Device___TX_Endpoint[USB_LL_Device___PORT_COUNT][USB_LL_Device___ENDPOINT_COUNT];
 
 void USB_LL_Device___Init(uint8_t port_Number)
 {
@@ -61,21 +62,33 @@ void USB_LL_Device___Set_FIFO_Size(uint8_t port_Number, USB_LL_Device___FIFO_Con
 	}
 }
 
-void USB_LL_Device___Receive_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint8_t packet_Type, uint32_t packet_Size)
+void USB_LL_Device___Handle_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint8_t packet_Type, uint32_t packet_Size)
 {
-	uint8_t 	temp[packet_Size];
-	uint32_t 	USB_offset 				= USB_LL___Get_USB_BASE(port_Number);
-	USB_LL___FIFO_Transfer_Out((uint32_t*)(USB_offset + USB_OTG_FIFO_BASE),temp,packet_Size);
+	uint8_t* 	RX_Buffer 		= USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer;
+	uint32_t 	RX_Buffer_Size 	= USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Size;
+	uint32_t 	USB_offset 		= USB_LL___Get_USB_BASE(port_Number);
 
-	if (RX_Callback[port_Number] != NULL)
+	if (packet_Size > RX_Buffer_Size)
 	{
-		RX_Callback[port_Number](port_Number, endpoint_Number, packet_Type, temp, packet_Size);
+		RX_Buffer = NULL;
+		USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level = 0;
 	}
+	else
+	{
+		USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level = packet_Size;
+	}
+
+	USB_LL___FIFO_Transfer_Out((uint32_t*)(USB_offset + USB_OTG_FIFO_BASE), RX_Buffer, packet_Size);
 }
 
-void USB_LL_Device___Set_RX_Callback(uint8_t port_Number, void (*callback)(USB_LL_Device___RX_CALLBACK_PARAMETERS))
+void USB_LL_Device___Set_RX_Callback(uint8_t port_Number, uint8_t endpoint, void (*callback)(USB_LL_Device___RX_CALLBACK_PARAMETERS))
 {
-	RX_Callback[port_Number] = callback;
+	USB_LL_Device___RX_Endpoint[port_Number][endpoint].RX_Callback = callback;
+}
+
+void USB_LL_Device___Set_TX_Callback(uint8_t port_Number, uint8_t endpoint, void (*callback)( USB_LL_Device___TX_CALLBACK_PARAMETERS))
+{
+	USB_LL_Device___TX_Endpoint[port_Number][endpoint].TX_Callback = callback;
 }
 
 void USB_LL_Device___Packet_Received(uint8_t port_Number)
@@ -91,19 +104,16 @@ void USB_LL_Device___Packet_Received(uint8_t port_Number)
 	{
 		if(byte_Count > 0)
 		{
-			USB_LL_Device___Receive_Packet(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_SETUP, byte_Count);
+			USB_LL_Device___Handle_Packet(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_SETUP, byte_Count);
 		}
 	}
 	else if(packet_Status == USB_LL_Device___RX_PACKET_STATUS_DATA_PACKET_RECIEVED)
 	{
 		if(byte_Count > 0)
 		{
-			USB_LL_Device___Receive_Packet(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_DATA, byte_Count);
+			USB_LL_Device___Handle_Packet(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_DATA, byte_Count);
 		}
 	}
-
-	//USB_OTG_OUTEndpointTypeDef* USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
-	//USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA;
 }
 
 void USB_LL_Device___Set_Address(uint8_t port_Number, uint16_t address)
@@ -201,6 +211,11 @@ void USB_LL_Device___Setup_Endpoint(uint8_t port_Number, uint8_t endpoint_Number
 		USB_OTG_DeviceTypeDef *USB_Device = USB_LL___Get_USB_Device(port_Number);
 		USB_OTG_OUTEndpointTypeDef *USB_Device_Out = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
 
+		if (endpoint_Type == USB_LL_Device___ENDPOINT_TYPE_CONTROL)
+		{
+			USB_Device_Out->DOEPTSIZ = (3 << USB_OTG_DOEPTSIZ_STUPCNT_Pos) | (max_Packet_Size << USB_OTG_DOEPTSIZ_XFRSIZ_Pos);
+		}
+
 		USB_Device_Out->DOEPCTL = (max_Packet_Size << USB_OTG_DOEPCTL_MPSIZ_Pos) | (endpoint_Type << USB_OTG_DOEPCTL_EPTYP_Pos);
 		USB_Device->DAINTMSK |= (1 << endpoint_Number);
 	}
@@ -256,7 +271,7 @@ void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_
 	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
 	uint32_t* 					FIFO_Pointer 			= USB_LL_Device___Endpoint_Get_TX_FIFO_Pointer(port_Number, endpoint_Number);
 	uint16_t 					max_Packet_Size 		= USB_LL_Device___Endpoint_Get_Max_Packet_Size(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_IN);
-	uint16_t 					packet_Count 			= (length + max_Packet_Size - 1) / max_Packet_Size;
+	uint16_t 					packet_Count 			= (length > 0) ? ((length + max_Packet_Size - 1) / max_Packet_Size) : 1;
 
 	printf("sending %d bytes\n", length);
 
@@ -279,6 +294,20 @@ void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_
 	}
 }
 
+void USB_LL_Device___Endpoint_Transfer_Out(uint8_t port_Number, uint8_t endpoint_Number, uint32_t transfer_Size, uint8_t* buffer, uint32_t buffer_Size)
+{
+	USB_OTG_OUTEndpointTypeDef *USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
+	uint16_t max_Packet_Size = USB_LL_Device___Endpoint_Get_Max_Packet_Size(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_OUT);
+	uint16_t packet_Count = (transfer_Size + max_Packet_Size - 1) / max_Packet_Size;
+
+	USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer 			= buffer;
+	USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Size		= buffer_Size;
+	USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level 	= 0;
+
+	USB_Device_Out_Endpoint->DOEPTSIZ = (transfer_Size << USB_OTG_DOEPTSIZ_XFRSIZ_Pos) | (packet_Count << USB_OTG_DOEPTSIZ_PKTCNT_Pos) | (3 << USB_OTG_DOEPTSIZ_STUPCNT_Pos);
+	USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_EPENA | USB_OTG_DOEPCTL_CNAK;
+}
+
 void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 {
 	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT & 0xff);
@@ -291,8 +320,12 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_DIEPINT_XFRC_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_XFRC;
 			printf("USB in endpoint transfer complete\n");
-			USB_OTG_OUTEndpointTypeDef*	USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
-			USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_CNAK | USB_OTG_DOEPCTL_EPENA;
+
+			if (USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Callback != NULL)
+			{
+				USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Callback(port_Number, endpoint_Number);
+			}
+
 			break;
 		case USB_OTG_DIEPINT_EPDISD_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_EPDISD;
@@ -332,15 +365,29 @@ void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number)
 		case USB_OTG_DOEPINT_XFRC_Pos:
 			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_XFRC;
 			printf("USB out endpoint transfer complete\n");
+
+			if (USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback != NULL)
+			{
+				USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_DATA, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level);
+			}
+
 			break;
 		case USB_OTG_DOEPINT_EPDISD_Pos:
 			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_EPDISD;
 			break;
 		case USB_OTG_DOEPINT_STUP_Pos:
 			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_STUP;
+			printf("USB out endpoint STUP\n");
+
+			if (USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback != NULL)
+			{
+				USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_SETUP, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level);
+			}
+
 			break;
 		case USB_OTG_DOEPINT_OTEPDIS_Pos:
 			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_OTEPDIS;
+			printf("USB out endpoint OTEPDIS\n");
 			break;
 		case USB_OTG_DOEPINT_B2BSTUP_Pos:
 			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_B2BSTUP;

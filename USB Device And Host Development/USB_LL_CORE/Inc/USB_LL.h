@@ -10,8 +10,6 @@
 
 #define USB_LL___WORD_32_MSB								0x1f
 #define USB_LL___GLOBAL_INTERRUPTS_MASK						0xa33c7c98
-#define USB_LL___IN_ENDPOINT_INTERRUPTS_MASK				0x000b
-#define USB_LL___OUT_ENDPOINT_INTERRUPTS_MASK				0x000b
 
 #define USB_LL___QUICK_DIV_ROOF(number, diviser) 			((number + (diviser-1)) / diviser)
 #define USB_LL___GET_BIT_SEGMENT(word, mask, pos)			((word & mask) >> pos)
