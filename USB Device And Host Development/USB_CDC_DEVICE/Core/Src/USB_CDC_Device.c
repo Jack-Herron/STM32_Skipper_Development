@@ -15,6 +15,8 @@
 #include <USB_Device.h>
 #include <USB_Device_Descriptors.h>
 
+USB_CDC_Device___CDC_Device_TypeDef USB_CDC_Device___CDC_Device[USB_Device___NUM_PORTS];
+
 static uint16_t language_String_Descriptor[] 				= 	{0x0409};
 static uint16_t manufacturer_String_Descriptor[] 			= 	{'V', 'I', 'K', 'I' , 'N', 'G', ' ', 'L', 'A', 'B', 'S'};
 static uint16_t product_String_Descriptor[] 				= 	{'S', 'K' ,'I', 'P', 'P' , 'E', 'R'};
@@ -113,21 +115,67 @@ static uint8_t USB_CDC_Device___Configuration_Descriptor[] =
 	0x00							// Endpoint.bInterval
 };
 
-void USB_CDC_Device___Control_Transfer_Callback(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS)
+uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Get_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Set_Control_Line_State_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Set_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+
+USB_Device___Control_Solution_TypeDef USB_Device___Control_Solution_List[] =
 {
-	uint8_t i = 0;
+	{ { 0x80, 0x06, 0x0100, 0x0000, 0x0000 }, 0b11100, USB_CDC_Device___Device_Descriptor, 				sizeof(USB_CDC_Device___Device_Descriptor), 		NULL },														// Get Device Descriptor
+	{ { 0x80, 0x06, 0x0200, 0x0000, 0x0000 }, 0b11100, USB_CDC_Device___Configuration_Descriptor, 		sizeof(USB_CDC_Device___Configuration_Descriptor),	NULL }, 													// Get Configuration 1 Descriptor
+	{ { 0x80, 0x06, 0x0300, 0x0000, 0x0000 }, 0b11100, (uint8_t*)language_String_Descriptor, 			sizeof(language_String_Descriptor), 				NULL }, 													// Get language string Descriptor
+	{ { 0x80, 0x06, 0x0301, 0x0000, 0x0000 }, 0b11100, (uint8_t*)manufacturer_String_Descriptor, 		sizeof(manufacturer_String_Descriptor), 			NULL }, 													// Get manufacturer string Descriptor
+	{ { 0x80, 0x06, 0x0302, 0x0000, 0x0000 }, 0b11100, (uint8_t*)product_String_Descriptor, 			sizeof(product_String_Descriptor), 					NULL }, 													// Get product string Descriptor
+	{ { 0x80, 0x06, 0x0303, 0x0000, 0x0000 }, 0b11100, (uint8_t*)serial_Number_String_Descriptor, 		sizeof(serial_Number_String_Descriptor), 			NULL }, 													// Get serial number string Descriptor
+	{ { 0x00, 0x05, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL,		 									0, 													USB_Device___Set_Address_Solution_Callback}, 				// Get Configuration 1 Descriptor
+	{ { 0x00, 0x09, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL,		 									0, 													USB_CDC_Device___Set_Configuration_Solution_Callback}, 		// set Configuration
+	{ { 0xa1, 0x21, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Get_Line_Coding_Solution_Callback}, 		// get Line Coding
+	{ { 0x21, 0x22, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Set_Control_Line_State_Solution_Callback}, // set control line state
+	{ { 0x21, 0x20, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Set_Line_Coding_Solution_Callback} 		// set line coding
+};
+
+
+uint8_t USB_CDC_Device___Set_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
+{
+	for (uint8_t i = 0; i < 7; i++)
+	{
+		USB_CDC_Device___CDC_Device[port_Number].line_Coding[i] = data[i];
+	}
+
+	return(1);
+}
+
+uint8_t USB_CDC_Device___Set_Control_Line_State_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
+{
+	USB_CDC_Device___CDC_Device[port_Number].control_Line_State = setup_Packet.wValue;
+	return(1);
+}
+
+uint8_t USB_CDC_Device___Get_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
+{
+	solution->buffer 		= USB_CDC_Device___CDC_Device[port_Number].line_Coding;
+	solution->buffer_Size 	= sizeof(USB_CDC_Device___CDC_Device[port_Number].line_Coding);
+	return(1);
+}
+
+uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
+{
+
+	return(1);
 }
 
 void USB_CDC_Device___Init(uint8_t port_Number)
 {
-	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_DEVICE, 		0, USB_CDC_Device___Device_Descriptor, 			sizeof(USB_CDC_Device___Device_Descriptor));
+	/*
+	WUSB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_DEVICE, 		0, USB_CDC_Device___Device_Descriptor, 			sizeof(USB_CDC_Device___Device_Descriptor));
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_CONFIGURATION, 0, USB_CDC_Device___Configuration_Descriptor, 	sizeof(USB_CDC_Device___Configuration_Descriptor));
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		0, (uint8_t*)language_String_Descriptor, 		sizeof(language_String_Descriptor));
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		1, (uint8_t*)manufacturer_String_Descriptor, 	sizeof(manufacturer_String_Descriptor));
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		2, (uint8_t*)product_String_Descriptor, 		sizeof(product_String_Descriptor));
 	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		3, (uint8_t*)serial_Number_String_Descriptor, 	sizeof(serial_Number_String_Descriptor));
+	 */
 
-	USB_Device___Set_Control_Transfer_Callback(port_Number, 0, USB_CDC_Device___Control_Transfer_Callback);
-
+	USB_Device___Set_Conrol_Solutions(port_Number, 0, USB_Device___Control_Solution_List, sizeof(USB_Device___Control_Solution_List) / sizeof(USB_Device___Control_Solution_List[0]));
 	USB_Device___Init(port_Number);
 }

@@ -147,6 +147,20 @@ void USB_LL_Device___Endpoint_Set_NAK(uint8_t port_Number, uint8_t endpoint_Numb
 	}
 }
 
+void USB_LL_Device___Endpoint_Set_Stall(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction)
+{
+	if (endpoint_Direction == USB_LL_Device___ENDPOINT_DERECTION_OUT)
+	{
+		USB_OTG_OUTEndpointTypeDef* USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
+		USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_STALL;
+	}
+	else
+	{
+		USB_OTG_INEndpointTypeDef* USB_Device_In_Endpoint = USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
+		USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_STALL;
+	}
+}
+
 void USB_LL_Device___Endpoint_Clear_NAK(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction)
 {
 	if (endpoint_Direction == USB_LL_Device___ENDPOINT_DERECTION_OUT)

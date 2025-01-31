@@ -27,6 +27,11 @@
 #define USB_Device___bRequest_SET_CONFIGURATION		(0x09)
 #define USB_Device___bRequest_GET_INTERFACE			(0x0A)
 #define USB_Device___bRequest_SET_INTERFACE			(0x0B)
+#define USB_Device___NO_KEY		                    (0xffff)
+
+#define USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS	uint8_t port_Number, uint8_t endpoint_Number, USB_Device___Setup_Packet_TypeDef setup_Packet, uint8_t* data, uint16_t data_Size
+#define USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS   uint8_t port_Number, uint8_t endpoint_Number, struct USB_Device___Control_Solution* solution, USB_Device___Setup_Packet_TypeDef setup_Packet, uint8_t* data, uint16_t data_Size
+
 
 typedef struct __attribute__((packed)) USB_Device___Setup_Packet
 {
@@ -36,8 +41,6 @@ typedef struct __attribute__((packed)) USB_Device___Setup_Packet
 	uint16_t 								wIndex;
 	uint16_t 								wLength;
 } USB_Device___Setup_Packet_TypeDef;
-
-#define USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS	uint8_t port_Number, uint8_t endpoint_Number, USB_Device___Setup_Packet_TypeDef setup_Packet, uint8_t* data, uint16_t data_Size
 
 typedef struct USB_Device___Control_Transfer
 {
@@ -56,6 +59,17 @@ struct USB_Device___Endpoint
 	uint8_t 								Interval;
 };
 
+typedef struct USB_Device___Control_Solution
+{
+	struct USB_Device___Setup_Packet 		Setup_Packet_Key;
+	uint8_t 								is_Key;
+	uint8_t* 								buffer;
+	uint16_t 								buffer_Size;
+	uint8_t (*callback)(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+} USB_Device___Control_Solution_TypeDef;
+
 void USB_Device___Init(uint8_t port_Number);
 void USB_Device___Set_Control_Transfer_Callback(uint8_t port_Number, uint8_t endpoint_Number, void callback(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS));
+void USB_Device___Set_Conrol_Solutions(uint8_t port_Number, uint8_t endpoint_Number, struct USB_Device___Control_Solution *control_Solution, uint8_t num_Solutions);
+uint8_t USB_Device___Set_Address_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
 #endif /* CORE_INC_USB_DEVICE_H_ */
