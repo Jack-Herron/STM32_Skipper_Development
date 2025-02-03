@@ -58,7 +58,12 @@ int main(void) {
 
 	for(;;)
 	{
-		//Skipper_Clock___Delay_ms(100);
+		Skipper_Clock___Delay_ms(10);
+
+		if(USB_CDC_Device___Is_Enabled(1))
+		{
+			USB_CDC_Device___Send_Data(1, "test\n", 5);
+		}
 		//USB_Host___Process(0);
 	}
 }

@@ -119,6 +119,7 @@ uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTRO
 uint8_t USB_CDC_Device___Get_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
 uint8_t USB_CDC_Device___Set_Control_Line_State_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
 uint8_t USB_CDC_Device___Set_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Clear_Stall_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
 
 USB_Device___Control_Solution_TypeDef USB_Device___Control_Solution_List[] =
 {
@@ -132,9 +133,15 @@ USB_Device___Control_Solution_TypeDef USB_Device___Control_Solution_List[] =
 	{ { 0x00, 0x09, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL,		 									0, 													USB_CDC_Device___Set_Configuration_Solution_Callback}, 		// set Configuration
 	{ { 0xa1, 0x21, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Get_Line_Coding_Solution_Callback}, 		// get Line Coding
 	{ { 0x21, 0x22, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Set_Control_Line_State_Solution_Callback}, // set control line state
-	{ { 0x21, 0x20, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Set_Line_Coding_Solution_Callback} 		// set line coding
+	{ { 0x21, 0x20, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Set_Line_Coding_Solution_Callback}, 		// set line coding
+	{ { 0x02, 0x01, 0x0000, 0x0000, 0x0000 }, 0b11000, NULL, 											0, 													USB_CDC_Device___Clear_Stall_Solution_Callback} 		// set line coding
 };
 
+uint8_t USB_CDC_Device___Clear_Stall_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
+{
+	//USB_Device___Clear_Stall(port_Number, endpoint_Number, endpoint_Direction);
+	return (1);
+}
 
 uint8_t USB_CDC_Device___Set_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
 {
@@ -159,23 +166,44 @@ uint8_t USB_CDC_Device___Get_Line_Coding_Solution_Callback(USB_Device___CONTROL_
 	return(1);
 }
 
+void USB_CDC_Device___Send_Data(uint8_t port_Number, char *data, uint16_t length)
+{
+	USB_Device___Transfer_In(port_Number, 1, data, length);
+}
+
+uint8_t USB_CDC_Device___Is_Enabled(uint8_t port_Number)
+{
+	return (USB_CDC_Device___CDC_Device[port_Number].is_Enabled);
+}
+
 uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
 {
+	if (setup_Packet.wValue == 1)
+	{
+		USB_CDC_Device___CDC_Device[port_Number].current_Configuration = 1;
+		USB_Device___Initialize_Endpoint(port_Number, 2, USB_Device___ENDPOINT_DERECTION_IN, 	USB_Device___ENDPOINT_TYPE_INTERRUPT, 	0x08);
+		USB_Device___Initialize_Endpoint(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN, 	USB_Device___ENDPOINT_TYPE_BULK, 		0x40);
+		USB_Device___Initialize_Endpoint(port_Number, 1, USB_Device___ENDPOINT_DERECTION_OUT, 	USB_Device___ENDPOINT_TYPE_BULK, 		0x40);
+
+		USB_Device___Set_Nak(port_Number, 2, USB_Device___ENDPOINT_DERECTION_IN);
+		USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
+		USB_CDC_Device___CDC_Device[port_Number].is_Enabled = 1;
+	}
+	else
+	{
+		USB_CDC_Device___CDC_Device[port_Number].current_Configuration = 0;
+	}
 
 	return(1);
 }
 
 void USB_CDC_Device___Init(uint8_t port_Number)
 {
-	/*
-	WUSB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_DEVICE, 		0, USB_CDC_Device___Device_Descriptor, 			sizeof(USB_CDC_Device___Device_Descriptor));
-	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_CONFIGURATION, 0, USB_CDC_Device___Configuration_Descriptor, 	sizeof(USB_CDC_Device___Configuration_Descriptor));
-	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		0, (uint8_t*)language_String_Descriptor, 		sizeof(language_String_Descriptor));
-	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		1, (uint8_t*)manufacturer_String_Descriptor, 	sizeof(manufacturer_String_Descriptor));
-	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		2, (uint8_t*)product_String_Descriptor, 		sizeof(product_String_Descriptor));
-	USB_Device_Descriptors___Add_Entry(port_Number, USB_Device_Descriptors___DESCRIPTOR_TYPE_STRING, 		3, (uint8_t*)serial_Number_String_Descriptor, 	sizeof(serial_Number_String_Descriptor));
-	 */
-
 	USB_Device___Set_Conrol_Solutions(port_Number, 0, USB_Device___Control_Solution_List, sizeof(USB_Device___Control_Solution_List) / sizeof(USB_Device___Control_Solution_List[0]));
 	USB_Device___Init(port_Number);
+	USB_CDC_Device___CDC_Device[port_Number].current_Configuration 	= 0;
+	USB_CDC_Device___CDC_Device[port_Number].control_Line_State 	= 0;
+	USB_CDC_Device___CDC_Device[port_Number].line_Coding[0] 		= 0x00;
+	USB_CDC_Device___CDC_Device[port_Number].line_Coding[1] 		= 0x00;
+	USB_CDC_Device___CDC_Device[port_Number].is_Enabled 			= 0;
 }
