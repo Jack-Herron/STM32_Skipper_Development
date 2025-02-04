@@ -230,14 +230,14 @@ void USB_LL_Device___Setup_Endpoint(uint8_t port_Number, uint8_t endpoint_Number
 			USB_Device_Out->DOEPTSIZ = (3 << USB_OTG_DOEPTSIZ_STUPCNT_Pos) | (max_Packet_Size << USB_OTG_DOEPTSIZ_XFRSIZ_Pos);
 		}
 
-		USB_Device_Out->DOEPCTL = ((max_Packet_Size << USB_OTG_DOEPCTL_MPSIZ_Pos) | (endpoint_Type << USB_OTG_DOEPCTL_EPTYP_Pos) | (endpoint_Number >> USB_OTG_DOEPCTL_) | USB_OTG_DOEPCTL_USBAEP);
+		USB_Device_Out->DOEPCTL = ((max_Packet_Size << USB_OTG_DOEPCTL_MPSIZ_Pos) | (endpoint_Type << USB_OTG_DOEPCTL_EPTYP_Pos) | USB_OTG_DOEPCTL_USBAEP);
 		USB_Device->DAINTMSK |= (1 << endpoint_Number);
 	}
 	else
 	{
 		USB_OTG_DeviceTypeDef *USB_Device = USB_LL___Get_USB_Device(port_Number);
 		USB_OTG_INEndpointTypeDef *USB_Device_In = USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
-		USB_Device_In->DIEPCTL = (max_Packet_Size << USB_OTG_DIEPCTL_MPSIZ_Pos) | (endpoint_Type << USB_OTG_DIEPCTL_EPTYP_Pos) | USB_OTG_DIEPCTL_USBAEP;
+		USB_Device_In->DIEPCTL = (max_Packet_Size << USB_OTG_DIEPCTL_MPSIZ_Pos) | (endpoint_Type << USB_OTG_DIEPCTL_EPTYP_Pos) | (endpoint_Number << USB_OTG_DIEPCTL_TXFNUM_Pos) | USB_OTG_DIEPCTL_USBAEP;
 		USB_Device->DAINTMSK |= (1 << (endpoint_Number + 16));
 	}
 }
@@ -280,6 +280,15 @@ uint16_t USB_LL_Device___Endpoint_Get_Max_Packet_Size(uint8_t port_Number, uint8
 	return size;
 }
 
+uint16_t USB_LL_Device___Endpoint_Get_FIFO_Space(uint8_t port_Number, uint8_t endpoint_Number)
+{
+	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
+
+	return(USB_Device_In_Endpoint->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV_Msk);
+}
+
+uint16_t num_Transfers = 0;
+
 void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint32_t length)
 {
 	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
@@ -287,24 +296,33 @@ void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_
 	uint16_t 					max_Packet_Size 		= USB_LL_Device___Endpoint_Get_Max_Packet_Size(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_IN);
 	uint16_t 					packet_Count 			= (length > 0) ? ((length + max_Packet_Size - 1) / max_Packet_Size) : 1;
 
-	//printf("sending %d bytes\n", length);
-
 	USB_Device_In_Endpoint->DIEPTSIZ = (length << USB_OTG_DIEPTSIZ_XFRSIZ_Pos) | (packet_Count << USB_OTG_DIEPTSIZ_PKTCNT_Pos);
-
 	USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_EPENA | USB_OTG_DIEPCTL_CNAK;
 
-	if(length > 64)
-	{
-		uint8_t i = 0;
-	}
-
 	USB_LL___FIFO_Transfer_In(data, FIFO_Pointer, length);
+}
 
-	//printf("sent %d bytes\n", length);
-
-	if(length > 64)
+void USB_LL_Device___Disable_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction)
+{
+	if (endpoint_Direction == USB_LL_Device___ENDPOINT_DERECTION_OUT)
 	{
-		uint8_t i = 0;
+		USB_OTG_OUTEndpointTypeDef *USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
+		if(USB_Device_Out_Endpoint->DOEPCTL & USB_OTG_DOEPCTL_EPENA)
+		{
+			USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_EPDIS;
+			while (USB_Device_Out_Endpoint->DOEPCTL & USB_OTG_DOEPCTL_EPDIS);
+		}
+	}
+	else
+	{
+		USB_OTG_INEndpointTypeDef *USB_Device_In_Endpoint = USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
+		if(USB_Device_In_Endpoint->DIEPCTL & USB_OTG_DIEPCTL_EPENA)
+		{
+			USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_SNAK;
+			while(!(USB_Device_In_Endpoint->DIEPCTL & USB_OTG_DIEPCTL_NAKSTS));
+			USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_EPDIS;
+			while(USB_Device_In_Endpoint->DIEPCTL & USB_OTG_DIEPCTL_EPDIS);
+		}
 	}
 }
 
@@ -349,6 +367,7 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 			break;
 		case USB_OTG_DIEPINT_ITTXFE_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_ITTXFE;
+			printf("12345---------------------------------------------------------------------\n");
 			break;
 		case USB_OTG_DIEPINT_INEPNE_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_INEPNE;
@@ -401,7 +420,7 @@ void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number)
 			break;
 		case USB_OTG_DOEPINT_OTEPDIS_Pos:
 			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_OTEPDIS;
-			printf("USB out endpoint OTEPDIS\n");
+			//printf("USB out endpoint OTEPDIS%d\n", endpoint_Number);
 			break;
 		case USB_OTG_DOEPINT_B2BSTUP_Pos:
 			USB_Device_Out_Endpoint->DOEPINT = USB_OTG_DOEPINT_B2BSTUP;

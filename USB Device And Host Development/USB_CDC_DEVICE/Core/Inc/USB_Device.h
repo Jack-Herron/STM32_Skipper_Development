@@ -34,6 +34,7 @@
 #define USB_Device___bRequest_GET_INTERFACE			(0x0A)
 #define USB_Device___bRequest_SET_INTERFACE			(0x0B)
 #define USB_Device___NO_KEY		                    (0xffff)
+#define USB_Device___TX_CALLBACK_PARAMETERS	    	USB_LL_Device___TX_CALLBACK_PARAMETERS
 
 #define USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS	uint8_t port_Number, uint8_t endpoint_Number, USB_Device___Setup_Packet_TypeDef setup_Packet, uint8_t* data, uint16_t data_Size
 #define USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS   uint8_t port_Number, uint8_t endpoint_Number, struct USB_Device___Control_Solution* solution, USB_Device___Setup_Packet_TypeDef setup_Packet, uint8_t* data, uint16_t data_Size
@@ -55,7 +56,7 @@ typedef struct USB_Device___Control_Transfer
 	uint16_t								data_Size;
 	void (*callback)(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS);
 }USB_Device___Control_Transfer_TypeDef;
-
+/*
 struct USB_Device___Endpoint
 {
 	uint8_t 								Endpoint_Type;
@@ -64,7 +65,7 @@ struct USB_Device___Endpoint
 	uint16_t 								Max_Packet_Size;
 	uint8_t 								Interval;
 };
-
+*/
 typedef struct USB_Device___Control_Solution
 {
 	struct USB_Device___Setup_Packet 		Setup_Packet_Key;
@@ -74,6 +75,12 @@ typedef struct USB_Device___Control_Solution
 	uint8_t (*callback)(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
 } USB_Device___Control_Solution_TypeDef;
 
+typedef struct USB_Device___Endpoint
+{
+	uint16_t TX_FIFO_Depth;
+	USB_Device___Control_Solution_TypeDef* control_Solutions;
+}USB_Device___Endpoint_TypeDef;
+
 void USB_Device___Init(uint8_t port_Number);
 void USB_Device___Set_Control_Transfer_Callback(uint8_t port_Number, uint8_t endpoint_Number, void callback(USB_Device___CONTROL_TRANSFER_CALLBACK_PARAMETERS));
 void USB_Device___Set_Conrol_Solutions(uint8_t port_Number, uint8_t endpoint_Number, struct USB_Device___Control_Solution *control_Solution, uint8_t num_Solutions);
@@ -81,5 +88,7 @@ uint8_t USB_Device___Set_Address_Solution_Callback(USB_Device___CONTROL_SOLUTION
 void USB_Device___Initialize_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t endpoint_Type, uint16_t max_Packet_Size);
 void USB_Device___Set_Nak(uint8_t port_Number, uint8_t endpoint_Number, uint8_t direction);
 void USB_Device___Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint16_t length);
+void USB_Device___Set_TX_Callback(uint8_t port_Number, uint8_t endpoint_Number, void callback(USB_Device___TX_CALLBACK_PARAMETERS));
+void USB_Device___Reset_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
 
 #endif /* CORE_INC_USB_DEVICE_H_ */

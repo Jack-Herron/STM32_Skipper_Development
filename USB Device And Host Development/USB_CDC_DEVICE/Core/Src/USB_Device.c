@@ -24,18 +24,52 @@ void USB_Device___EP0_TX_Callback( USB_LL_Device___TX_CALLBACK_PARAMETERS);
 uint8_t test_Buffer[64];
 
 struct USB_Device___Control_Transfer USB_Device___Control_Transfer[USB_Device___NUM_PORTS][USB_Device___NUM_ENDPOINTS];
-struct USB_Device___Control_Solution* control_Solutions[USB_Device___NUM_PORTS][USB_Device___NUM_ENDPOINTS];
+USB_Device___Endpoint_TypeDef USB_Device___Endpoint[USB_Device___NUM_PORTS][USB_Device___NUM_ENDPOINTS];
+
 uint8_t control_Solution_Count[USB_Device___NUM_PORTS][USB_Device___NUM_ENDPOINTS];
-void USB_Device___Init(uint8_t port_Number)
+
+void USB_Device___Set_FIFOs(uint8_t port_Number)
 {
 	USB_LL_Device___FIFO_Config_TypeDef FIFO_Config = {0};
 
-	FIFO_Config.RX_FIFO_Depth 				= USB_Device___DEFAULT_RX_FIFO_SIZE;
-	FIFO_Config.Endpoint_TX_FIFO_Depth[0] 	= USB_Device___DEFAULT_TX_FIFO_SIZE;
+	FIFO_Config.RX_FIFO_Depth = USB_Device___DEFAULT_RX_FIFO_SIZE;
 
+	for (uint8_t i = 0; i < USB_Device___NUM_ENDPOINTS; i++)
+	{
+		FIFO_Config.Endpoint_TX_FIFO_Depth[i] = USB_Device___Endpoint[port_Number][i].TX_FIFO_Depth;
+	}
+
+	USB_LL_Device___Set_FIFO_Size(port_Number, FIFO_Config);
+}
+
+void USB_Device___Set_FIFO_Size(uint8_t port_Number, uint8_t endpoint_Number, uint16_t size)
+{
+	USB_Device___Endpoint[port_Number][endpoint_Number].TX_FIFO_Depth = size;
+
+	USB_Device___Set_FIFOs(port_Number);
+}
+
+void USB_Device___Initialize_FIFOs(uint8_t port_Number)
+{
+	//USB_Device___NUM_ENDPOINTS
+	for (uint8_t i = 0; i < 3; i++)
+	{
+		USB_Device___Endpoint[port_Number][i].TX_FIFO_Depth = USB_Device___DEFAULT_TX_FIFO_SIZE;
+	}
+
+	USB_Device___Set_FIFOs(port_Number);
+}
+
+void USB_Device___Reset_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction)
+{
+	USB_LL_Device___Disable_Endpoint(port_Number, endpoint_Number,endpoint_Direction);
+}
+
+void USB_Device___Init(uint8_t port_Number)
+{
 	USB_LL___GPIO_Init(port_Number);
 	USB_LL___Init(port_Number, USB_LL___DEVICE_MODE);
-	USB_LL_Device___Set_FIFO_Size(port_Number, FIFO_Config);
+	USB_Device___Initialize_FIFOs(port_Number);
 
 	USB_LL_Device___Init(port_Number);
 	USB_LL_Device___Setup_Endpoint(port_Number, 0, USB_LL_Device___ENDPOINT_DERECTION_OUT, USB_LL_Device___ENDPOINT_TYPE_CONTROL, 64);
@@ -60,9 +94,9 @@ void USB_Device___Set_Control_Transfer_Callback(uint8_t port_Number, uint8_t end
 	USB_Device___Control_Transfer[port_Number][endpoint_Number].callback = callback;
 }
 
-void USB_Device___Set_Conrol_Solutions(uint8_t port_Number, uint8_t endpoint_Number, struct USB_Device___Control_Solution *control_Solution, uint8_t num_Solutions)
+void USB_Device___Set_Conrol_Solutions(uint8_t port_Number, uint8_t endpoint_Number, struct USB_Device___Control_Solution *control_Solutions, uint8_t num_Solutions)
 {
-	control_Solutions[port_Number][endpoint_Number] = control_Solution;
+	USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions = control_Solutions;
 	control_Solution_Count[port_Number][endpoint_Number]= num_Solutions;
 }
 
@@ -103,31 +137,31 @@ void USB_Device___Handle_Control_Transfer(uint8_t port_Number, uint8_t endpoint_
 		uint8_t solution_Found = 0;
 		for(uint8_t i = 0; i < control_Solution_Count[port_Number][endpoint_Number]; i++)
 		{
-			if (USB_Device___Control_Solution_Check_Key(&control_Solutions[port_Number][endpoint_Number][i], control_Transfer.Setup_Packet))
+			if (USB_Device___Control_Solution_Check_Key(&USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i], control_Transfer.Setup_Packet))
 			{
 				solution_Found = 1;
 				if(control_Transfer.Setup_Packet.bmRequestType & 0x80)
 				{
-					if(control_Solutions[port_Number][endpoint_Number][i].callback != NULL)
+					if(USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].callback != NULL)
 					{
-						control_Solutions[port_Number][endpoint_Number][i].callback(port_Number, endpoint_Number, &control_Solutions[port_Number][endpoint_Number][i], control_Transfer.Setup_Packet, control_Transfer.data, control_Transfer.data_Size);
+						USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].callback(port_Number, endpoint_Number, &USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i], control_Transfer.Setup_Packet, control_Transfer.data, control_Transfer.data_Size);
 					}
 
-					uint16_t length = USB_Device___GET_MIN(control_Transfer.Setup_Packet.wLength, control_Solutions[port_Number][endpoint_Number][i].buffer_Size));
-					USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, control_Solutions[port_Number][endpoint_Number][i].buffer, length);
+					uint16_t length = USB_Device___GET_MIN(control_Transfer.Setup_Packet.wLength, USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].buffer_Size));
+					USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].buffer, length);
 				}
 				else
 				{
 					uint8_t result = 1;
 
-					if(control_Solutions[port_Number][endpoint_Number][i].callback != NULL)
+					if(USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].callback != NULL)
 					{
-						control_Solutions[port_Number][endpoint_Number][i].callback(port_Number, endpoint_Number, &control_Solutions[port_Number][endpoint_Number][i], control_Transfer.Setup_Packet, control_Transfer.data, control_Transfer.data_Size);
+						USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].callback(port_Number, endpoint_Number, &USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i], control_Transfer.Setup_Packet, control_Transfer.data, control_Transfer.data_Size);
 					}
 
 					if(result == 1)
 					{
-						USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, control_Solutions[port_Number][endpoint_Number][i].buffer, control_Solutions[port_Number][endpoint_Number][i].buffer_Size);
+						USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].buffer, USB_Device___Endpoint[port_Number][endpoint_Number].control_Solutions[i].buffer_Size);
 					}
 				}
 
@@ -142,13 +176,20 @@ void USB_Device___Handle_Control_Transfer(uint8_t port_Number, uint8_t endpoint_
 	}
 }
 
+void USB_Device___Set_TX_Callback(uint8_t port_Number, uint8_t endpoint_Number, void callback(USB_Device___TX_CALLBACK_PARAMETERS))
+{
+	USB_LL_Device___Set_TX_Callback(port_Number, endpoint_Number, callback);
+}
 void USB_Device___Set_Nak(uint8_t port_Number, uint8_t endpoint_Number, uint8_t direction)
 {
 	USB_LL_Device___Endpoint_Set_NAK(port_Number, endpoint_Number, direction);
 }
 
 void USB_Device___Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint16_t length) {
-	USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, data, length);
+	if(USB_LL_Device___Endpoint_Get_FIFO_Space(port_Number, endpoint_Number) > length)
+	{
+		USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, data, length);
+	}
 }
 
 void USB_Device___EP0_TX_Callback( USB_LL_Device___TX_CALLBACK_PARAMETERS)

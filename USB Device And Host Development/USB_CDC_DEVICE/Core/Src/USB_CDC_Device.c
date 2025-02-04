@@ -139,7 +139,7 @@ USB_Device___Control_Solution_TypeDef USB_Device___Control_Solution_List[] =
 
 uint8_t USB_CDC_Device___Clear_Stall_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
 {
-	//USB_Device___Clear_Stall(port_Number, endpoint_Number, endpoint_Direction);
+	USB_Device___Reset_Endpoint(port_Number, (setup_Packet.wIndex & 0x0f), (setup_Packet.wIndex & 0x80) >> 7);
 	return (1);
 }
 
@@ -176,6 +176,12 @@ uint8_t USB_CDC_Device___Is_Enabled(uint8_t port_Number)
 	return (USB_CDC_Device___CDC_Device[port_Number].is_Enabled);
 }
 
+void USB_CDCDevice___EP1_TX_Callback( USB_Device___TX_CALLBACK_PARAMETERS)
+{
+	USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
+	printf("TX_COMPLETE\n");
+}
+
 uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
 {
 	if (setup_Packet.wValue == 1)
@@ -184,6 +190,8 @@ uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTRO
 		USB_Device___Initialize_Endpoint(port_Number, 2, USB_Device___ENDPOINT_DERECTION_IN, 	USB_Device___ENDPOINT_TYPE_INTERRUPT, 	0x08);
 		USB_Device___Initialize_Endpoint(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN, 	USB_Device___ENDPOINT_TYPE_BULK, 		0x40);
 		USB_Device___Initialize_Endpoint(port_Number, 1, USB_Device___ENDPOINT_DERECTION_OUT, 	USB_Device___ENDPOINT_TYPE_BULK, 		0x40);
+
+		USB_Device___Set_TX_Callback(port_Number, 1, USB_CDCDevice___EP1_TX_Callback);
 
 		USB_Device___Set_Nak(port_Number, 2, USB_Device___ENDPOINT_DERECTION_IN);
 		USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
