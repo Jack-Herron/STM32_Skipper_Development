@@ -70,6 +70,6 @@ void USB_LL_Device___Setup_Endpoint(uint8_t port_Number, uint8_t endpoint_Number
 void USB_LL_Device___Endpoint_Transfer_Out(uint8_t port_Number, uint8_t endpoint_Number, uint32_t transfer_Size, uint8_t* buffer, uint32_t buffer_Size);
 void USB_LL_Device___Endpoint_Set_Stall(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
 void USB_LL_Device___Disable_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
-
+uint8_t USB_LL_Device___Is_Endpoint_Busy(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
 uint16_t USB_LL_Device___Endpoint_Get_FIFO_Space(uint8_t port_Number, uint8_t endpoint_Number);
 #endif /* INC_USB_LL_DEVICE_H_ */

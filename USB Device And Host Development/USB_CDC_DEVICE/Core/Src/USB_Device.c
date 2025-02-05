@@ -188,7 +188,19 @@ void USB_Device___Set_Nak(uint8_t port_Number, uint8_t endpoint_Number, uint8_t 
 void USB_Device___Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint16_t length) {
 	if(USB_LL_Device___Endpoint_Get_FIFO_Space(port_Number, endpoint_Number) > length)
 	{
-		USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, data, length);
+		if(!USB_LL_Device___Is_Endpoint_Busy(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_IN))
+		{
+			USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, data, length);
+			//printf("Transfer In\n");
+		}
+		else
+		{
+			printf("Endpoint Busy\n");
+		}
+	}
+	else
+	{
+		printf("FIFO FULL\n");
 	}
 }
 

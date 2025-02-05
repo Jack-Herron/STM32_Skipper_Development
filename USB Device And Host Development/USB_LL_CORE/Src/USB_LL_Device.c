@@ -139,11 +139,13 @@ void USB_LL_Device___Endpoint_Set_NAK(uint8_t port_Number, uint8_t endpoint_Numb
 	{
 		USB_OTG_OUTEndpointTypeDef* USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
 		USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_SNAK;
+		//while(!(USB_Device_Out_Endpoint->DOEPCTL & USB_OTG_DOEPCTL_NAKSTS));
 	}
 	else
 	{
 		USB_OTG_INEndpointTypeDef* USB_Device_In_Endpoint = USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
 		USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_SNAK;
+		//while(!(USB_Device_In_Endpoint->DIEPCTL & USB_OTG_DIEPCTL_NAKSTS));
 	}
 }
 
@@ -340,6 +342,20 @@ void USB_LL_Device___Endpoint_Transfer_Out(uint8_t port_Number, uint8_t endpoint
 	USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_EPENA | USB_OTG_DOEPCTL_CNAK;
 }
 
+uint8_t USB_LL_Device___Is_Endpoint_Busy(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction)
+{
+	if (endpoint_Direction == USB_LL_Device___ENDPOINT_DERECTION_OUT)
+	{
+		USB_OTG_OUTEndpointTypeDef* USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
+		return(!!(USB_Device_Out_Endpoint->DOEPCTL & (USB_OTG_DOEPCTL_EPENA | USB_OTG_DOEPCTL_EPDIS)));
+	}
+	else
+	{
+		USB_OTG_INEndpointTypeDef* USB_Device_In_Endpoint = USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
+		return(!!(USB_Device_In_Endpoint->DIEPCTL & (USB_OTG_DIEPCTL_EPENA | USB_OTG_DIEPCTL_EPDIS)));
+	}
+}
+
 void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 {
 	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT & 0xff);
@@ -351,7 +367,7 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 		{
 		case USB_OTG_DIEPINT_XFRC_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_XFRC;
-			//printf("USB in endpoint transfer complete\n");
+			printf("USB in endpoint transfer complete\n");
 
 			if (USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Callback != NULL)
 			{
@@ -364,10 +380,6 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 			break;
 		case USB_OTG_DIEPINT_TOC_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_TOC;
-			break;
-		case USB_OTG_DIEPINT_ITTXFE_Pos:
-			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_ITTXFE;
-			printf("12345---------------------------------------------------------------------\n");
 			break;
 		case USB_OTG_DIEPINT_INEPNE_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_INEPNE;
