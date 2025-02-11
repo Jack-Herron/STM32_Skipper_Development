@@ -376,8 +376,8 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT & 0xff);
 	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
 
-	//GPIOC->ODR |= (1<<0);			// set PC0 LOW
-	//GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
+	GPIOC->ODR |= (1<<0);			// set PC0 LOW
+	GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
 
 	while(USB_Device_In_Endpoint->DIEPINT & UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK)
 	{
