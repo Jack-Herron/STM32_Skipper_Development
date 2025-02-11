@@ -302,6 +302,18 @@ void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_
 	USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_EPENA | USB_OTG_DIEPCTL_CNAK;
 
 	USB_LL___FIFO_Transfer_In(data, FIFO_Pointer, length);
+
+	if (endpoint_Number == 1)
+	{
+		num_Transfers++;
+	}
+}
+
+void USB_LL_Device___Flush_TX_FIFO(uint8_t port_Number, uint8_t endpoint_Number)
+{
+	USB_OTG_GlobalTypeDef* USB = USB_LL___Get_USB(port_Number);
+	USB->GRSTCTL = (1 << USB_OTG_GRSTCTL_TXFNUM_Pos) | USB_OTG_GRSTCTL_TXFFLSH;
+	while(USB->GRSTCTL & USB_OTG_GRSTCTL_TXFFLSH);
 }
 
 void USB_LL_Device___Disable_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction)
@@ -311,6 +323,8 @@ void USB_LL_Device___Disable_Endpoint(uint8_t port_Number, uint8_t endpoint_Numb
 		USB_OTG_OUTEndpointTypeDef *USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
 		if(USB_Device_Out_Endpoint->DOEPCTL & USB_OTG_DOEPCTL_EPENA)
 		{
+			USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_SNAK;
+			while(!(USB_Device_Out_Endpoint->DOEPCTL & USB_OTG_DOEPCTL_NAKSTS));
 			USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_EPDIS;
 			while (USB_Device_Out_Endpoint->DOEPCTL & USB_OTG_DOEPCTL_EPDIS);
 		}
@@ -324,6 +338,7 @@ void USB_LL_Device___Disable_Endpoint(uint8_t port_Number, uint8_t endpoint_Numb
 			while(!(USB_Device_In_Endpoint->DIEPCTL & USB_OTG_DIEPCTL_NAKSTS));
 			USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_EPDIS;
 			while(USB_Device_In_Endpoint->DIEPCTL & USB_OTG_DIEPCTL_EPDIS);
+			USB_LL_Device___Flush_TX_FIFO(port_Number, endpoint_Number);
 		}
 	}
 }
@@ -360,6 +375,9 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 {
 	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT & 0xff);
 	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
+
+	//GPIOC->ODR |= (1<<0);			// set PC0 LOW
+	//GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
 
 	while(USB_Device_In_Endpoint->DIEPINT & UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK)
 	{
@@ -402,6 +420,9 @@ void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number)
 {
 	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT >> 16);
 	USB_OTG_OUTEndpointTypeDef*	USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
+
+	//GPIOC->ODR |= (1<<0);			// set PC0 LOW
+	//GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
 
 	while(USB_Device_Out_Endpoint->DOEPINT & UBS_LL_Device___OUT_ENDPOINT_INTERRUPT_MASK)
 	{

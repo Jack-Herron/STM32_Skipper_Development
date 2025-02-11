@@ -140,6 +140,8 @@ USB_Device___Control_Solution_TypeDef USB_Device___Control_Solution_List[] =
 uint8_t USB_CDC_Device___Clear_Stall_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
 {
 	USB_Device___Reset_Endpoint(port_Number, (setup_Packet.wIndex & 0x0f), (setup_Packet.wIndex & 0x80) >> 7);
+	GPIOC->ODR |= (1<<0);			// set PC0 LOW
+	GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
 	return (1);
 }
 
@@ -166,14 +168,20 @@ uint8_t USB_CDC_Device___Get_Line_Coding_Solution_Callback(USB_Device___CONTROL_
 	return(1);
 }
 
-void USB_CDC_Device___Send_Data(uint8_t port_Number, char *data, uint16_t length)
-{
-	USB_Device___Transfer_In(port_Number, 1, data, length);
-}
-
 uint8_t USB_CDC_Device___Is_Enabled(uint8_t port_Number)
 {
 	return (USB_CDC_Device___CDC_Device[port_Number].is_Enabled);
+}
+
+uint8_t USB_CDC_Device___Is_DTE(uint8_t port_Number)
+{
+	return (USB_CDC_Device___CDC_Device[port_Number].control_Line_State & 0x01);
+}
+
+void USB_CDC_Device___Send_Data(uint8_t port_Number, char *data, uint16_t length)
+{
+	if(USB_CDC_Device___Is_Enabled(port_Number) && USB_CDC_Device___Is_DTE(port_Number))
+	USB_Device___Transfer_In(port_Number, 1, data, length);
 }
 
 void USB_CDCDevice___EP1_TX_Callback( USB_Device___TX_CALLBACK_PARAMETERS)
