@@ -52,11 +52,11 @@ void USB_Device___Set_FIFO_Size(uint8_t port_Number, uint8_t endpoint_Number, ui
 void USB_Device___Initialize_FIFOs(uint8_t port_Number)
 {
 	//USB_Device___NUM_ENDPOINTS
-	for (uint8_t i = 0; i < 3; i++)
+	for (uint8_t i = 0; i < USB_Device___NUM_ENDPOINTS; i++)
 	{
 		USB_Device___Endpoint[port_Number][i].TX_FIFO_Depth = USB_Device___DEFAULT_TX_FIFO_SIZE;
 	}
-
+	USB_Device___Endpoint[port_Number][1].TX_FIFO_Depth = 0x192;
 	USB_Device___Set_FIFOs(port_Number);
 }
 
@@ -186,23 +186,17 @@ void USB_Device___Set_Nak(uint8_t port_Number, uint8_t endpoint_Number, uint8_t 
 }
 
 void USB_Device___Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint16_t length) {
-	printf("%d\n",USB_LL_Device___Endpoint_Get_FIFO_Space(port_Number, endpoint_Number));
-	if(USB_LL_Device___Endpoint_Get_FIFO_Space(port_Number, endpoint_Number) > length)
+
+	if(!USB_LL_Device___Is_Endpoint_Busy(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_IN))
 	{
-		if(!USB_LL_Device___Is_Endpoint_Busy(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_IN))
-		{
-			USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, data, length);
-			//printf("Transfer In\n");
-		}
-		else
-		{
-			printf("Endpoint Busy\n");
-		}
+		USB_LL_Device___Endpoint_Transfer_In(port_Number, endpoint_Number, data, length);
+		//printf("Transfer In\n");
 	}
 	else
 	{
-		printf("FIFO FULL\n");
+		printf("Endpoint Busy\n");
 	}
+
 }
 
 void USB_Device___EP0_TX_Callback( USB_LL_Device___TX_CALLBACK_PARAMETERS)
@@ -212,22 +206,9 @@ void USB_Device___EP0_TX_Callback( USB_LL_Device___TX_CALLBACK_PARAMETERS)
 
 void USB_Device___EP0_RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
 {
+
 	if (packet_Type == USB_LL_Device___PACKET_TYPE_SETUP)
 	{
-		printf("Setup packet received: ");
-
-		if (length == 0)
-		{
-			printf("Error: Setup packet too short\n");
-		}
-
-		for(uint16_t i = 0; i < length; i++)
-		{
-			printf("%2.2x ", data[i]);
-		}
-
-		printf("\n");
-
 		struct USB_Device___Setup_Packet setup_Packet;
 
 		for (uint8_t i = 0; i < USB_Device___SETUP_PACKET_SIZE && i < length; i++)
@@ -238,19 +219,12 @@ void USB_Device___EP0_RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
 		USB_Device___Control_Transfer[port_Number][endpoint_Number].Setup_Packet = setup_Packet;
 		USB_Device___Control_Transfer[port_Number][endpoint_Number].data         = NULL;
 
+
 		USB_Device___Handle_Control_Transfer(port_Number, endpoint_Number);
 
 	}
 	else if (packet_Type == USB_LL_Device___PACKET_TYPE_DATA)
 	{
-		printf("Data packet received: ");
-
-		for(uint16_t i = 0; i < length; i++)
-		{
-			printf("%2.2x ", data[i]);
-		}
-		printf("\n");
-
 		if(length > 0)
 		{
 			USB_Device___Control_Transfer[port_Number][endpoint_Number].data = data;

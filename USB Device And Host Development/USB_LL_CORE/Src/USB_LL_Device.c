@@ -48,7 +48,7 @@ void USB_LL_Device___Set_FIFO_Size(uint8_t port_Number, USB_LL_Device___FIFO_Con
 	USB -> DIEPTXF0_HNPTXFSIZ = ((FIFO_Config.Endpoint_TX_FIFO_Depth[0] << USB_OTG_TX0FD_Pos) | (Start_Address << USB_OTG_TX0FSA_Pos));
 	Start_Address += FIFO_Config.Endpoint_TX_FIFO_Depth[0];
 
-	for(uint8_t i = 0; i < num_Endpoints; i++)
+	for(uint8_t i = 0; i < num_Endpoints-1; i++)
 	{
 		if(FIFO_Config.Endpoint_TX_FIFO_Depth[i+1])
 		{
@@ -79,6 +79,7 @@ void USB_LL_Device___Handle_Packet(uint8_t port_Number, uint8_t endpoint_Number,
 	}
 
 	USB_LL___FIFO_Transfer_Out((uint32_t*)(USB_offset + USB_OTG_FIFO_BASE), RX_Buffer, packet_Size);
+
 }
 
 void USB_LL_Device___Set_RX_Callback(uint8_t port_Number, uint8_t endpoint, void (*callback)(USB_LL_Device___RX_CALLBACK_PARAMETERS))
@@ -289,7 +290,17 @@ uint16_t USB_LL_Device___Endpoint_Get_FIFO_Space(uint8_t port_Number, uint8_t en
 	return(USB_Device_In_Endpoint->DTXFSTS & USB_OTG_DTXFSTS_INEPTFSAV_Msk);
 }
 
-uint16_t num_Transfers = 0;
+void USB_LL_Device___Endpoint_Enable_TX_FIFO_Empty_Interrupt(uint8_t port_Number, uint8_t endpoint_Number)
+{
+	USB_OTG_DeviceTypeDef *USB_Device = USB_LL___Get_USB_Device(port_Number);
+	USB_Device->DIEPEMPMSK 	|= (1 << endpoint_Number);
+}
+
+void USB_LL_Device___Endpoint_Disable_TX_FIFO_Empty_Interrupt(uint8_t port_Number, uint8_t endpoint_Number)
+{
+	USB_OTG_DeviceTypeDef *USB_Device = USB_LL___Get_USB_Device(port_Number);
+	USB_Device->DIEPEMPMSK 	&= ~(1 << endpoint_Number);
+}
 
 void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint32_t length)
 {
@@ -301,11 +312,20 @@ void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_
 	USB_Device_In_Endpoint->DIEPTSIZ = (length << USB_OTG_DIEPTSIZ_XFRSIZ_Pos) | (packet_Count << USB_OTG_DIEPTSIZ_PKTCNT_Pos);
 	USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_EPENA | USB_OTG_DIEPCTL_CNAK;
 
-	USB_LL___FIFO_Transfer_In(data, FIFO_Pointer, length);
-
-	if (endpoint_Number == 1)
+	if(length > 0)
 	{
-		num_Transfers++;
+	// if end-point is ISOCHRONOUS, transfer in
+	//USB_LL___FIFO_Transfer_In(data, FIFO_Pointer, length);
+	// if not ISOCHRONOUS, un-mask TX FIFO empty interrupt
+	USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Buffer = data;
+	USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Buffer_Size = length;
+	USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Progress = 0;
+	USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Packet_Size = max_Packet_Size;
+	USB_LL_Device___Endpoint_Enable_TX_FIFO_Empty_Interrupt(port_Number, endpoint_Number);
+	}
+	else
+	{
+		USB_LL___FIFO_Transfer_In(NULL, USB_LL_Device___Endpoint_Get_TX_FIFO_Pointer(port_Number, endpoint_Number), 0);
 	}
 }
 
@@ -375,17 +395,19 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 {
 	uint8_t 					endpoint_Number 		= POSITION_VAL(USB_LL___Get_USB_Device(port_Number) -> DAINT & 0xff);
 	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
+	USB_OTG_DeviceTypeDef*		USB_Device 				= USB_LL___Get_USB_Device(port_Number);
+	//GPIOC->ODR |= (1<<0);			// set PC0 LOW
+	//GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
 
-	GPIOC->ODR |= (1<<0);			// set PC0 LOW
-	GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
+	uint32_t	check_TXFE = !!(USB_Device->DIEPEMPMSK & (1 << endpoint_Number));
 
-	while(USB_Device_In_Endpoint->DIEPINT & UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK)
+	while(USB_Device_In_Endpoint->DIEPINT & (UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK & ((~USB_OTG_DIEPINT_TXFE_Msk) | (check_TXFE << USB_OTG_DIEPINT_TXFE_Pos))))
 	{
 		switch(POSITION_VAL((USB_Device_In_Endpoint->DIEPINT) & UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK))
 		{
 		case USB_OTG_DIEPINT_XFRC_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_XFRC;
-			printf("USB in endpoint transfer complete\n");
+			//printf("USB in endpoint transfer complete\n");
 
 			if (USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number].TX_Callback != NULL)
 			{
@@ -403,8 +425,41 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_INEPNE;
 			break;
 		case USB_OTG_DIEPINT_TXFE_Pos:
-			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_TXFE;
+			{
+				struct USB_LL_Device___TX_Endpoint* TX_Endpoint = &USB_LL_Device___TX_Endpoint[port_Number][endpoint_Number];
+				uint16_t transfer_Length = TX_Endpoint->TX_Buffer_Size - TX_Endpoint->TX_Progress;
+
+				if(transfer_Length > TX_Endpoint->TX_Packet_Size)
+				{
+					transfer_Length = TX_Endpoint->TX_Packet_Size;
+				}
+
+				while (((USB_LL_Device___Endpoint_Get_FIFO_Space(port_Number, endpoint_Number)*4) >= transfer_Length) && (TX_Endpoint->TX_Buffer_Size >  TX_Endpoint->TX_Progress))
+				{
+					USB_LL___FIFO_Transfer_In(&TX_Endpoint->TX_Buffer[TX_Endpoint->TX_Progress], USB_LL_Device___Endpoint_Get_TX_FIFO_Pointer(port_Number, endpoint_Number), transfer_Length);
+
+					TX_Endpoint->TX_Progress += transfer_Length;
+
+					transfer_Length = TX_Endpoint->TX_Buffer_Size - TX_Endpoint->TX_Progress;
+
+					if(transfer_Length > 0)
+					{
+						uint8_t i = 0;
+					}
+
+					if(transfer_Length > TX_Endpoint->TX_Packet_Size)
+					{
+						transfer_Length = TX_Endpoint->TX_Packet_Size;
+					}
+
+					if (TX_Endpoint->TX_Progress >= TX_Endpoint->TX_Buffer_Size)
+					{
+						USB_LL_Device___Endpoint_Disable_TX_FIFO_Empty_Interrupt(port_Number, endpoint_Number);
+					}
+				}
+
 			break;
+			}
 		case USB_OTG_DIEPINT_TXFIFOUDRN_Pos:
 			USB_Device_In_Endpoint->DIEPINT = USB_OTG_DIEPINT_TXFIFOUDRN;
 			break;
@@ -413,6 +468,7 @@ void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number)
 			printf("USB in endpoint NAK\n");
 			break;
 		}
+		check_TXFE = !!(USB_Device->DIEPEMPMSK & (1 << endpoint_Number));
 	}
 }
 
@@ -434,7 +490,9 @@ void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number)
 
 			if (USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback != NULL)
 			{
+
 				USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_DATA, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level);
+
 			}
 
 			break;
@@ -447,7 +505,11 @@ void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number)
 
 			if (USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback != NULL)
 			{
+				//GPIOC->ODR |= (1<<1);			// set PC1 LOW
+
 				USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Callback(port_Number, endpoint_Number, USB_LL_Device___PACKET_TYPE_SETUP, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer, USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level);
+
+				//GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
 			}
 
 			break;

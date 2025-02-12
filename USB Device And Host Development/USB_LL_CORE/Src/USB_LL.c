@@ -180,22 +180,15 @@ void USB_LL___Init(uint8_t port_Number, uint8_t port_Mode)
 
 void USB_LL___FIFO_Transfer_In(uint8_t* Source, uint32_t* Destination, uint32_t transfer_Size)
 {
-	uint32_t 	full_Copies 	= 	transfer_Size / USB_LL___NUMBER_OF_BYTES_IN_WORD_32;
-	uint8_t 	remainder 		= 	transfer_Size % USB_LL___NUMBER_OF_BYTES_IN_WORD_32;
+	uint32_t 	length 	= 	(transfer_Size+3) / USB_LL___NUMBER_OF_BYTES_IN_WORD_32;
 
-	for(uint16_t i = 0; i < full_Copies; i++)
+	for(uint16_t i = 0; i < length; i++)
 	{
-		Destination[i] = ((uint32_t*)Source)[i];
-	}
-
-	if(remainder > 0)
-	{
-		uint32_t final32 = 0;
-		for(uint8_t i = 0; i < remainder; i++)
-		{
-			final32 |= Source[transfer_Size - (remainder - i)] << (i * USB_LL___NUMBER_OF_BITS_IN_BYTE);
-		}
-		Destination[full_Copies] = final32;
+		*Destination = __UNALIGNED_UINT32_READ(Source);
+		Source++;
+		Source++;
+		Source++;
+		Source++;
 	}
 }
 
@@ -230,6 +223,9 @@ void USB_LL___Start_Of_Frame_Reveived(uint8_t port_Number)
 void USB_LL___Interrupt_Handler(uint8_t port_Number)
 {
 	USB_OTG_GlobalTypeDef* USB = USB_LL___Get_USB(port_Number);
+
+	GPIOC->ODR |= (1<<1);			// set PC1 LOW
+	GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
 
 	while((USB -> GINTSTS) & USB_LL___GLOBAL_INTERRUPTS_MASK)
 	{
@@ -289,11 +285,15 @@ void USB_LL___Interrupt_Handler(uint8_t port_Number)
 			break;
 
 		case USB_OTG_GINTSTS_IEPINT_Pos:										// IN End-point interrupt
+
 			USB_LL_Device___IN_Endpoint_Interrupt_Handler(port_Number);
+
 			break;
 
 		case USB_OTG_GINTSTS_OEPINT_Pos:										// OUT End-point interrupt
+			//GPIOC->ODR |= (1<<1);			// set PC1 LOW
 			USB_LL_Device___OUT_Endpoint_Interrupt_Handler(port_Number);
+			//GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
 			break;
 
 		case USB_OTG_GINTSTS_IISOIXFR_Pos:										// Incomplete isochronous IN transfer Interrupt
@@ -324,6 +324,7 @@ void USB_LL___Interrupt_Handler(uint8_t port_Number)
 			USB -> GINTSTS = (USB_OTG_GINTSTS_WKUINT);
 			break;
 		}
+		GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
 	}
 }
 

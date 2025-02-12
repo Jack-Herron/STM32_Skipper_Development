@@ -115,11 +115,11 @@ static uint8_t USB_CDC_Device___Configuration_Descriptor[] =
 	0x00							// Endpoint.bInterval
 };
 
-uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
-uint8_t USB_CDC_Device___Get_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
-uint8_t USB_CDC_Device___Set_Control_Line_State_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
-uint8_t USB_CDC_Device___Set_Line_Coding_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
-uint8_t USB_CDC_Device___Clear_Stall_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback		(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Get_Line_Coding_Solution_Callback			(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Set_Control_Line_State_Solution_Callback	(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Set_Line_Coding_Solution_Callback			(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
+uint8_t USB_CDC_Device___Clear_Stall_Solution_Callback				(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS);
 
 USB_Device___Control_Solution_TypeDef USB_Device___Control_Solution_List[] =
 {
@@ -181,13 +181,19 @@ uint8_t USB_CDC_Device___Is_DTE(uint8_t port_Number)
 void USB_CDC_Device___Send_Data(uint8_t port_Number, char *data, uint16_t length)
 {
 	if(USB_CDC_Device___Is_Enabled(port_Number) && USB_CDC_Device___Is_DTE(port_Number))
-	USB_Device___Transfer_In(port_Number, 1, data, length);
+	{
+		GPIOC->ODR |= (1<<1);			// set PC1 LOW
+		GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
+		//GPIOC->ODR |= (1<<0);			// set PC0 LOW
+		//GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
+		USB_Device___Transfer_In(port_Number, 1, data, length);
+	}
 }
 
 void USB_CDCDevice___EP1_TX_Callback( USB_Device___TX_CALLBACK_PARAMETERS)
 {
 	USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
-	printf("TX_COMPLETE\n");
+	//printf("TX_COMPLETE\n");
 }
 
 uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)

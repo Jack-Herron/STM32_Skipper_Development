@@ -22,8 +22,8 @@
 #define USB_LL_Device___TX_CALLBACK_PARAMETERS  				uint8_t port_Number, uint8_t endpoint_Number
 #define USB_LL_Device___RX_PACKET_STATUS_DATA_PACKET_RECIEVED	0x02
 #define USB_LL_Device___RX_PACKET_STATUS_SETUP_PACKET_RECIEVED	0x06
-#define UBS_LL_Device___OUT_ENDPOINT_INTERRUPT_MASK            	0x0b//0x313b
-#define UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK            	0x0b//0x207b
+#define UBS_LL_Device___OUT_ENDPOINT_INTERRUPT_MASK            	0x8b//0x313b
+#define UBS_LL_Device___IN_ENDPOINT_INTERRUPT_MASK            	0x8b//0x207b
 #define USB_LL_Device___ENDPOINT_DERECTION_OUT					0x00
 #define USB_LL_Device___ENDPOINT_DERECTION_IN					0x01
 #define USB_LL_Device___ENDPOINT_TYPE_CONTROL					0x00
@@ -47,6 +47,10 @@ struct USB_LL_Device___RX_Endpoint
 
 struct USB_LL_Device___TX_Endpoint
 {
+	uint8_t* TX_Buffer;
+	uint32_t TX_Progress;
+	uint32_t TX_Buffer_Size;
+	uint16_t TX_Packet_Size;
 	void (*TX_Callback)(USB_LL_Device___TX_CALLBACK_PARAMETERS);
 };
 
