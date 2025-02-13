@@ -10,6 +10,7 @@
 #include <USART.h>
 #include <USART_LL_Driver.h>
 #include <stdbool.h>
+#include <cmsis_gcc.h>
 
 USART___USART_TypeDef	USART___Port[USART_LL_Driver___NUM_USARTS] = {0};
 
@@ -18,8 +19,7 @@ USART___USART_TypeDef	USART___Port[USART_LL_Driver___NUM_USARTS] = {0};
 
 	int _write(int file __attribute__((unused)), char *data, int len)
 	{
-		USART___Write(USART___STDIO_USART_NUMBER, data, len);
-		return(0);
+		return(USART___Write(USART___STDIO_USART_NUMBER, data, len));
 	}
 
 	int _read(int file __attribute__((unused)), char *data, int len)
@@ -207,12 +207,27 @@ int USART___Read(uint8_t USART_Number, char *buffer, uint32_t buffer_Size)
 	return(read_Buffer_Index);
 }
 
-void USART___Write(uint8_t USART_Number, char *buffer, uint32_t buffer_Size)
+uint8_t USART___Write(uint8_t USART_Number, char *buffer, uint32_t buffer_Size)
 {
+	static int guard = 0;
+
+	__disable_irq();// avoid reentry
+	if (guard == 1)
+	{
+		__enable_irq();
+		return(EXIT_FAILURE);
+	}
+	guard = 1;
+
+	__enable_irq();
+
 	while(USART___Is_TX_Busy(USART_Number)) USART_LL_Driver___Process(USART_Number);
 
 	USART___Start_TX_Transfer(USART_Number, buffer, buffer_Size);
 
 	while(USART___Is_TX_Busy(USART_Number)) USART_LL_Driver___Process(USART_Number);
 
+	guard = 0;
+
+	return(EXIT_SUCCESS);
 }

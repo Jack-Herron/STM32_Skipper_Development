@@ -66,10 +66,10 @@ int main(void) {
 	for(;;)
 	{
 		//Skipper_Clock___Delay_ms(5);
-		if(!USB_CDC_Device___Send_Data(1, testSTR, sizeof(testSTR)-1))
-		{
-			//printf("busy\n");
-		}
+		//if(!USB_CDC_Device___Send_Data(1, testSTR, sizeof(testSTR)-1))
+		//{
+			printf("busy\n");
+		//}
 		//USB_Host___Process(0);
 	}
 }

@@ -38,14 +38,14 @@ typedef struct{
 	void (*interrupt_Callback)(uint8_t, char, uint32_t);
 }USART___USART_TypeDef;
 
-void USART___Init(uint8_t USART_Number);
-void USART___Set_Baud_Rate(uint8_t USART_Number, uint32_t Baud_Rate);
-int USART___Read(uint8_t USART_Number, char *buffer, uint32_t buffer_Size);
-void USART___Write(uint8_t USART_Number, char *buffer, uint32_t buffer_Size);
-void USART___Set_Interrupt_Char(uint8_t USART_Number, char interrupt_Char);
-void USART___Set_Interrupt_Callback(uint8_t USART_Number, void callback(uint8_t, char, uint32_t));
-void USART___Read_Data_To_Buffer(uint8_t USART_Number, char* buffer, uint32_t data_Length);
-void USART___Set_Parity(uint8_t USART_Number, uint8_t parity);
+void 	USART___Init(uint8_t USART_Number);
+void 	USART___Set_Baud_Rate(uint8_t USART_Number, uint32_t Baud_Rate);
+int 	USART___Read(uint8_t USART_Number, char *buffer, uint32_t buffer_Size);
+uint8_t USART___Write(uint8_t USART_Number, char *buffer, uint32_t buffer_Size);
+void 	USART___Set_Interrupt_Char(uint8_t USART_Number, char interrupt_Char);
+void 	USART___Set_Interrupt_Callback(uint8_t USART_Number, void callback(uint8_t, char, uint32_t));
+void 	USART___Read_Data_To_Buffer(uint8_t USART_Number, char* buffer, uint32_t data_Length);
+void 	USART___Set_Parity(uint8_t USART_Number, uint8_t parity);
 void USART___Set_Stop_Bits(uint8_t USART_Number, uint8_t stop_Bits);
 
 #endif /* USART_APP_INC_USART_H_ */

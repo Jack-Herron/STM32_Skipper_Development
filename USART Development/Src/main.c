@@ -54,10 +54,7 @@ int main(void)
 
 	for(;;)
 	{
-		Skipper_Clock___Delay_ms(100);
-		GPIOD -> ODR 	|= (GPIO_ODR_ODR_4);				// Set PA4 HIGH
-		Skipper_Clock___Delay_ms(100);
-		GPIOD -> ODR 	&= ~(GPIO_ODR_ODR_4);				// Set PA4 LOW
+		printf("Test\n");
 	}
 
 	return(EXIT_SUCCESS);
