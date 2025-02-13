@@ -42,7 +42,6 @@ struct USB_LL_Device___RX_Endpoint
 	uint8_t* RX_Buffer;
 	uint32_t RX_Buffer_Fill_Level;
 	uint32_t RX_Buffer_Size;
-	void (*RX_Callback)(USB_LL_Device___RX_CALLBACK_PARAMETERS);
 };
 
 struct USB_LL_Device___TX_Endpoint
@@ -51,29 +50,37 @@ struct USB_LL_Device___TX_Endpoint
 	uint32_t TX_Progress;
 	uint32_t TX_Buffer_Size;
 	uint16_t TX_Packet_Size;
-	void (*TX_Callback)(USB_LL_Device___TX_CALLBACK_PARAMETERS);
 };
 
-void USB_LL_Device___Set_FIFO_Size(uint8_t port_Number, USB_LL_Device___FIFO_Config_TypeDef FIFO_Config);
-void USB_LL_Device___Receive_Setup_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size);
-void USB_LL_Device___Receive_Data_Packet(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size);
-void USB_LL_Device___Set_RX_Callback(uint8_t port_Number, uint8_t endpoint, void (*callback)(USB_LL_Device___RX_CALLBACK_PARAMETERS));
-void USB_LL_Device___Set_TX_Callback(uint8_t port_Number, uint8_t endpoint, void (*callback)(USB_LL_Device___TX_CALLBACK_PARAMETERS));
-void USB_LL_Device___Packet_Received(uint8_t port_Number);
-void USB_LL_Device___Host_Enumerated(uint8_t port_Number);
-void USB_LL_Device___USB_Suspend(uint8_t port_Number);
-void USB_LL_Device___OUT_Endpoint_Interrupt_Handler(uint8_t port_Number);
-void USB_LL_Device___IN_Endpoint_Interrupt_Handler(uint8_t port_Number);
-void USB_LL_Device___Init(uint8_t port_Number);
-void USB_LL_Device___Endpoint_Set_NAK(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
-void USB_LL_Device___Endpoint_Clear_NAK(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
-void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint32_t length);
-void USB_LL_Device___Enable_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
-void USB_LL_Device___Set_Address(uint8_t port_Number, uint16_t address);
-void USB_LL_Device___Setup_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t endpoint_Type, uint16_t max_Packet_Size);
-void USB_LL_Device___Endpoint_Transfer_Out(uint8_t port_Number, uint8_t endpoint_Number, uint32_t transfer_Size, uint8_t* buffer, uint32_t buffer_Size);
-void USB_LL_Device___Endpoint_Set_Stall(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
-void USB_LL_Device___Disable_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
-uint8_t USB_LL_Device___Is_Endpoint_Busy(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
-uint16_t USB_LL_Device___Endpoint_Get_FIFO_Space(uint8_t port_Number, uint8_t endpoint_Number);
+struct UBS_LL_Device___Callbacks
+{
+	void (*Host_Enumerated)					(uint8_t port_Number);
+	void (*USB_Suspend)						(uint8_t port_Number);
+	void (*RX_Callback)						(USB_LL_Device___RX_CALLBACK_PARAMETERS);
+	void (*TX_Callback)						(USB_LL_Device___TX_CALLBACK_PARAMETERS);
+};
+
+void 		USB_LL_Device___Set_FIFO_Size					(uint8_t port_Number, USB_LL_Device___FIFO_Config_TypeDef FIFO_Config);
+void 		USB_LL_Device___Receive_Setup_Packet			(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size);
+void 		USB_LL_Device___Receive_Data_Packet				(uint8_t port_Number, uint8_t endpoint_Number, uint32_t packet_Size);
+void 		USB_LL_Device___Set_Port_RX_Callback			(uint8_t port_Number, void (*callback)(USB_LL_Device___RX_CALLBACK_PARAMETERS));
+void 		USB_LL_Device___Set_Port_TX_Callback			(uint8_t port_Number, void (*callback)(USB_LL_Device___TX_CALLBACK_PARAMETERS));
+void 		USB_LL_Device___Packet_Received					(uint8_t port_Number);
+void 		USB_LL_Device___Host_Enumerated					(uint8_t port_Number);
+void 		USB_LL_Device___USB_Suspend						(uint8_t port_Number);
+void 		USB_LL_Device___OUT_Endpoint_Interrupt_Handler	(uint8_t port_Number);
+void 		USB_LL_Device___IN_Endpoint_Interrupt_Handler	(uint8_t port_Number);
+void 		USB_LL_Device___Init							(uint8_t port_Number);
+void 		USB_LL_Device___Endpoint_Set_NAK				(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
+void 		USB_LL_Device___Endpoint_Clear_NAK				(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
+void 		USB_LL_Device___Endpoint_Transfer_In			(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint32_t length);
+void 		USB_LL_Device___Endpoint_Transfer_Out			(uint8_t port_Number, uint8_t endpoint_Number, uint32_t transfer_Size, uint8_t* buffer, uint32_t buffer_Size);
+void 		USB_LL_Device___Enable_Endpoint					(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
+void 		USB_LL_Device___Set_Address						(uint8_t port_Number, uint16_t address);
+void 		USB_LL_Device___Setup_Endpoint					(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction, uint8_t endpoint_Type, uint16_t max_Packet_Size);
+void 		USB_LL_Device___Endpoint_Set_Stall				(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
+void 		USB_LL_Device___Disable_Endpoint				(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
+uint8_t 	USB_LL_Device___Is_Endpoint_Busy				(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
+uint16_t 	USB_LL_Device___Endpoint_Get_FIFO_Space			(uint8_t port_Number, uint8_t endpoint_Number);
+
 #endif /* INC_USB_LL_DEVICE_H_ */

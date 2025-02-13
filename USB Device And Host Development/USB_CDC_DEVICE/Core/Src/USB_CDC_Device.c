@@ -178,22 +178,18 @@ uint8_t USB_CDC_Device___Is_DTE(uint8_t port_Number)
 	return (USB_CDC_Device___CDC_Device[port_Number].control_Line_State & 0x01);
 }
 
-void USB_CDC_Device___Send_Data(uint8_t port_Number, char *data, uint16_t length)
+uint8_t USB_CDC_Device___Send_Data(uint8_t port_Number, char *data, uint16_t length)
 {
 	if(USB_CDC_Device___Is_Enabled(port_Number) && USB_CDC_Device___Is_DTE(port_Number))
 	{
-		GPIOC->ODR |= (1<<1);			// set PC1 LOW
-		GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
-		//GPIOC->ODR |= (1<<0);			// set PC0 LOW
-		//GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
-		USB_Device___Transfer_In(port_Number, 1, data, length);
+		return(USB_Device___Transfer_In(port_Number, 1, data, length));
 	}
+	return(0);
 }
 
 void USB_CDCDevice___EP1_TX_Callback( USB_Device___TX_CALLBACK_PARAMETERS)
 {
 	USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
-	//printf("TX_COMPLETE\n");
 }
 
 uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
@@ -204,8 +200,9 @@ uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTRO
 		USB_Device___Initialize_Endpoint(port_Number, 2, USB_Device___ENDPOINT_DERECTION_IN, 	USB_Device___ENDPOINT_TYPE_INTERRUPT, 	0x08);
 		USB_Device___Initialize_Endpoint(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN, 	USB_Device___ENDPOINT_TYPE_BULK, 		0x40);
 		USB_Device___Initialize_Endpoint(port_Number, 1, USB_Device___ENDPOINT_DERECTION_OUT, 	USB_Device___ENDPOINT_TYPE_BULK, 		0x40);
-
-		USB_Device___Set_TX_Callback(port_Number, 1, USB_CDCDevice___EP1_TX_Callback);
+		USB_Device___Set_Endpoint_TX_FIFO_Size(port_Number, 1, 0x100);
+		USB_Device___Set_Endpoint_TX_FIFO_Size(port_Number, 2, 0x20);
+		USB_Device___Set_Endpoint_TX_Callback(port_Number, 1, USB_CDCDevice___EP1_TX_Callback);
 
 		USB_Device___Set_Nak(port_Number, 2, USB_Device___ENDPOINT_DERECTION_IN);
 		USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
