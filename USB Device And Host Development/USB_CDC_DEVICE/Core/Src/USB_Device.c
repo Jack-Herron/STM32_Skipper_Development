@@ -14,7 +14,6 @@
 #include <stdio.h>
 
 #include "../Inc/USB_Device.h"
-#include "../Inc/USB_Device_Descriptors.h"
 #include <USB_LL.h>
 #include <USB_LL_Device.h>
 
@@ -121,6 +120,12 @@ void USB_Device___Set_Endpoint_TX_Callback(uint8_t port_Number, uint8_t endpoint
 {
     USB_Device___Device[port_Number].endpoint[endpoint_Number].TX_Callback = callback;
 }
+
+void USB_Device___Set_Endpoint_RX_Callback(uint8_t port_Number, uint8_t endpoint_Number, void callback(USB_Device___RX_CALLBACK_PARAMETERS))
+{
+    USB_Device___Device[port_Number].endpoint[endpoint_Number].RX_Callback = callback;
+}
+
 void USB_Device___Set_Nak(uint8_t port_Number, uint8_t endpoint_Number, uint8_t direction)
 {
 	USB_LL_Device___Endpoint_Set_NAK(port_Number, endpoint_Number, direction);
@@ -134,6 +139,12 @@ uint8_t USB_Device___Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, v
 		return(1);
 	}
 	return(0);
+}
+
+uint8_t USB_Device___Open_RX_Endpoint(uint8_t port_Number, uint8_t endpoint_Number, uint16_t transfer_Size, uint8_t* buffer, uint16_t buffer_Size)
+{
+	USB_LL_Device___Endpoint_Transfer_Out(port_Number, endpoint_Number, transfer_Size, buffer, buffer_Size);
+	return(1);
 }
 
 void USB_Device___TX_Callback( USB_LL_Device___TX_CALLBACK_PARAMETERS)
@@ -229,6 +240,12 @@ void USB_Device___RX_Callback(USB_LL_Device___RX_CALLBACK_PARAMETERS)
 	if(USB_Device___Device[port_Number].endpoint[endpoint_Number].type == USB_Device___ENDPOINT_TYPE_CONTROL)
 	{
 		USB_Device___Handle_Control_Transfer(port_Number, endpoint_Number, packet_Type, data, length);
-
+	}
+	else
+	{
+		if (USB_Device___Device[port_Number].endpoint[endpoint_Number].RX_Callback != NULL)
+		{
+			USB_Device___Device[port_Number].endpoint[endpoint_Number].RX_Callback(port_Number, endpoint_Number, data, length);
+		}
 	}
 }

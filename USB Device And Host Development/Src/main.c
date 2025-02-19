@@ -46,6 +46,15 @@ void GPIO_init(void){
 	GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
 }
 
+void USB_CDC_Device_RX_Callback(USB_CDC_Device___MESSAGE_RECEIVED_CALLBACK_PARAMETERS)
+{
+
+	if(!USB_CDC_Device___Send_Data(1, data, length))
+	{
+		printf("busy\n");
+	}
+}
+
 int main(void) {
 	Skipper_Clock___Init();			// initiate the clock
 	Skipper_Clock___Systick_Init();
@@ -54,7 +63,9 @@ int main(void) {
 	USART___Set_Baud_Rate(1, 2000000);
 
 	USB_CDC_Device___Init(1);
-
+	//USB_CDC_Device___Set_Interrupt_Char(1, '\n');
+	USB_CDC_Device___Set_Interrupt_Char(1, '\r');
+	USB_CDC_Device___Set_Message_Received_Callback(1, USB_CDC_Device_RX_Callback);
 	//USB_Host___Init(0);
 	//USB_Mouse_Host___Init(0);
 	//USB_Keyboard_Host___Init(0);
@@ -65,12 +76,13 @@ int main(void) {
 
 	for(;;)
 	{
-		//Skipper_Clock___Delay_ms(5);
-		//if(!USB_CDC_Device___Send_Data(1, testSTR, sizeof(testSTR)-1))
-		//{
+		/*Skipper_Clock___Delay_ms(5);
+		if(!USB_CDC_Device___Send_Data(1, testSTR, sizeof(testSTR)-1))
+		{
 			printf("busy\n");
-		//}
-		//USB_Host___Process(0);
-	}
+		}
+
+		USB_Host___Process(0);
+	*/}
 }
 

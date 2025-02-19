@@ -369,13 +369,19 @@ void USB_LL_Device___Endpoint_Transfer_Out(uint8_t port_Number, uint8_t endpoint
 {
 	USB_OTG_OUTEndpointTypeDef *USB_Device_Out_Endpoint = USB_LL___Get_USB_Device_OUT(port_Number, endpoint_Number);
 	uint16_t max_Packet_Size = USB_LL_Device___Endpoint_Get_Max_Packet_Size(port_Number, endpoint_Number, USB_LL_Device___ENDPOINT_DERECTION_OUT);
+
+	if(transfer_Size == 0)
+	{
+		transfer_Size = max_Packet_Size;
+	}
+
 	uint16_t packet_Count = (transfer_Size + max_Packet_Size - 1) / max_Packet_Size;
 
 	USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer 			= buffer;
 	USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Size		= buffer_Size;
 	USB_LL_Device___RX_Endpoint[port_Number][endpoint_Number].RX_Buffer_Fill_Level 	= 0;
 
-	USB_Device_Out_Endpoint->DOEPTSIZ = (transfer_Size << USB_OTG_DOEPTSIZ_XFRSIZ_Pos) | (packet_Count << USB_OTG_DOEPTSIZ_PKTCNT_Pos) | (3 << USB_OTG_DOEPTSIZ_STUPCNT_Pos);
+	USB_Device_Out_Endpoint->DOEPTSIZ = (transfer_Size << USB_OTG_DOEPTSIZ_XFRSIZ_Pos) | (packet_Count << USB_OTG_DOEPTSIZ_PKTCNT_Pos);
 	USB_Device_Out_Endpoint->DOEPCTL |= USB_OTG_DOEPCTL_EPENA | USB_OTG_DOEPCTL_CNAK;
 }
 

@@ -13,7 +13,6 @@
 
 #include "../Inc/USB_CDC_Device.h"
 #include <USB_Device.h>
-#include <USB_Device_Descriptors.h>
 
 USB_CDC_Device___CDC_Device_TypeDef USB_CDC_Device___CDC_Device[USB_Device___NUM_PORTS];
 
@@ -140,8 +139,6 @@ USB_Device___Control_Solution_TypeDef USB_Device___Control_Solution_List[] =
 uint8_t USB_CDC_Device___Clear_Stall_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
 {
 	USB_Device___Reset_Endpoint(port_Number, (setup_Packet.wIndex & 0x0f), (setup_Packet.wIndex & 0x80) >> 7);
-	GPIOC->ODR |= (1<<0);			// set PC0 LOW
-	GPIOC->ODR &= ~(1<<0);			// set PC0 LOW
 	return (1);
 }
 
@@ -187,9 +184,48 @@ uint8_t USB_CDC_Device___Send_Data(uint8_t port_Number, char *data, uint16_t len
 	return(0);
 }
 
-void USB_CDCDevice___EP1_TX_Callback( USB_Device___TX_CALLBACK_PARAMETERS)
+void USB_CDC_Device___EP1_TX_Callback(USB_Device___TX_CALLBACK_PARAMETERS)
 {
-	USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
+
+}
+
+void USB_CDC_Device___Set_Interrupt_Char(uint8_t port_Number, char interrupt_Char)
+{
+	USB_CDC_Device___CDC_Device[port_Number].interrupt_Char[interrupt_Char / 32] |= (1 << (interrupt_Char % 32));
+}
+
+void USB_CDC_Device___Set_Message_Received_Callback(uint8_t port_Number, void callback(USB_CDC_Device___MESSAGE_RECEIVED_CALLBACK_PARAMETERS))
+{
+	USB_CDC_Device___CDC_Device[port_Number].message_Received_Callback = callback;
+}
+
+void USB_CDC_Device___EP1_RX_Callback(USB_Device___RX_CALLBACK_PARAMETERS)
+{
+	uint8_t* 	RX_Message_Buffer 			= USB_CDC_Device___CDC_Device[port_Number].RX_Message_Buffer;
+	uint8_t** 	RX_Message_Buffer_Head 		= &USB_CDC_Device___CDC_Device[port_Number].RX_Message_Buffer_Head;
+
+	for(uint16_t i = 0; i < length; i++)
+	{
+		**RX_Message_Buffer_Head = data[i];
+		*RX_Message_Buffer_Head+=1;
+
+		if (*RX_Message_Buffer_Head >= RX_Message_Buffer + USB_CDC_Device___RX_MESSAGE_BUFFER_SIZE)
+		{
+			USB_CDC_Device___CDC_Device[port_Number].RX_Message_Buffer_Overflow_Flag = 1;
+			*RX_Message_Buffer_Head = RX_Message_Buffer;
+		}
+
+		if((1 << (data[i] % 32)) & USB_CDC_Device___CDC_Device[port_Number].interrupt_Char[data[i] / 32])
+		{
+			if (USB_CDC_Device___CDC_Device[port_Number].message_Received_Callback != NULL)
+			{
+				USB_CDC_Device___CDC_Device[port_Number].message_Received_Callback(port_Number, USB_CDC_Device___CDC_Device[port_Number].RX_Message_Buffer_Overflow_Flag, data[i], RX_Message_Buffer, *RX_Message_Buffer_Head - RX_Message_Buffer);
+			}
+			*RX_Message_Buffer_Head = RX_Message_Buffer;
+		}
+	}
+
+	USB_Device___Open_RX_Endpoint(port_Number, 1, 0, USB_CDC_Device___CDC_Device[port_Number].RX_Packet_Buffer, USB_CDC_Device___RX_PACKET_BUFFER_SIZE);
 }
 
 uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTROL_SOLUTION_CALLBACK_PARAMETERS)
@@ -202,8 +238,9 @@ uint8_t USB_CDC_Device___Set_Configuration_Solution_Callback(USB_Device___CONTRO
 		USB_Device___Initialize_Endpoint(port_Number, 1, USB_Device___ENDPOINT_DERECTION_OUT, 	USB_Device___ENDPOINT_TYPE_BULK, 		0x40);
 		USB_Device___Set_Endpoint_TX_FIFO_Size(port_Number, 1, 0x100);
 		USB_Device___Set_Endpoint_TX_FIFO_Size(port_Number, 2, 0x20);
-		USB_Device___Set_Endpoint_TX_Callback(port_Number, 1, USB_CDCDevice___EP1_TX_Callback);
-
+		USB_Device___Set_Endpoint_TX_Callback(port_Number, 1, USB_CDC_Device___EP1_TX_Callback);
+        USB_Device___Set_Endpoint_RX_Callback(port_Number, 1, USB_CDC_Device___EP1_RX_Callback);
+        USB_Device___Open_RX_Endpoint(port_Number, 1, 0, USB_CDC_Device___CDC_Device[port_Number].RX_Packet_Buffer, USB_CDC_Device___RX_PACKET_BUFFER_SIZE);
 		USB_Device___Set_Nak(port_Number, 2, USB_Device___ENDPOINT_DERECTION_IN);
 		USB_Device___Set_Nak(port_Number, 1, USB_Device___ENDPOINT_DERECTION_IN);
 		USB_CDC_Device___CDC_Device[port_Number].is_Enabled = 1;
@@ -225,4 +262,9 @@ void USB_CDC_Device___Init(uint8_t port_Number)
 	USB_CDC_Device___CDC_Device[port_Number].line_Coding[0] 		= 0x00;
 	USB_CDC_Device___CDC_Device[port_Number].line_Coding[1] 		= 0x00;
 	USB_CDC_Device___CDC_Device[port_Number].is_Enabled 			= 0;
+	USB_CDC_Device___CDC_Device[port_Number].RX_Message_Buffer_Head = USB_CDC_Device___CDC_Device[port_Number].RX_Message_Buffer;
+	for (uint8_t i = 0; i < 8; i++)
+	{
+		USB_CDC_Device___CDC_Device[port_Number].interrupt_Char[i] = 0;
+	}
 }
