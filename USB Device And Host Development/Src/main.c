@@ -48,11 +48,8 @@ void GPIO_init(void){
 
 void USB_CDC_Device_RX_Callback(USB_CDC_Device___MESSAGE_RECEIVED_CALLBACK_PARAMETERS)
 {
-
-	if(!USB_CDC_Device___Send_Data(1, data, length))
-	{
-		printf("busy\n");
-	}
+	data[length-1] = 0;
+	printf("%s\n", data);
 }
 
 int main(void) {

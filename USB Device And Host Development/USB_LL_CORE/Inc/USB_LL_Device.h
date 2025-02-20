@@ -20,6 +20,8 @@
 #define USB_LL_Device___PACKET_TYPE_DATA            			0x02
 #define USB_LL_Device___RX_CALLBACK_PARAMETERS  				uint8_t port_Number, uint8_t endpoint_Number, uint8_t packet_Type, uint8_t *data, uint16_t length
 #define USB_LL_Device___TX_CALLBACK_PARAMETERS  				uint8_t port_Number, uint8_t endpoint_Number
+#define USB_LL_Device___USB_SUSPENDED_CALLBACK_PARAMETERS  		uint8_t port_Number
+#define USB_LL_Device___HOST_ENUMERATED_CALLBACK_PARAMETERS  	uint8_t port_Number
 #define USB_LL_Device___RX_PACKET_STATUS_DATA_PACKET_RECIEVED	0x02
 #define USB_LL_Device___RX_PACKET_STATUS_SETUP_PACKET_RECIEVED	0x06
 #define UBS_LL_Device___OUT_ENDPOINT_INTERRUPT_MASK            	0x8b//0x313b
@@ -54,8 +56,8 @@ struct USB_LL_Device___TX_Endpoint
 
 struct UBS_LL_Device___Callbacks
 {
-	void (*Host_Enumerated)					(uint8_t port_Number);
-	void (*USB_Suspend)						(uint8_t port_Number);
+	void (*Host_Enumerated_Callback)		(USB_LL_Device___HOST_ENUMERATED_CALLBACK_PARAMETERS);
+	void (*USB_Suspended_Callback)			(USB_LL_Device___USB_SUSPENDED_CALLBACK_PARAMETERS);
 	void (*RX_Callback)						(USB_LL_Device___RX_CALLBACK_PARAMETERS);
 	void (*TX_Callback)						(USB_LL_Device___TX_CALLBACK_PARAMETERS);
 };
@@ -82,5 +84,6 @@ void 		USB_LL_Device___Endpoint_Set_Stall				(uint8_t port_Number, uint8_t endpo
 void 		USB_LL_Device___Disable_Endpoint				(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
 uint8_t 	USB_LL_Device___Is_Endpoint_Busy				(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction);
 uint16_t 	USB_LL_Device___Endpoint_Get_FIFO_Space			(uint8_t port_Number, uint8_t endpoint_Number);
-
+void 		USB_LL_Device___Set_USB_Suspended_Callback		(uint8_t port_Number, void callback(USB_LL_Device___USB_SUSPENDED_CALLBACK_PARAMETERS));
+void 		USB_LL_Device___Set_USB_Enumerated_Callback		(uint8_t port_Number, void callback(USB_LL_Device___HOST_ENUMERATED_CALLBACK_PARAMETERS));
 #endif /* INC_USB_LL_DEVICE_H_ */

@@ -18,7 +18,7 @@
 
 struct USB_LL_Device___RX_Endpoint 	USB_LL_Device___RX_Endpoint[USB_LL_Device___PORT_COUNT][USB_LL_Device___ENDPOINT_COUNT];
 struct USB_LL_Device___TX_Endpoint 	USB_LL_Device___TX_Endpoint[USB_LL_Device___PORT_COUNT][USB_LL_Device___ENDPOINT_COUNT];
-struct UBS_LL_Device___Callbacks 	USB_LL_Device___Callbacks[USB_LL_Device___PORT_COUNT];
+struct UBS_LL_Device___Callbacks 	USB_LL_Device___Callbacks[USB_LL_Device___PORT_COUNT] = {0};
 void USB_LL_Device___Init(uint8_t port_Number)
 {
 	USB_OTG_DeviceTypeDef *USB_Device = USB_LL___Get_USB_Device(port_Number);
@@ -123,14 +123,30 @@ void USB_LL_Device___Set_Address(uint8_t port_Number, uint16_t address)
 	USB_Device->DCFG = (USB_Device->DCFG & ~USB_OTG_DCFG_DAD) | (address << USB_OTG_DCFG_DAD_Pos);
 }
 
+void USB_LL_Device___Set_USB_Suspended_Callback(uint8_t port_Number, void callback(USB_LL_Device___USB_SUSPENDED_CALLBACK_PARAMETERS))
+{
+	USB_LL_Device___Callbacks[port_Number].USB_Suspended_Callback = callback;
+}
+
+void USB_LL_Device___Set_USB_Enumerated_Callback(uint8_t port_Number, void callback(USB_LL_Device___HOST_ENUMERATED_CALLBACK_PARAMETERS))
+{
+	USB_LL_Device___Callbacks[port_Number].Host_Enumerated_Callback = callback;
+}
+
 void USB_LL_Device___USB_Suspend(uint8_t port_Number)
 {
-	printf("USB Suspended\n");
+	if (USB_LL_Device___Callbacks[port_Number].USB_Suspended_Callback != NULL)
+	{
+		USB_LL_Device___Callbacks[port_Number].USB_Suspended_Callback(port_Number);
+	}
 }
 
 void USB_LL_Device___Host_Enumerated(uint8_t port_Number)
 {
-	printf("Host attempting to connect\n");
+	if (USB_LL_Device___Callbacks[port_Number].Host_Enumerated_Callback != NULL)
+	{
+		USB_LL_Device___Callbacks[port_Number].Host_Enumerated_Callback(port_Number);
+	}
 }
 
 void USB_LL_Device___Endpoint_Set_NAK(uint8_t port_Number, uint8_t endpoint_Number, uint8_t endpoint_Direction)
@@ -301,6 +317,12 @@ void USB_LL_Device___Endpoint_Disable_TX_FIFO_Empty_Interrupt(uint8_t port_Numbe
 	USB_Device->DIEPEMPMSK 	&= ~(1 << endpoint_Number);
 }
 
+uint32_t USB_LL_Device___Get_Frame_Number(uint8_t port_Number)
+{
+	USB_OTG_DeviceTypeDef *USB_Device = USB_LL___Get_USB_Device(port_Number);
+	return (USB_Device->DSTS & USB_OTG_DSTS_FNSOF);
+}
+
 void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_Number, uint8_t *data, uint32_t length)
 {
 	USB_OTG_INEndpointTypeDef*	USB_Device_In_Endpoint 	= USB_LL___Get_USB_Device_IN(port_Number, endpoint_Number);
@@ -314,6 +336,15 @@ void USB_LL_Device___Endpoint_Transfer_In(uint8_t port_Number, uint8_t endpoint_
 	{
 		if((USB_Device_In_Endpoint->DIEPCTL & USB_OTG_DIEPCTL_EPTYP)>>USB_OTG_DIEPCTL_EPTYP_Pos == USB_LL_Device___ENDPOINT_TYPE_ISOCHRONOUS)
 		{
+			if(USB_LL_Device___Get_Frame_Number(port_Number) & 0x01)
+			{
+				USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_SODDFRM;
+			}
+			else
+			{
+				USB_Device_In_Endpoint->DIEPCTL |= USB_OTG_DIEPCTL_SD0PID_SEVNFRM;
+			}
+
 			USB_LL___FIFO_Transfer_In(data, USB_LL_Device___Endpoint_Get_TX_FIFO_Pointer(port_Number, endpoint_Number), length);
 		}
 		else
