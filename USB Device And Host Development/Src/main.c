@@ -13,11 +13,8 @@
 #include <stdio.h>
 #include <USB_Host.h>
 #include <USB_VICE_Host.h>
-#include <USB_HID_Host.h>
 #include <USART.h>
 #include <USB_CDC_Device.h>
-#include <USB_Keyboard_Host.h>
-#include <USB_Mouse_Host.h>
 
 void GPIO_init(void){
 	RCC->AHB1ENR |= (1<<3); 		// enable GPIOD clock
@@ -48,6 +45,7 @@ void GPIO_init(void){
 
 void USB_CDC_Device_RX_Callback(USB_CDC_Device___MESSAGE_RECEIVED_CALLBACK_PARAMETERS)
 {
+
 	data[length-1] = 0;
 	printf("%s\n", data);
 }
@@ -63,23 +61,12 @@ int main(void) {
 	//USB_CDC_Device___Set_Interrupt_Char(1, '\n');
 	USB_CDC_Device___Set_Interrupt_Char(1, '\r');
 	USB_CDC_Device___Set_Message_Received_Callback(1, USB_CDC_Device_RX_Callback);
-	//USB_Host___Init(0);
-	//USB_Mouse_Host___Init(0);
-	//USB_Keyboard_Host___Init(0);
-
-	char testSTR[] =
-			"0123456789"
-			"**\n";
+	USB_Host___Init(0);
+	USB_VICE_Host___Init(0);
 
 	for(;;)
 	{
-		/*Skipper_Clock___Delay_ms(5);
-		if(!USB_CDC_Device___Send_Data(1, testSTR, sizeof(testSTR)-1))
-		{
-			printf("busy\n");
-		}
-
 		USB_Host___Process(0);
-	*/}
+	}
 }
 
