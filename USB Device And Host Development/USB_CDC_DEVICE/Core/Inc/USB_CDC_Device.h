@@ -10,6 +10,7 @@
 
 #define USB_CDC_Device___RX_PACKET_BUFFER_SIZE		(0x40)
 #define USB_CDC_Device___RX_MESSAGE_BUFFER_SIZE		(0x400)
+#define USB_CDC_Device___TX_MESSAGE_BUFFER_SIZE		(0x400)
 
 #define USB_CDC_Device___MESSAGE_RECEIVED_CALLBACK_PARAMETERS    uint8_t port_Number, uint8_t status, uint8_t interrupt_Char, uint8_t *data, uint16_t length
 
@@ -25,6 +26,9 @@ typedef struct USB_CDC_Device___CDC_Device
 	uint8_t     RX_Message_Buffer_Overflow_Flag;
 	uint8_t 	RX_Packet_Buffer[USB_CDC_Device___RX_PACKET_BUFFER_SIZE];
 	uint32_t	interrupt_Char[8];
+	uint8_t 	TX_Message_Buffer[USB_CDC_Device___TX_MESSAGE_BUFFER_SIZE];
+	uint8_t*	TX_Message_Buffer_Write_Head;
+	uint8_t*	TX_Message_Buffer_Read_Head;
 	void (*message_Received_Callback)(USB_CDC_Device___MESSAGE_RECEIVED_CALLBACK_PARAMETERS);
 }USB_CDC_Device___CDC_Device_TypeDef;
 

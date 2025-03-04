@@ -336,8 +336,76 @@ void USB_VICE_Host___Setup_VICE_Interface(uint8_t port_Number, uint8_t device_Ad
 			VICE_Interface->interrupt_Out_Endpoint_Interval = endpoint_Descriptor.bInterval;
 		}
 	}
+	VICE_Node->VICE_Device.setup_Stage = USB_VICE_Host___SETUP_STAGE_NOTIFY_APPLICATIONS;
+	USB_VICE_Host___Do_Setup_Stage(VICE_Node);
+	//USB_VICE_Host___Get_VICE_Descriptor(port_Number, device_Address, interface_Number, USB_VICE_Host___VICE_Descriptor_Length, (uint8_t*)&(VICE_Interface->VICE_Descriptor), USB_VICE_Host___URB_Setup_Callback);
+}
 
-	USB_VICE_Host___Get_VICE_Descriptor(port_Number, device_Address, interface_Number, USB_VICE_Host___VICE_Descriptor_Length, (uint8_t*)&(VICE_Interface->VICE_Descriptor), USB_VICE_Host___URB_Setup_Callback);
+uint8_t USB_VICE_Host___Register_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
+{
+	USB_VICE_Host___VICE_Interface_Node_TypeDef* VICE_Node = USB_VICE_Host___Get_VICE_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+
+	if (VICE_Node != NULL)
+	{
+		if (VICE_Node->VICE_Device.VICE_Descriptor.interface_Registered == false)
+		{
+			VICE_Node->VICE_Device.VICE_Descriptor.interface_Registered = true;
+			return (EXIT_SUCCESS);
+		}
+		return (EXIT_SUCCESS);
+	}
+
+	return (EXIT_FAILURE);
+}
+
+uint8_t USB_VICE_Host___Add_Interface_Connected_Callback(uint8_t port_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number))
+{
+	uint8_t first_Free_Index = 0;
+	uint8_t free_Index_Found = false;
+
+	for (uint8_t i = 0; i < USB_VICE_Host___MAX_APPLICATIONS; i++)
+	{
+		if (USB_VICE_Host___Application_Callbacks[port_Number].VICE_Interface_Connected_Callback[i] == NULL && !free_Index_Found)
+		{
+			free_Index_Found = true;
+            first_Free_Index = i;
+		}
+		else if (USB_VICE_Host___Application_Callbacks[port_Number].VICE_Interface_Connected_Callback[i] == callback)
+		{
+			return (EXIT_SUCCESS);
+		}
+	}
+	if (free_Index_Found)
+	{
+		USB_VICE_Host___Application_Callbacks[port_Number].VICE_Interface_Connected_Callback[first_Free_Index] = callback;
+		return (EXIT_SUCCESS);
+	}
+	return (EXIT_FAILURE);
+}
+
+uint8_t USB_VICE_Host___Add_Interface_Disconnected_Callback(uint8_t port_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number))
+{
+	uint8_t first_Free_Index = 0;
+	uint8_t free_Index_Found = false;
+
+	for (uint8_t i = 0; i < USB_VICE_Host___MAX_APPLICATIONS; i++)
+	{
+		if (USB_VICE_Host___Application_Callbacks[port_Number].VICE_Interface_Disconnected_Callback[i] == NULL && !free_Index_Found)
+		{
+			free_Index_Found = true;
+            first_Free_Index = i;
+		}
+		else if (USB_VICE_Host___Application_Callbacks[port_Number].VICE_Interface_Disconnected_Callback[i] == callback)
+		{
+			return (EXIT_SUCCESS);
+		}
+	}
+	if (free_Index_Found)
+	{
+		USB_VICE_Host___Application_Callbacks[port_Number].VICE_Interface_Disconnected_Callback[first_Free_Index] = callback;
+		return (EXIT_SUCCESS);
+	}
+	return (EXIT_FAILURE);
 }
 
 void USB_VICE_Host___Setup_VICE_Device(uint8_t port_Number, uint8_t device_Address)
