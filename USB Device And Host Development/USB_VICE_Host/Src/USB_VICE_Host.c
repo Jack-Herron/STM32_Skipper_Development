@@ -158,6 +158,54 @@ USB_VICE_Host___VICE_Interface_Node_TypeDef* USB_VICE_Host___Get_VICE_Node_From_
 	return(NULL);
 }
 
+uint8_t USB_Vice_Host___Get_Num_VICE_Instances(uint8_t port_Number)
+{
+	uint8_t num_Instances = 0;
+
+	if(USB_VICE_Host___VICE_Interface_List[port_Number].first_Node != NULL)
+	{
+		num_Instances++;
+		USB_VICE_Host___VICE_Interface_Node_TypeDef* p_VICE_Node = USB_VICE_Host___VICE_Interface_List[port_Number].first_Node;
+
+		for (uint8_t i = 0; i < USB_VICE_Host___NUMBER_OF_VICE_INSTANCES; i++)
+		{
+			if (USB_VICE_Host___VICE_Interface_List[port_Number].first_Node->next_Node != NULL)
+			{
+				num_Instances++;
+				p_VICE_Node = p_VICE_Node->next_Node;
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	return(num_Instances);
+}
+
+USB_VICE_Host___VICE_Interface_TypeDef* USB_Vice_Host___Get_VICE_Instance(uint8_t port_Number, uint8_t instance_Number)
+{
+	USB_VICE_Host___VICE_Interface_Node_TypeDef *p_VICE_Node = USB_VICE_Host___VICE_Interface_List[port_Number].first_Node;
+
+	if(p_VICE_Node != NULL)
+	{
+		for (uint8_t i = 0; i < instance_Number; i++)
+		{
+			if(p_VICE_Node->next_Node != NULL)
+			{
+				p_VICE_Node = p_VICE_Node->next_Node;
+			}
+			else
+			{
+				return (NULL);
+			}
+		}
+	}
+
+	return (&(p_VICE_Node->VICE_Device));
+}
+
 uint8_t USB_VICE_Host___Is_Device_VICE_Device(uint8_t port_Number, uint8_t device_Address)
 {
 	uint8_t											num_VICE_Interfaces				= 0;

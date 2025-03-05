@@ -47,11 +47,41 @@ void GPIO_init(void){
 	GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
 }
 
+void send_VICE_Connect_Command(uint8_t port_Number, uint8_t device_Address, char* product_String)
+{
+	snprintf(CDC_VICE_Command_Buffer, 0x80, "/connect {\"Device_ID\": %d,\"Device_Name\": \"%s\"}\n", device_Address, product_String);
+	USB_CDC_Device___Send_Data(1, CDC_VICE_Command_Buffer, strlen(CDC_VICE_Command_Buffer));
+}
+
+void Convert_USB_String_To_String(uint16_t* USB_String, uint16_t USB_String_Length, char* String)
+{
+	for(uint16_t i = 0; i < USB_String_Length; i++)
+	{
+		String[i] = (uint8_t)USB_String[i];
+	}
+	String[USB_String_Length] = 0;
+}
+
 void USB_CDC_Device_RX_Callback(USB_CDC_Device___MESSAGE_RECEIVED_CALLBACK_PARAMETERS)
 {
-
 	data[length-1] = 0;
-	printf("%s\n", data);
+	if(strcmp(data, "/connect") == 0)
+	{
+		uint8_t num_VICE_Interfaces = USB_Vice_Host___Get_Num_VICE_Instances(0);
+		for(uint8_t i = 0; i < num_VICE_Interfaces; i++)
+		{
+			USB_VICE_Host___VICE_Interface_TypeDef* VICE_Instance = USB_Vice_Host___Get_VICE_Instance(0, i);
+			if(VICE_Instance != NULL)
+			{
+				uint16_t* product_Name = USB_Host_Device_Manager___Get_Product_String(VICE_Instance->port_Number, VICE_Instance->device_Address);
+				uint16_t product_Name_Length = USB_Host_Device_Manager___Get_Product_String_Length(VICE_Instance->port_Number, VICE_Instance->device_Address);
+				char product_String[0x40];
+
+				Convert_USB_String_To_String(product_Name, product_Name_Length, product_String);
+				send_VICE_Connect_Command(VICE_Instance->port_Number, VICE_Instance->device_Address, product_String);
+			}
+		}
+	}
 }
 
 void VICE_Interface_Connected_Callback(USB_VICE_Host___INTERFACE_CONNECTED_CALLBACK_PARAMETERS)
@@ -63,15 +93,8 @@ void VICE_Interface_Connected_Callback(USB_VICE_Host___INTERFACE_CONNECTED_CALLB
 		uint16_t product_Name_Length = USB_Host_Device_Manager___Get_Product_String_Length(port_Number, device_Address);
 		char product_String[0x40];
 
-		for (uint8_t i = 0; i < product_Name_Length; i++)
-		{
-			product_String[i] = (uint8_t)product_Name[i];
-		}
-
-		product_String[product_Name_Length] = 0;
-
-		snprintf(CDC_VICE_Command_Buffer, 0x80, "/connect {\"Device_ID\": %d,\"Device_Name\": \"%s\"}\n", device_Address, product_String);
-		USB_CDC_Device___Send_Data(1, CDC_VICE_Command_Buffer, strlen(CDC_VICE_Command_Buffer));
+		Convert_USB_String_To_String(product_Name, product_Name_Length, product_String);
+		send_VICE_Connect_Command(port_Number, device_Address, product_String);
 	}
 }
 
@@ -92,8 +115,7 @@ int main(void) {
 	USART___Set_Baud_Rate(1, 2000000);
 
 	USB_CDC_Device___Init(1);
-	//USB_CDC_Device___Set_Interrupt_Char(1, '\n');
-	USB_CDC_Device___Set_Interrupt_Char(1, '\r');
+	USB_CDC_Device___Set_Interrupt_Char(1, '\n');
 	USB_CDC_Device___Set_Message_Received_Callback(1, USB_CDC_Device_RX_Callback);
 	USB_Host___Init(0);
 	USB_VICE_Host___Init(0);

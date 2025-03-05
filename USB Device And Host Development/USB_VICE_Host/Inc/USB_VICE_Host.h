@@ -80,5 +80,7 @@ void USB_VICE_Host___Init(uint8_t port_Number);
 uint8_t USB_VICE_Host___Add_Interface_Disconnected_Callback(uint8_t port_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number));
 uint8_t USB_VICE_Host___Add_Interface_Connected_Callback(uint8_t port_Number, void (*callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number));
 uint8_t USB_VICE_Host___Register_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
+uint8_t USB_Vice_Host___Get_Num_VICE_Instances(uint8_t port_Number);
+USB_VICE_Host___VICE_Interface_TypeDef* USB_Vice_Host___Get_VICE_Instance(uint8_t port_Number, uint8_t instance_Number);
 
 #endif /* INC_USB_VICE_HOST_H_ */
