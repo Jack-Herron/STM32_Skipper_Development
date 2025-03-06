@@ -18,8 +18,6 @@
 #include <string.h>
 #include <USB_Host_Device_Manager.h>
 
-char CDC_VICE_Command_Buffer[0x80];
-
 void GPIO_init(void){
 	RCC->AHB1ENR |= (1<<3); 		// enable GPIOD clock
 	RCC->AHB1ENR |= (1<<2); 		// enable GPIOC clock
@@ -49,8 +47,9 @@ void GPIO_init(void){
 
 void send_VICE_Connect_Command(uint8_t port_Number, uint8_t device_Address, char* product_String)
 {
-	snprintf(CDC_VICE_Command_Buffer, 0x80, "/connect {\"Device_ID\": %d,\"Device_Name\": \"%s\"}\n", device_Address, product_String);
-	USB_CDC_Device___Send_Data(1, CDC_VICE_Command_Buffer, strlen(CDC_VICE_Command_Buffer));
+	char string[0x80];
+	snprintf(string, 0x80, "/connect {\"Device_ID\": %d,\"Device_Name\": \"%s\", \"Variables\": [2]}\n", device_Address, product_String);
+	USB_CDC_Device___Send_Data(1, string, strlen(string));
 }
 
 void Convert_USB_String_To_String(uint16_t* USB_String, uint16_t USB_String_Length, char* String)
@@ -102,8 +101,9 @@ void VICE_Interface_Disconnected_Callback( USB_VICE_Host___INTERFACE_DISCONNECTE
 {
 	if (USB_CDC_Device___Is_Enabled(1))
 	{
-		snprintf(CDC_VICE_Command_Buffer, 0x80, "/disconnect {\"Device_ID\": %d}\n", device_Address);
-		USB_CDC_Device___Send_Data(1, CDC_VICE_Command_Buffer, strlen(CDC_VICE_Command_Buffer));
+		char string[0x80];
+		snprintf(string, 0x80, "/disconnect {\"Device_ID\": %d}\n", device_Address);
+		USB_CDC_Device___Send_Data(1, string, strlen(string));
 	}
 }
 
