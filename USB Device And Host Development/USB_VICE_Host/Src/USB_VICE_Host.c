@@ -66,7 +66,7 @@ static USB_VICE_Host___Application_Callbacks_TypeDef USB_VICE_Host___Application
 
 void USB_VICE_Host___Initiate_VICE_Node(USB_VICE_Host___VICE_Interface_Node_TypeDef* p_VICE_Node)
 {
-	p_VICE_Node->VICE_Device.VICE_Descriptor.interface_Registered = false;
+	p_VICE_Node->VICE_Device.interface_Registered = false;
 }
 
 USB_VICE_Host___VICE_Interface_Node_TypeDef* USB_VICE_Host___Create_VICE_Node(uint8_t port_Number)
@@ -121,6 +121,16 @@ void USB_VICE_Host___Delete_VICE_Node(uint8_t port_Number, USB_VICE_Host___VICE_
 		}
 
 		USB_VICE_Host___Free_VICE_Node(p_VICE_Node);
+	}
+}
+
+void USB_VICE_Host___Send_Frame(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint32_t frame_Number, uint32_t frame)
+{
+	USB_VICE_Host___VICE_Interface_Node_TypeDef *p_VICE_Node = USB_VICE_Host___Get_VICE_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
+
+	if (p_VICE_Node != NULL)
+	{
+		USB_Host_Transfers___Isochronous_Transfer(port_Number, device_Address, USB_Host___ENDPOINT_1, USB_Host___TRANSFER_DIRECTION_OUT, uint8_t, length, callback);
 	}
 }
 
@@ -269,7 +279,7 @@ void USB_VICE_Host___Get_VICE_Report_Descriptor(uint8_t port_Number, uint8_t dev
 uint8_t USB_VICE_Host___Is_Interface_Registered(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
 {
 	USB_VICE_Host___VICE_Interface_Node_TypeDef *p_VICE_Node = USB_VICE_Host___Get_VICE_Node_From_Device_Interface(port_Number, device_Address, interface_Number);
-	return(p_VICE_Node->VICE_Device.VICE_Descriptor.interface_Registered);
+	return(p_VICE_Node->VICE_Device.interface_Registered);
 }
 
 void USB_VICE_Host___Do_Setup_Stage(USB_VICE_Host___VICE_Interface_Node_TypeDef* p_VICE_Node)
@@ -319,7 +329,6 @@ void USB_VICE_Host___Set_Next_Setup_Stage(USB_VICE_Host___VICE_Interface_Node_Ty
 		break;
 	case USB_VICE_Host___SETUP_STAGE_GET_VICE_REPORT_DESCRIPTOR:
 		p_VICE_Node->VICE_Device.setup_Stage = USB_VICE_Host___SETUP_STAGE_NOTIFY_APPLICATIONS;
-		//USB_VICE_Host___Print_VICE_Report_Descriptor(p_VICE_Node);
 		break;
 	}
 }
@@ -386,7 +395,6 @@ void USB_VICE_Host___Setup_VICE_Interface(uint8_t port_Number, uint8_t device_Ad
 	}
 	VICE_Node->VICE_Device.setup_Stage = USB_VICE_Host___SETUP_STAGE_NOTIFY_APPLICATIONS;
 	USB_VICE_Host___Do_Setup_Stage(VICE_Node);
-	//USB_VICE_Host___Get_VICE_Descriptor(port_Number, device_Address, interface_Number, USB_VICE_Host___VICE_Descriptor_Length, (uint8_t*)&(VICE_Interface->VICE_Descriptor), USB_VICE_Host___URB_Setup_Callback);
 }
 
 uint8_t USB_VICE_Host___Register_Interface(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number)
@@ -395,9 +403,9 @@ uint8_t USB_VICE_Host___Register_Interface(uint8_t port_Number, uint8_t device_A
 
 	if (VICE_Node != NULL)
 	{
-		if (VICE_Node->VICE_Device.VICE_Descriptor.interface_Registered == false)
+		if (VICE_Node->VICE_Device.interface_Registered == false)
 		{
-			VICE_Node->VICE_Device.VICE_Descriptor.interface_Registered = true;
+			VICE_Node->VICE_Device.interface_Registered = true;
 			return (EXIT_SUCCESS);
 		}
 		return (EXIT_SUCCESS);

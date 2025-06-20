@@ -45,11 +45,11 @@ void GPIO_init(void){
 	GPIOC->ODR &= ~(1<<1);			// set PC1 LOW
 }
 
-void send_VICE_Connect_Command(uint8_t port_Number, uint8_t device_Address, char* product_String)
+void send_VICE_Connect_Command(uint8_t port_Number, uint8_t vice_Device_Address, char* product_String)
 {
 	char string[0x80];
-	snprintf(string, 0x80, "/connect {\"Device_ID\": %d,\"Device_Name\": \"%s\", \"Variables\": [2]}\n", device_Address, product_String);
-	USB_CDC_Device___Send_Data(1, string, strlen(string));
+	snprintf(string, 0x80, "/connect {\"Device_ID\": %d,\"Device_Name\": \"%s\", \"Variables\": [2]}\n", vice_Device_Address, product_String);
+	USB_CDC_Device___Send_Data(port_Number, string, strlen(string));
 }
 
 void Convert_USB_String_To_String(uint16_t* USB_String, uint16_t USB_String_Length, char* String)
@@ -93,7 +93,7 @@ void VICE_Interface_Connected_Callback(USB_VICE_Host___INTERFACE_CONNECTED_CALLB
 		char product_String[0x40];
 
 		Convert_USB_String_To_String(product_Name, product_Name_Length, product_String);
-		send_VICE_Connect_Command(port_Number, device_Address, product_String);
+		send_VICE_Connect_Command(1, device_Address, product_String);
 	}
 }
 

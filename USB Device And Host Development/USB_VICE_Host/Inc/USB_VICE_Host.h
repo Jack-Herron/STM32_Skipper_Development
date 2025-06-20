@@ -34,7 +34,6 @@ typedef struct __attribute__((packed))
 	uint8_t 	bNumDescriptors;
 	uint8_t 	bReportDescriptorType;
 	uint16_t 	wDescriptorLength;
-	uint8_t 	interface_Registered;
 } USB_VICE_Host___VICE_Descriptor;
 
 typedef struct
@@ -45,21 +44,23 @@ typedef struct
 
 typedef struct
 {
-	uint8_t 						port_Number;
-	uint8_t 						device_Address;
-	uint8_t 						interface_Number;
-	uint8_t							current_Protocol;
-	uint8_t 						setup_Stage;
-	uint8_t 						sub_Class;
-	uint8_t 						interrupt_In_Endpoint_Number;
-	uint8_t							interrupt_In_Endpoint_Interval;
-	uint8_t 						interrupt_Out_Endpoint_Number;
-	uint8_t							interrupt_Out_Endpoint_Interval;
+	uint8_t 							port_Number;
+	uint8_t 							device_Address;
+	uint8_t 							interface_Number;
+	uint8_t								current_Protocol;
+	uint8_t 							setup_Stage;
+	uint8_t 							sub_Class;
+	uint8_t 							interrupt_In_Endpoint_Number;
+	uint8_t								interrupt_In_Endpoint_Interval;
+	uint8_t 							interrupt_Out_Endpoint_Number;
+	uint8_t								interrupt_Out_Endpoint_Interval;
 	USB_VICE_Host___VICE_Descriptor 	VICE_Descriptor;
-	uint8_t							VICE_Report_Descriptor_Buffer[USB_VICE_Host___REPORT_DESCRIPTOR_BUFFER_SIZE];
-	uint16_t 						subsequent_Transfer_Error_Count;
-	void 		(*set_Protocol_Callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
-	void 		(*report_Callback)(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t* report_Buffer, uint16_t report_Length);
+	uint8_t 							interface_Registered;
+	//uint8_t                             interrupt_Out_Buffer[4];
+	uint8_t								VICE_Report_Descriptor_Buffer[USB_VICE_Host___REPORT_DESCRIPTOR_BUFFER_SIZE];
+	uint16_t 							subsequent_Transfer_Error_Count;
+	void 								(*set_Protocol_Callback)	(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number);
+	void 								(*report_Callback)			(uint8_t port_Number, uint8_t device_Address, uint8_t interface_Number, uint8_t* report_Buffer, uint16_t report_Length);
 } USB_VICE_Host___VICE_Interface_TypeDef;
 
 typedef struct USB_VICE_Host___VICE_Node
@@ -70,10 +71,11 @@ typedef struct USB_VICE_Host___VICE_Node
 	struct USB_VICE_Host___VICE_Node* 	previous_Node;
 } USB_VICE_Host___VICE_Interface_Node_TypeDef;
 
-typedef struct {
+typedef struct
+{
 	USB_VICE_Host___VICE_Interface_Node_TypeDef* 	first_Node;
 	USB_VICE_Host___VICE_Interface_Node_TypeDef* 	last_Node;
-}USB_VICE_Host___VICE_Interface_List_TypeDef;
+} USB_VICE_Host___VICE_Interface_List_TypeDef;
 
 uint8_t USB_VICE_Host___Is_Device_VICE_Device	(uint8_t port_Number, uint8_t device_Address);
 void USB_VICE_Host___Init(uint8_t port_Number);
