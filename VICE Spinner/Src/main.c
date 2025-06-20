@@ -6,23 +6,23 @@
 #include <VICE_USB_Driver.h>
 
 // TMC2130 Registers
-#define IHOLD_IRUN 				0x10u
-#define GCONF					0x00u
-#define GSTAT					0x01u
-#define IOIN					0x04u
-#define TSTEP					0x12u
-#define TPWMTHRS				0x13u
-#define TCOOLTHRS				0x14u
-#define THIGH					0x15u
-#define XDIRECT					0x2Du
-#define VDCMIN					0x33u
-#define CHOPCONF				0x6Cu
-#define COOLCONF				0x6Du
-#define DCCTRL					0x6Eu
-#define DRV_STATUS				0x6Fu
-#define PWMCONF					0x70u
-#define PWM_SCALE				0x71u
-#define LOST_STEPS				0x73u
+#define IHOLD_IRUN_REG_ADDRESS 				0x10u
+#define GCONF_REG_ADDRESS					0x00u
+#define GSTAT_REG_ADDRESS					0x01u
+#define IOIN_REG_ADDRESS					0x04u
+#define TSTEP_REG_ADDRESS					0x12u
+#define TPWMTHRS_REG_ADDRESS				0x13u
+#define TCOOLTHRS_REG_ADDRESS				0x14u
+#define THIGH_REG_ADDRESS					0x15u
+#define XDIRECT_REG_ADDRESS					0x2Du
+#define VDCMIN_REG_ADDRESS					0x33u
+#define CHOPCONF_REG_ADDRESS				0x6Cu
+#define COOLCONF_REG_ADDRESS				0x6Du
+#define DCCTRL_REG_ADDRESS					0x6Eu
+#define DRV_STATUS_REG_ADDRESS				0x6Fu
+#define PWMCONF_REG_ADDRESS					0x70u
+#define PWM_SCALE_REG_ADDRESS				0x71u
+#define LOST_STEPS_REG_ADDRESS				0x73u
 // -----------------------
 
 // TMC2130 Configuration
@@ -38,24 +38,26 @@
 #define DEG_To_Steps			0.35555f
 
 // Program Variables
-uint8_t SPI_Receive_Buffer[5] = {};
-uint8_t SPI_Receive_Buffer_Index = 0;
-int32_t absolute_Position = 0;
-uint32_t step_Remainder = 0;
-uint8_t direction = 1;
-uint8_t mode = 0;
-uint16_t Slider_Value = 0;
-uint8_t ADC_Buffer_Index = 0;
-uint16_t ADC_Buffer[ADC_Buffer_Length] = {2048};
+
+uint8_t 	SPI_Receive_Buffer[5] = {};
+uint8_t 	SPI_Receive_Buffer_Index = 0;
+int32_t 	absolute_Position = 0;
+uint32_t 	step_Remainder = 0;
+uint8_t 	direction = 1;
+uint8_t 	mode = 0;
+uint16_t 	Slider_Value = 0;
+uint8_t 	ADC_Buffer_Index = 0;
+uint16_t 	ADC_Buffer[ADC_Buffer_Length] = {2048};
 
 // VICE Variables
 
 USB_VICE_Device_Typedef USB_VICE_Device;
+
 // -----------------------
 
 
 
-void Clock_Init(){	// initiate clock ()
+void Clock_Init(){	// initialize clock ()
 	RCC -> CR |= RCC_CR_HSEON;																						// enable HSE Oscillator
 	while(!(RCC -> CR & RCC_CR_HSERDY));																			// wait for HSE To Stabilize
 	FLASH -> ACR |= FLASH_ACR_LATENCY_2;																			// set flash wait to 2, because 48 MHz < SYSCLK  72 MHz
@@ -73,13 +75,13 @@ void Clock_Init(){	// initiate clock ()
 }
 
 void TIM1_Init(){
-	RCC -> APB2ENR |= (RCC_APB2ENR_TIM1EN);																			// Enable Timer 1 Clock
-	TIM1 -> CCMR1 |= (6<<4);																						// Set Capture-Compare Mode to PWM1
-	TIM1 -> CCER |= (TIM_CCER_CC1E);																				// Enable Capture-Compare Channel 1 Output to Pin
-	TIM1 -> BDTR |= (1<<15);																						// Enable Output Through Break and Dead Time Register
-	TIM1 -> ARR = 2880-1;																							// Set ARR to generate 25Khz PWM (72000000/2880 = 25000)
-	TIM1 -> CCR1 = 1440-1;																							// Set Capture-Compare Register to default fan speed
-	TIM1 -> CR1 |= (1<<0);																							// Enable the counter to begin PWM output
+	RCC -> APB2ENR 	|= (RCC_APB2ENR_TIM1EN);																			// Enable Timer 1 Clock
+	TIM1 -> CCMR1 	|= (6<<4);																						// Set Capture-Compare Mode to PWM1
+	TIM1 -> CCER 	|= (TIM_CCER_CC1E);																				// Enable Capture-Compare Channel 1 Output to Pin
+	TIM1 -> BDTR 	|= (1<<15);																						// Enable Output Through Break and Dead Time Register
+	TIM1 -> ARR 	 = 2880-1;																							// Set ARR to generate 25Khz PWM (72000000/2880 = 25000)
+	TIM1 -> CCR1 	 = 1440-1;																							// Set Capture-Compare Register to default fan speed
+	TIM1 -> CR1 	|= (1<<0);																							// Enable the counter to begin PWM output
 }
 
 void TIM2_Init(){
@@ -108,13 +110,13 @@ void TIM4_Init(){
 	TIM2 -> CCMR1 |= (1 << 4);																						// Set capture-compare mode to active on match
 	TIM4-> SR = 0;																									// Clear Any Status Flags
 }
-
+/*
 void EXTI4_Init(){
 	NVIC_SetPriority (EXTI4_IRQn, 0);																				// Set Interrupt Priority
 	NVIC_EnableIRQ (EXTI4_IRQn);																					// Enable Interrupt
 	EXTI -> IMR |= (1<<4);																							// Enable EXTI interrupt on PA4
 	EXTI -> FTSR |= (1<<4);																							// Set falling edge trigger on PA4
-}
+}*/
 
 void GPIO_Init(){
 	RCC -> APB2ENR |= (RCC_APB2ENR_IOPAEN);																			// Enable GPIOA Clock
@@ -180,7 +182,7 @@ void SPI1_Transmit40(uint8_t pRW, uint8_t pAddress, uint32_t pData){
 	}
 	GPIOA -> ODR &= ~(1<<2);																						// Set Chip Select LOW
 	for(int i = 0; i<5; i++){																						// loop through the data array to transmit each byte
-	while(!((SPI1->SR) & (1<<1))){}; 																			// wait for TX buffer to be empty
+	while(!((SPI1->SR) & (1<<1))){}; 																				// wait for TX buffer to be empty
 		SPI1->DR = transmission[i];																					// copy data to TX buffer
 	}
 	while((SPI1->SR) & (1<<7)); 																					// Wait for SPI to Not Be Busy
@@ -188,11 +190,12 @@ void SPI1_Transmit40(uint8_t pRW, uint8_t pAddress, uint32_t pData){
 }
 
 void TMC_Init(){
-	SPI1_Transmit40(1, GCONF, (1<<2));																				// write data to GCONF (enables PWM mode)
-	SPI1_Transmit40(1, IHOLD_IRUN, (HoldCurrent | (RunCurrent<<8)));												// set Stepper Hold-Current, and Run-Current
-	SPI1_Transmit40(1, CHOPCONF, ((toff<<0) | (0 << 24) | (1<<29))); 												// write CHOPCONF settings (enables the driver and sets resolution)
+	SPI1_Transmit40(1, GCONF_REG_ADDRESS, (1<<2));																	// write data to GCONF (enables PWM mode)
+	SPI1_Transmit40(1, IHOLD_IRUN_REG_ADDRESS, (HoldCurrent | (RunCurrent<<8)));									// set Stepper Hold-Current, and Run-Current
+	SPI1_Transmit40(1, CHOPCONF_REG_ADDRESS, ((toff<<0) | (0 << 24) | (1<<29))); 									// write CHOPCONF settings (enables the driver and sets resolution)
 }
 
+/*
 void ADC2_Init(){
 	RCC -> APB2ENR |= (RCC_APB2ENR_ADC2EN);																			// Enable ADC2 Clock
 	NVIC_SetPriority (ADC1_2_IRQn, 2);  																			// Set Interrupt Priority
@@ -203,7 +206,7 @@ void ADC2_Init(){
 	ADC2 -> CR2 |= ((1 << 20) |																						// Enable External Conversion Trigger
 					(4 << 17));	 																					// Select TIM 3 TRGO as Conversion Trigger
 
-}
+}*/
 
 void set_Direction(uint8_t pDirection){																				// Function to easily change the state of direction variable as well as state of direction pin PA1
 	direction = pDirection;																							// Set variable direction to input direction
@@ -233,6 +236,7 @@ void update_Speed(uint32_t pSpeed){																					// Function to update th
 	TIM2 -> CCR1 = TIM2 -> ARR;																						// CCR1 mirrors ARR
 }
 
+/*
 uint16_t update_ADC_Buffer(uint16_t pADC_Value){																	// This function is used to add a new value to the ADC buffer for averaging
 	ADC_Buffer[ADC_Buffer_Index] = pADC_Value;																		// Add the new value to the buffer
 	uint32_t ADC_Sum = 0;																							// create and initialize a variable to add all the ADC values to
@@ -241,7 +245,7 @@ uint16_t update_ADC_Buffer(uint16_t pADC_Value){																	// This functio
 	}
 	ADC_Buffer_Index += ((ADC_Buffer_Index < (ADC_Buffer_Length - 1)) ? (1) : ((-1) * (ADC_Buffer_Length - 1)));	// Update the current index to the next index
 	return(ADC_Sum / ADC_Buffer_Length);																			// Return the average of the buffer
-}
+}*/
 
 void halt(){
 	TIM2 -> CR1 &= ~(1<<0);																							// disable TIM2 to stop step output
@@ -251,6 +255,7 @@ void halt(){
 	TIM4 -> CNT = 0;																								// Clear Timer 4 CNt
 }
 
+/*
 void set_Mode(uint8_t pMode){																						// This function is used to change the mode of the spinner
 	halt();																											// Halt motion and record location
 	mode = pMode;																									// Update global mode variable with new mode
@@ -267,7 +272,7 @@ void set_Mode(uint8_t pMode){																						// This function is used to c
 		ADC2 -> CR2 &= ~(1 << 0);																					// Turn off ADC
 		break;
 	}
-}
+}*/
 
 void jog(uint32_t pGoal, uint32_t pSpeed){																			// Function to move to a location at a speed (mSteps, mSteps/s)
 	halt();																											// Halt motion and record location
@@ -301,7 +306,7 @@ void go_To_Next_Frame(int32_t pGoal, uint32_t pFPS){																// Function 
 	uint32_t deltaA = abs(delta);																					// Get the distance not including the direction
 	set_Direction(!(delta<0));																						// Set the direction needed to get to a given location
 	if(deltaA > 0){																									// If the goal is not the current position
-		update_Speed((deltaA)*(pFPS));																		// Update the speed needed to reach the location at the time specified
+		update_Speed((deltaA)*(pFPS));																				// Update the speed needed to reach the location at the time specified
 		step_Remainder = deltaA;																					// Set the global step remainder variable to the distance needed to reach the goal
 		load_Step_Count(step_Remainder);																			// Load Tim2 with number of steps needed
 		start_Movement();																							// Activate the timers and begin motion
@@ -312,12 +317,12 @@ void Zero(){
 	halt();																											// Halt motion and record location
 	absolute_Position = 0;																							// Reset the position to zero
 }
-
+/*
 void ADC_Buffer_Init(){																								// This function fills the ADC buffer with 2048 so that the slider starts in the centered position
 	for(uint8_t i = 0; i < ADC_Buffer_Length; i++){																	// Loop through the entire Array
 		ADC_Buffer[i] = 2048;																						// Set the value of the current index to 2048
 	}
-}
+}*/
 
 void VICE_Callback(uint8_t* data, uint16_t length)
 {
@@ -335,17 +340,15 @@ int main(void){
 	TMC_Init();
 	TIM2_Init();
 	TIM4_Init();
-	ADC2_Init();
-	ADC_Buffer_Init();
 	TIM3_Init();
 	EXTI4_Init();
 	USB_VICE_Init(&USB_VICE_Device, VICE_Callback);
-	set_Mode(2);
+	set_Mode(0);
  	for(;;){
 
  	}
 }
-
+/*
 void ADC1_2_IRQHandler(void){																						// This function is called every time a ADC conversion has been completed, and turns it into a centered 16 bit number
 	if(ADC2 -> SR & (1 << 1)){																						// If interrupt was from end of conversion
 		ADC2 -> SR &= ~(1 << 1);																					// clear the ADC Status Register
@@ -368,7 +371,7 @@ void ADC1_2_IRQHandler(void){																						// This function is called ev
 			}
 		}
 	}
-}
+}*/
 
 void EXTI4_IRQHandler(void){
 	EXTI -> PR |= (1 << 4);
