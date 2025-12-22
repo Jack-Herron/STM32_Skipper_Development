@@ -3,7 +3,7 @@
 
 #define CORE_CLOCK 180000000ul
 #define LV_LVGL_H_INCLUDE_SIMPLE
-#define LV_CONF_INCLUDE_SIMPLE
+
 
 #include <stdint.h>
 #include "stm32f4xx.h"
