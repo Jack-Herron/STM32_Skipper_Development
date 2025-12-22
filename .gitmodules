@@ -1,0 +1,3 @@
+[submodule "STM32F469NIH6/Third_Party/lvgl"]
+	path = STM32F469NIH6/Third_Party/lvgl
+	url = https://github.com/lvgl/lvgl.git

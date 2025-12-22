@@ -2,6 +2,8 @@
 
 
 #define CORE_CLOCK 180000000ul
+#define LV_LVGL_H_INCLUDE_SIMPLE
+#define LV_CONF_INCLUDE_SIMPLE
 
 #include <stdint.h>
 #include "stm32f4xx.h"
@@ -10,21 +12,27 @@
 #include "FMC_SDRAM.h"
 #include "QSPI_Flash.h"
 #include "DSI_LCD.h"
+#include "lvgl.h"
+#include "stdio.h"
+
+uint32_t SystemCoreClock = CORE_CLOCK;
 
 osThreadId defaultTaskHandle;
-osThreadId touchGFXTaskHandle;
+osThreadId GFXTaskHandle;
 
 void StartDefaultTask(void const * argument);
-void startTGFXTask(void const * argument);
+void startGFXTask(void const * argument);
 
 int main(void)
 {
+	//TODO add init functions for clock, SDRAM, QSPI, DSI LCD
+
 	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
 	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
 
-	osThreadDef(touchGFXTask, startTGFXTask, osPriorityNormal, 0, 8192);
-	touchGFXTaskHandle = osThreadCreate(osThread(touchGFXTask), NULL);
+	osThreadDef(GFXTask, startGFXTask, osPriorityNormal, 0, 8192);
+	GFXTaskHandle = osThreadCreate(osThread(GFXTask), NULL);
 
 	osKernelStart();
 
@@ -34,19 +42,21 @@ int main(void)
 void StartDefaultTask(void const * argument)
 {
 
-  for(;;)
-  {
-    osDelay(1);
-  }
+	for(;;)
+	{
+	osDelay(1);
+	}
 
 }
 
 
-void startTGFXTask(void const * argument)
+void startGFXTask(void const * argument)
 {
-	//MX_TouchGFX_Process();
+	//TODO add LVGL init functions();
 	for(;;)
 	{
 		osDelay(1);
 	}
 }
+
+//TODO add 1ms systick tick incrementer
