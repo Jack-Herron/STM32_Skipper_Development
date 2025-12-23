@@ -25,16 +25,17 @@ void startGFXTask(void const * argument);
 
 int main(void)
 {
+	clock_Init();
 	//TODO add init functions for clock, SDRAM, QSPI, DSI LCD
 
-	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
-	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+	//osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
+	//defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
 
-	osThreadDef(GFXTask, startGFXTask, osPriorityNormal, 0, 8192);
-	GFXTaskHandle = osThreadCreate(osThread(GFXTask), NULL);
+	//osThreadDef(GFXTask, startGFXTask, osPriorityNormal, 0, 8192);
+	//GFXTaskHandle = osThreadCreate(osThread(GFXTask), NULL);
 
-	osKernelStart();
+	//osKernelStart();
 
 	for(;;);
 }
