@@ -11,21 +11,21 @@
 #define HSE_FREQ 8000000
 #define HSI_FREQ 16000000
 
-	#define PLLM				4
-	#define PLLN				180
-	#define PLLP				2
-	#define PLLQ				6
-	#define PLLR				6
-	#define PLLSAIN				144
-	#define PLLSAIP				6
-	#define PLLSAIQ1			2
-	#define PLLSAIQ2			1
-	#define PLLSAIR1			2
-	#define PLLSAIR2			4
-	#define PLLI2SN				192
-	#define PLLI2SQ1			4
-	#define PLLI2SQ2			1
-	#define PLLI2SR				2
+#define PLLM				4
+#define PLLN				180
+#define PLLP				2
+#define PLLQ				6
+#define PLLR				6
+#define PLLSAIN				144
+#define PLLSAIP				6
+#define PLLSAIQ1			2
+#define PLLSAIQ2			1
+#define PLLSAIR1			2
+#define PLLSAIR2			4
+#define PLLI2SN				192
+#define PLLI2SQ1			4
+#define PLLI2SQ2			1
+#define PLLI2SR				2
 #define PLLDSIIDF			2			// DSI VALUES ARE NOT PROGRAMMED IN CLOCK.C - THEY ARE PROGRAMMED IN DSI REGS - THEY ARE ONLY HERE TO PROVIDE FREQ CALCULATIONS
 #define PLLDSIIDFMULTIPLIER	2
 #define PLLDSINDIV			125
@@ -33,17 +33,19 @@
 #define PLLDSIODF			1
 #define DSITXPRESCALER		4
 
-	#define AHBPRESCALER		1
-	#define APB1PRESCALER		4
+#define AHBPRESCALER		1
+#define APB1PRESCALER		4
 #define APB1TIMERMULTIPLIER	2
-	#define APB2PRESCALER		2
+#define APB2PRESCALER		2
 #define APB2TIMERMULTIPLIER	2
 #define CORTEXSYSTEMDIV		1
+
+// TODO implement selectors into C file (currently not supported)
 
 #define SAI1ASRC_SELECTOR			0 	// 0: PLLSAIQ 1: PLLI2SQ 2: I2SCKIN
 #define FORTYEIGHTMHZSRC_SELECTOR	1	// 0: PLLQ 1: PLLSAIP
 #define DSISRC_SELECTOR				0	// 0: DSI_PHY 1: PLLR
-	#define	PLLSRC_SELECTOR				1	// 0: HSI 1: HSE
+#define	PLLSRC_SELECTOR				1	// 0: HSI 1: HSE
 #define SYSCLKSRC_SELECTOR			2   // 0: HSI 1: HSE: 2:PLL
 
 #if APB1PRESCALER == 1
@@ -138,5 +140,7 @@
 #define DSIVCO_FREQ			HSE_FREQ/PLLDSIIDF*PLLDSIIDFMULTIPLIER*PLLDSINDIV
 #define	DSILANE_FREQ		DSIVCO_FREQ/PLLDSIVCODIV/PLLDSIODF/8
 #define DSITXCLK_FREQ		DSILANE_FREQ/DSITXPRESCALER
+
+void clock_Init(void);
 
 #endif /* INC_CLOCK_H_ */
