@@ -24,15 +24,15 @@ void startGFXTask(void const * argument);
 
 int main(void)
 {
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN; // Enable GPIOA clock
-	GPIOA->MODER = 0;
-	GPIOA->MODER |= GPIO_MODER_MODER8_0; // Set PA8 as output
-	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR8; // Set PA8 speed to high
-	GPIOA->MODER |= GPIO_MODER_MODER15_0; // Set PA15 as output
-	GPIOA->OSPEEDR |= GPIO_OSPEEDER_OSPEEDR15; // Set PA15 speed to high
-
 	clock_Init();
-	//TODO add init functions for clock, SDRAM, QSPI, DSI LCD
+	FMC_SDRAM___SDRAM_Init();
+	uint32_t* start_Address = (uint32_t*)0xc0000000;
+
+	for (uint32_t i = 0; i < 65536; i++){
+		start_Address[i] = 0xABCD0000+i; // test write to SDRAM
+	}
+
+	//TODO add init functions for SDRAM, QSPI, DSI LCD
 
 	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
 	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
@@ -51,12 +51,10 @@ void StartDefaultTask(void const * argument)
 
 	for(;;)
 	{
-		GPIOA->ODR ^= GPIO_ODR_ODR_8; // TOGGLE
 		osDelay(1);
 	}
 
 }
-
 
 void startGFXTask(void const * argument)
 {
@@ -64,9 +62,6 @@ void startGFXTask(void const * argument)
 	for(;;)
 	{
 		//lv_timer_handler();
-		GPIOA->ODR ^= GPIO_ODR_ODR_15; // TOGGLE
 		osDelay(1);
 	}
 }
-
-//TODO add 1ms systick tick incrementer test
