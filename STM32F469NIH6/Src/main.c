@@ -26,11 +26,7 @@ int main(void)
 {
 	clock_Init();
 	FMC_SDRAM___SDRAM_Init();
-	uint32_t* start_Address = (uint32_t*)0xc0000000;
 
-	for (uint32_t i = 0; i < 65536; i++){
-		start_Address[i] = 0xABCD0000+i; // test write to SDRAM
-	}
 
 	//TODO add init functions for SDRAM, QSPI, DSI LCD
 
