@@ -26,7 +26,7 @@ int main(void)
 {
 	clock_Init();
 	FMC_SDRAM___SDRAM_Init();
-
+	DSI_LCD_Init();
 
 	//TODO add init functions for SDRAM, QSPI, DSI LCD
 
