@@ -8,6 +8,13 @@
 #ifndef INC_DSI_LCD_H_
 #define INC_DSI_LCD_H_
 
+// -- internal function params --
+
+#define DSI_LCD___PATTERN_COLOR_BARS			0
+#define DSI_LCD___PATTERN_GREYSCALE_BARS		1
+#define DSI_LCD___PATTERN_ORIENTATION_LANDSCAPE	1
+#define DSI_LCD___PATTERN_ORIENTATION_PORTRAIT	0
+
 // -- configuration values --
 
 #define DSI_LCD___HACT					800	// Display horizontal active size 		(pixels)
@@ -54,6 +61,7 @@
 
 void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdata, uint32_t size);
 void DSI_LCD___Short_Write(uint32_t channel_ID, uint32_t data_Type, uint32_t data1, uint32_t data2);
+void DSI_LCD___Generate_Pattern(uint8_t mode, uint8_t orientation);
 void DSI_LCD___Init(void);
 
 #endif /* INC_DSI_LCD_H_ */

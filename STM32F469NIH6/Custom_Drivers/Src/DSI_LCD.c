@@ -10,6 +10,8 @@
 #include "Clock.h"
 #include "nt35510.h"
 
+// TODO implement real delays using timer in clock file
+
 void DSI_IO_WriteCmd(uint32_t NbrParams, uint8_t *pParams)
 {
 	if(NbrParams <= 1)
@@ -72,7 +74,7 @@ void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdat
 	              | (wc_msb << DSI_GHCR_WCMSB_Pos);
 }
 
-void DSI_LCD___Init(void)
+void DSI_LCD___DSI_Init(void)
 {
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN; 												// Enable GPIOH clock
 	GPIOH->MODER |= GPIO_MODER_MODER7_0; 												// Set PH7 to Output mode
@@ -94,16 +96,16 @@ void DSI_LCD___Init(void)
 	DSI->WRPCR |= 	(PLLDSINDIV << 	DSI_WRPCR_PLL_NDIV_Pos) |							// Set PLL N Divider
 					(PLLDSIIDF 	<< 	DSI_WRPCR_PLL_IDF_Pos) 	|							// Set PLL IDF);
 					(PLLDSIODF 	<< 	DSI_WRPCR_PLL_ODF_Pos);								// Set PLL ODF
-    DSI->WRPCR |= DSI_WRPCR_PLLEN; 														// Enable DSI PLL
-    while(!(DSI->WISR & DSI_WISR_PLLLS)); 												// Wait for PLL Lock Interrupt Flag
+	DSI->WRPCR |= DSI_WRPCR_PLLEN; 														// Enable DSI PLL
+	while(!(DSI->WISR & DSI_WISR_PLLLS)); 												// Wait for PLL Lock Interrupt Flag
 
-    // DSI Host Configuration
-    DSI -> WPCR[0] 	=  	(DSI_LCD___LANE_PERIODX4 		<< DSI_WPCR0_UIX4_Pos); 		// Set HS to LP time
-    DSI -> PCONFR 	=	((DSI_LCD___LANE_COUNT-1) 		<< DSI_PCONFR_NL_Pos) 		|	// Set number of lanes to 2
-    					DSI_LCD___STOP_WAIT_TIME 		<< DSI_PCONFR_SW_TIME_Pos;		// Set the minimum wait period to request a high-speed transmission after the Stop state.
-    DSI -> CLCR 	= 	DSI_CLCR_DPCC; 													// Enable D-PHY Clock HS mode
-    DSI -> CLTCR 	= 	DSI_LCD___CLOCK_HS2LP_TIME 		<< DSI_CLTCR_HS2LP_TIME_Pos |	// Set HS to LP time for clock lanes
-    					DSI_LCD___CLOCK_LP2HS_TIME 		<< DSI_CLTCR_LP2HS_TIME_Pos; 	// Set LP to HS time for clock lanes
+	// DSI Host Configuration
+	DSI -> WPCR[0] 	=  	(DSI_LCD___LANE_PERIODX4 		<< DSI_WPCR0_UIX4_Pos); 		// Set HS to LP time
+	DSI -> PCONFR 	=	((DSI_LCD___LANE_COUNT-1) 		<< DSI_PCONFR_NL_Pos) 		|	// Set number of lanes to 2
+						DSI_LCD___STOP_WAIT_TIME 		<< DSI_PCONFR_SW_TIME_Pos;		// Set the minimum wait period to request a high-speed transmission after the Stop state.
+	DSI -> CLCR 	= 	DSI_CLCR_DPCC; 													// Enable D-PHY Clock HS mode
+	DSI -> CLTCR 	= 	DSI_LCD___CLOCK_HS2LP_TIME 		<< DSI_CLTCR_HS2LP_TIME_Pos |	// Set HS to LP time for clock lanes
+						DSI_LCD___CLOCK_LP2HS_TIME 		<< DSI_CLTCR_LP2HS_TIME_Pos; 	// Set LP to HS time for clock lanes
 	DSI -> DLTCR 	= 	DSI_LCD___DATA_HS2LP_TIME 		<< DSI_DLTCR_HS2LP_TIME_Pos |	// Set HS to LP time for data lanes
 						DSI_LCD___DATA_LP2HS_TIME 		<< DSI_DLTCR_LP2HS_TIME_Pos; 	// Set LP to HS time for data lanes
 
@@ -132,23 +134,47 @@ void DSI_LCD___Init(void)
 	DSI -> VNPCR	=   0xfff; 															// Set null packet size (burst mode so max)
 	DSI -> VLCR	    =   DSI_LCD___HLINE; 												// Set the total number of pixel clock periods per line
 	DSI -> VHSACR	=   DSI_LCD___HSA_FOR_DSI; 											// Set Horizontal Synchronism Active duration
-    DSI -> VHBPCR	=   DSI_LCD___HBP_FOR_DSI; 											// Set Horizontal Back Porch duration
+	DSI -> VHBPCR	=   DSI_LCD___HBP_FOR_DSI; 											// Set Horizontal Back Porch duration
 
-    DSI -> VVSACR   =   DSI_LCD___VSA; 													// Set Vertical Synchronism Active duration in pixels
-    DSI -> VVACR    =   DSI_LCD___VACT; 												// Set Vertical Active duration in pixels
-    DSI -> VVFPCR   =   DSI_LCD___VFP; 													// Set Vertical Front Porch duration in pixels
-    DSI -> VVBPCR   =   DSI_LCD___VBP; 													// Set Vertical Back Porch duration in pixels
+	DSI -> VVSACR   =   DSI_LCD___VSA; 													// Set Vertical Synchronism Active duration in pixels
+	DSI -> VVACR    =   DSI_LCD___VACT; 												// Set Vertical Active duration in pixels
+	DSI -> VVFPCR   =   DSI_LCD___VFP; 													// Set Vertical Front Porch duration in pixels
+	DSI -> VVBPCR   =   DSI_LCD___VBP; 													// Set Vertical Back Porch duration in pixels
 
-    DSI -> LCOLCR   =   DSI_LCD___LCOLC_RGB888; 										// Set color coding format to RGB888
-    DSI -> WCFGR    =   DSI_LCD___COLMUX_RGB888;
+	DSI -> LCOLCR   =   DSI_LCD___LCOLC_RGB888; 										// Set color coding format to RGB888
+	DSI -> WCFGR    =   DSI_LCD___COLMUX_RGB888;
 
-    DSI -> WCR 		= 	DSI_WCR_DSIEN;										 			// Enable DSI Wrapper
-    DSI -> CR 		= 	DSI_CR_EN; 														// Enable DSI
+	DSI -> WCR 		= 	DSI_WCR_DSIEN;										 			// Enable DSI Wrapper
+	DSI -> CR 		= 	DSI_CR_EN; 														// Enable DSI
 
-    NT35510_Init(NT35510_FORMAT_RGB888, NT35510_ORIENTATION_LANDSCAPE);
+	NT35510_Init(NT35510_FORMAT_RGB888, NT35510_ORIENTATION_LANDSCAPE);
 
-    NT35510_IO_Delay(100);
+	NT35510_IO_Delay(100);
+}
+
+void DSI_LCD___Panel_Reset()
+{
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN; 												// Enable GPIOH clock
+	GPIOH->MODER |= GPIO_MODER_MODER7_0; 												// Set PH7 to Output mode
+	GPIOH->ODR &= ~GPIO_ODR_OD7; 														// Set PH7 Low (LCD Reset active)
+	for(uint32_t i = 0; i < (SystemCoreClock / 10); i++); 								// Delay 100ms
+	GPIOH->ODR |= GPIO_ODR_OD7; 														// Set PH7 High (LCD Reset inactive)
+}
+
+void DSI_LCD___Generate_Pattern(uint8_t mode, uint8_t orientation)
+{
+	DSI -> VMCR &= ~DSI_VMCR_PGM_Msk;  					// reset pattern gen
+	DSI -> VMCR |= (mode << DSI_VMCR_PGM_Pos);  		// set pattern gen mode
+	DSI -> VMCR &= ~DSI_VMCR_PGO_Msk;  					// reset pattern gen
+	DSI -> VMCR |= (orientation << DSI_VMCR_PGO_Pos);  	// set pattern gen orientation
+	DSI -> VMCR |= DSI_VMCR_PGE;  						// enable pattern gen
+}
+
+void DSI_LCD___Init(void)
+{
+	DSI_LCD___Panel_Reset();
+	DSI_LCD___DSI_Init();
 
 	DSI -> MCR &= ~DSI_MCR_CMDM;
-	DSI -> VMCR |= DSI_VMCR_PGE;  // enable pattern gen
+	DSI_LCD___Generate_Pattern(DSI_LCD___PATTERN_COLOR_BARS, DSI_LCD___PATTERN_ORIENTATION_LANDSCAPE);
 }

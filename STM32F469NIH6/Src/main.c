@@ -42,14 +42,35 @@ int main(void)
 	for(;;);
 }
 
+uint8_t orientation = 0;
+uint8_t mode = 0;
+
 void StartDefaultTask(void const * argument)
 {
 
 	for(;;)
 	{
-		osDelay(1);
-	}
+		osDelay(400);
+		DSI_LCD___Generate_Pattern(mode, orientation);
 
+		switch(mode | (orientation<<1))
+		{
+		case 0:
+			mode = 1;
+			break;
+		case 1:
+			orientation = 1;
+			mode = 0;
+			break;
+		case 2:
+			mode = 1;
+			break;
+		case 3:
+			orientation = 0;
+			mode = 0;
+			break;
+		}
+	}
 }
 
 void startGFXTask(void const * argument)
