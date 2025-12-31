@@ -34,7 +34,7 @@ void clock_Init(void)
 
 	RCC->DCKCFGR = 		((PLLI2SQ2-1) 		<< RCC_DCKCFGR_PLLI2SDIVQ_Pos) |
 			            ((PLLSAIQ2-1)		<< RCC_DCKCFGR_PLLSAIDIVQ_Pos) |
-						((PLLSAIR2-1)		<< RCC_DCKCFGR_PLLSAIDIVR_Pos);
+						((PLLSAIR2_CODE)	<< RCC_DCKCFGR_PLLSAIDIVR_Pos);
 
 	RCC->CFGR = 		(PPRE1_CODE 		<< RCC_CFGR_PPRE1_Pos) |  			// APB1 prescaler
 						(PPRE2_CODE 		<< RCC_CFGR_PPRE2_Pos) |   			// APB2 prescaler
@@ -52,4 +52,7 @@ void clock_Init(void)
 
 	RCC->CR &= ~RCC_CR_HSION; 								// Disable HSI
 	while((RCC->CR & RCC_CR_HSIRDY)); 						// Wait for HSI to be disabled
+
+	RCC->CR |= RCC_CR_PLLSAION; 							// Enable PLLSAI
+	while(!(RCC->CR & RCC_CR_PLLSAIRDY)); 					// Wait for PLLSAI to be ready
 }

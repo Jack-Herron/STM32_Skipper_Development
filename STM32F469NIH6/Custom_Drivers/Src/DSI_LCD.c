@@ -5,7 +5,7 @@
  *      Author: jackh
  */
 
-#include "stm32f4xx.h"
+#include "stm32f469xx.h"
 #include "DSI_LCD.h"
 #include "Clock.h"
 #include "nt35510.h"
@@ -170,11 +170,57 @@ void DSI_LCD___Generate_Pattern(uint8_t mode, uint8_t orientation)
 	DSI -> VMCR |= DSI_VMCR_PGE;  						// enable pattern gen
 }
 
+void DSI_LCD___LTDC_Init(void)
+{
+	RCC->APB2ENR |= RCC_APB2ENR_SAI1EN;	                                                        	// Enable SAI1 clock
+	while (!(RCC->APB2ENR & RCC_APB2ENR_SAI1EN)); 													// Wait for SAI1 clock to be enabled
+	RCC->APB2ENR |= RCC_APB2ENR_LTDCEN; 															// Enable LTDC clock
+	while (!(RCC->APB2ENR & RCC_APB2ENR_LTDCEN)); 													// Wait for LTDC clock to be enabled
+
+	LTDC->SSCR = 	((DSI_LCD___HSA - 1) 	<< LTDC_SSCR_HSW_Pos) | 								// Set Horizontal Synchronization Width
+					((DSI_LCD___VSA - 1) 	<< LTDC_SSCR_VSH_Pos);									// Set Vertical Synchronization Height
+
+	LTDC->BPCR = 	((DSI_LCD___HBP + DSI_LCD___HSA - 1) 	<< LTDC_BPCR_AHBP_Pos) | 				// Set horizontal back porch width
+					((DSI_LCD___VBP + DSI_LCD___VSA - 1) 	<< LTDC_BPCR_AVBP_Pos);    				// Set vertical back porch height
+
+	LTDC->AWCR = 	((DSI_LCD___HACT + DSI_LCD___HBP + DSI_LCD___HSA - 1) << LTDC_AWCR_AAW_Pos) | 	// Set accumulated active width
+					((DSI_LCD___VACT + DSI_LCD___VBP + DSI_LCD___VSA - 1) << LTDC_AWCR_AAH_Pos);   	// Set accumulated active height
+
+	LTDC->TWCR = 	((DSI_LCD___HACT + DSI_LCD___HBP + DSI_LCD___HSA + DSI_LCD___HFP - 1) << LTDC_TWCR_TOTALW_Pos) | 	// Set total width
+					((DSI_LCD___VACT + DSI_LCD___VBP + DSI_LCD___VSA + DSI_LCD___VFP - 1) << LTDC_TWCR_TOTALH_Pos);   	// Set total height
+
+	LTDC->BCCR =    (0x00fff2);					                                                                        // Set background color to Teal
+
+	LTDC->GCR  = 	LTDC_GCR_HSPOL | LTDC_GCR_VSPOL; 																	// Set horizontal and vertical sync polarity to active high
+
+	LTDC_Layer1->WHPCR 	= 	((DSI_LCD___HBP + DSI_LCD___HSA)						<< LTDC_LxWHPCR_WHSTPOS_Pos) | 		// Set horizontal start position
+							((DSI_LCD___HACT + DSI_LCD___HBP + DSI_LCD___HSA - 1) 	<< LTDC_LxWHPCR_WHSPPOS_Pos);		// Set horizontal stop position
+
+	LTDC_Layer1->WVPCR 	= 	((DSI_LCD___VBP + DSI_LCD___VSA) 						<< LTDC_LxWVPCR_WVSTPOS_Pos) | 		// Set vertical start position
+							((DSI_LCD___VACT + DSI_LCD___VBP + DSI_LCD___VSA - 1) 	<< LTDC_LxWVPCR_WVSPPOS_Pos);		// Set vertical stop position
+
+	LTDC_Layer1->PFCR 	=	DSI_LCD___PF_ARGB8888; 																		// Set pixel format to RGB888
+
+	LTDC_Layer1->DCCR   =   0xffAAfff2; 																				// Set default color to Teal with full opacity
+
+	LTDC_Layer1->CFBLR 	= 	((DSI_LCD___ARGB_BYTES_PER_PIXEL * DSI_LCD___HACT) 			<< LTDC_LxCFBLR_CFBP_Pos) | 	// Set color frame buffer line length
+							(((DSI_LCD___ARGB_BYTES_PER_PIXEL * DSI_LCD___HACT) + 3) 	<< LTDC_LxCFBLR_CFBLL_Pos);		// Set color frame buffer line pitch
+
+	LTDC_Layer1->CFBLNR =  	DSI_LCD___VACT; 																			// Set color frame buffer line number
+
+	LTDC_Layer1->CFBAR  =   DSI_LCD___FRAME_BUFFER_ADDRESS; 															// Set frame buffer address
+
+	LTDC_Layer1 -> CR 	=	LTDC_LxCR_LEN; 																				// Enable
+
+	LTDC->SRCR = LTDC_SRCR_IMR; 																						// Reload shadow registers
+
+	LTDC->GCR |= LTDC_GCR_LTDCEN; 																						// Enable LTDC
+}
+
 void DSI_LCD___Init(void)
 {
 	DSI_LCD___Panel_Reset();
+	DSI_LCD___LTDC_Init();
 	DSI_LCD___DSI_Init();
-
 	DSI -> MCR &= ~DSI_MCR_CMDM;
-	DSI_LCD___Generate_Pattern(DSI_LCD___PATTERN_COLOR_BARS, DSI_LCD___PATTERN_ORIENTATION_LANDSCAPE);
 }

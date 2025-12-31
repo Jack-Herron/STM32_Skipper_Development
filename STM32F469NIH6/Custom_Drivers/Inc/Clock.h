@@ -49,6 +49,16 @@
 #define	PLLSRC_SELECTOR				1	// 0: HSI 1: HSE
 #define SYSCLKSRC_SELECTOR			2   // 0: HSI 1: HSE: 2:PLL
 
+#if PLLSAIR2 == 2
+#define PLLSAIR2_CODE 0
+#elif PLLSAIR2 == 4
+#define PLLSAIR2_CODE 1
+#elif PLLSAIR2 == 8
+#define PLLSAIR2_CODE 2
+#elif PLLSAIR2 == 16
+#define PLLSAIR2_CODE 3
+#endif
+
 #if APB1PRESCALER == 1
 #define PPRE1_CODE  0
 #elif APB1PRESCALER == 2

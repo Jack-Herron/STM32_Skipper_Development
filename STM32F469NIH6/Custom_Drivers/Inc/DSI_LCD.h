@@ -17,6 +17,8 @@
 
 // -- configuration values --
 
+#define DSI_LCD___FRAME_BUFFER_ADDRESS	0xc0000000
+
 #define DSI_LCD___HACT					800	// Display horizontal active size 		(pixels)
 #define DSI_LCD___HSA					2	// Display horizontal sync size 		(pixels)
 #define DSI_LCD___HFP					34	// Display horizontal front porch size 	(pixels)
@@ -57,6 +59,8 @@
 #define DSI_LCD___COLMUX_RGB888				0x0A
 #define DSI_LCD___VMT_MODE_BURST			0x02
 
+#define DSI_LCD___PF_ARGB8888				0x00
+#define DSI_LCD___ARGB_BYTES_PER_PIXEL		0x04
 // Functions
 
 void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdata, uint32_t size);

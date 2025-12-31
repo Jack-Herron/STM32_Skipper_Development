@@ -41,34 +41,34 @@ int main(void)
 
 	for(;;);
 }
-
-uint8_t orientation = 0;
-uint8_t mode = 0;
-
+uint8_t j = 0;
 void StartDefaultTask(void const * argument)
 {
 
 	for(;;)
 	{
-		osDelay(400);
-		DSI_LCD___Generate_Pattern(mode, orientation);
-
-		switch(mode | (orientation<<1))
+		osDelay(100);
+		uint32_t* bfr = (uint32_t*)0xc0000000;
+		for(uint32_t i = 0; i < 500000; i++)
 		{
-		case 0:
-			mode = 1;
-			break;
-		case 1:
-			orientation = 1;
-			mode = 0;
-			break;
-		case 2:
-			mode = 1;
-			break;
-		case 3:
-			orientation = 0;
-			mode = 0;
-			break;
+			if(j==0)
+			{
+				bfr[i]=0xff00ff00;
+
+			}
+			else if (j == 1) {
+				bfr[i] = 0xffff0000;
+
+			}
+			else if (j == 2)
+			{
+				bfr[i] = 0xff0000ff;
+
+			}
+		}
+		j++;
+		if (j > 2) {
+			j = 0;
 		}
 	}
 }
