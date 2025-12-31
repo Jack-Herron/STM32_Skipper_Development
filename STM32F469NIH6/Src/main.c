@@ -13,6 +13,14 @@
 #include "DSI_LCD.h"
 #include "lvgl.h"
 #include "stdio.h"
+#include "ui.h"
+
+#define LCD_HORIZONTAL_RESOLUTION 800
+#define LCD_VERTICAL_RESOLUTION 480
+#define LCD_BUFFER1_SIZE (LCD_VERTICAL_RESOLUTION * LCD_HORIZONTAL_RESOLUTION * 4)
+#define LCD_BUFFER1_ADDRESS (uint8_t*)(0xc0000000)
+
+uint32_t* frame_buffer_address = (uint32_t*)0xc0000000;
 
 uint32_t SystemCoreClock = HCLK_FREQ;
 
@@ -25,10 +33,18 @@ void startGFXTask(void const * argument);
 int main(void)
 {
 	clock_Init();
+	millis_Init();
 	FMC_SDRAM___SDRAM_Init();
+
+	/* CRUDE FRAMEBUFFER INITIALIZATION */
+	for(uint32_t i = 0; i < LCD_BUFFER1_SIZE/4; i++)
+	{
+		((uint32_t*)LCD_BUFFER1_ADDRESS)[i] = 0xFF000000; // Fill the framebuffer with black
+	}
+
 	DSI_LCD___Init();
 
-	//TODO add init functions for SDRAM, QSPI, DSI LCD
+	//TODO add init functions for QSPI, DMA2D (ChromArt)
 
 	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
 	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
@@ -41,44 +57,42 @@ int main(void)
 
 	for(;;);
 }
-uint8_t j = 0;
+//uint8_t j = 0;
 void StartDefaultTask(void const * argument)
 {
 
 	for(;;)
 	{
 		osDelay(100);
-		uint32_t* bfr = (uint32_t*)0xc0000000;
-		for(uint32_t i = 0; i < 500000; i++)
-		{
-			if(j==0)
-			{
-				bfr[i]=0xff00ff00;
 
-			}
-			else if (j == 1) {
-				bfr[i] = 0xffff0000;
-
-			}
-			else if (j == 2)
-			{
-				bfr[i] = 0xff0000ff;
-
-			}
-		}
-		j++;
-		if (j > 2) {
-			j = 0;
-		}
 	}
+}
+
+static uint32_t my_tick_cb(void)
+{
+    return(clock___millis());
+}
+
+static void my_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
+{
+	//TODO: after dual buffer integration, this function needs to wait for tearing signal, and swap buffers
+	lv_display_flush_ready(disp);
 }
 
 void startGFXTask(void const * argument)
 {
-	//TODO add LVGL init functions();
+	lv_init();
+
+	lv_display_t * display = lv_display_create(LCD_HORIZONTAL_RESOLUTION, LCD_VERTICAL_RESOLUTION);
+
+	lv_display_set_buffers(display, LCD_BUFFER1_ADDRESS, NULL, LCD_BUFFER1_SIZE, LV_DISPLAY_RENDER_MODE_DIRECT);
+	lv_tick_set_cb(my_tick_cb);
+	lv_display_set_flush_cb(display, my_flush_cb);
+
+	ui_init();
 	for(;;)
 	{
-		//lv_timer_handler();
-		osDelay(1);
+		uint32_t time_Until_Refresh = lv_timer_handler();
+		osDelay(time_Until_Refresh);
 	}
 }

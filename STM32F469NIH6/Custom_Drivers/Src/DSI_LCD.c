@@ -26,7 +26,7 @@ void DSI_IO_WriteCmd(uint32_t NbrParams, uint8_t *pParams)
 
 void NT35510_IO_Delay(uint32_t Delay)
 {
-	for(uint32_t i = 0; i < (SystemCoreClock / 10000) * Delay; i++);		// crude delay
+	clock___delay_ms(Delay);		// crude delay
 }
 
 void DSI_LCD___Short_Write(uint32_t channel_ID, uint32_t data_Type, uint32_t data1, uint32_t data2)
@@ -76,12 +76,6 @@ void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdat
 
 void DSI_LCD___DSI_Init(void)
 {
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN; 												// Enable GPIOH clock
-	GPIOH->MODER |= GPIO_MODER_MODER7_0; 												// Set PH7 to Output mode
-	GPIOH->ODR &= ~GPIO_ODR_OD7; 														// Set PH7 Low (LCD Reset active)
-	for(uint32_t i = 0; i < (SystemCoreClock / 10); i++); 								// Delay 100ms
-	GPIOH->ODR |= GPIO_ODR_OD7; 														// Set PH7 High (LCD Reset inactive)
-
 	// Enable DSI clock
 	RCC->APB2ENR |= RCC_APB2ENR_DSIEN;
 	while (!(RCC->APB2ENR & RCC_APB2ENR_DSIEN)); 										// Wait for DSI clock to be enabled
@@ -149,7 +143,7 @@ void DSI_LCD___DSI_Init(void)
 
 	NT35510_Init(NT35510_FORMAT_RGB888, NT35510_ORIENTATION_LANDSCAPE);
 
-	NT35510_IO_Delay(100);
+	NT35510_IO_Delay(10);
 }
 
 void DSI_LCD___Panel_Reset()
@@ -157,7 +151,7 @@ void DSI_LCD___Panel_Reset()
 	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOHEN; 												// Enable GPIOH clock
 	GPIOH->MODER |= GPIO_MODER_MODER7_0; 												// Set PH7 to Output mode
 	GPIOH->ODR &= ~GPIO_ODR_OD7; 														// Set PH7 Low (LCD Reset active)
-	for(uint32_t i = 0; i < (SystemCoreClock / 10); i++); 								// Delay 100ms
+	clock___delay_ms(20);					                                            // Delay 20ms
 	GPIOH->ODR |= GPIO_ODR_OD7; 														// Set PH7 High (LCD Reset inactive)
 }
 

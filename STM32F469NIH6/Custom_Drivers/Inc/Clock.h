@@ -8,6 +8,8 @@
 #ifndef INC_CLOCK_H_
 #define INC_CLOCK_H_
 
+#include "stdint.h"
+
 #define HSE_FREQ 8000000
 #define HSI_FREQ 16000000
 
@@ -153,5 +155,7 @@
 #define DSITXCLK_FREQ		DSILANE_FREQ/DSITXPRESCALER
 
 void clock_Init(void);
-
+void millis_Init(void);
+uint32_t clock___millis(void);
+void clock___delay_ms(uint32_t delay);
 #endif /* INC_CLOCK_H_ */

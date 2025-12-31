@@ -10,6 +10,38 @@
 
 // TODO implement selectors into C file (currently not supported)
 
+uint64_t millis = 0;
+
+void TIM2_Init()
+{
+	RCC->APB1ENR |= RCC_APB1ENR_TIM2EN; 		// Enable TIM2 clock
+
+	TIM2->PSC = 0; 													// Set prescaler for 1ms tick
+	TIM2->ARR = (APB1TIMER_FREQ / 1000) - 1;                  		// Auto-reload value for 1ms
+	TIM2->CNT = 0;                      							// Reset counter
+	TIM2->DIER |= TIM_DIER_UIE;                						// Enable update interrupt
+	NVIC_EnableIRQ(TIM2_IRQn);              						// Enable TIM2 interrupt in NVIC
+	NVIC_SetPriority(TIM2_IRQn, 1);       							// Set TIM2 interrupt priority
+	TIM2->CR1 |= TIM_CR1_CEN;          								// Enable TIM2
+}
+
+void millis_Init(void)
+{
+	millis = 0;
+	TIM2_Init();
+}
+
+uint32_t clock___millis(void)
+{
+	return((uint32_t)millis);
+}
+
+void clock___delay_ms(uint32_t delay)
+{
+	uint32_t start = clock___millis();
+	while ((clock___millis() - start) < delay);
+}
+
 void clock_Init(void)
 {
 	RCC->APB1ENR |= RCC_APB1ENR_PWREN; // Enable Power interface clock
@@ -55,4 +87,12 @@ void clock_Init(void)
 
 	RCC->CR |= RCC_CR_PLLSAION; 							// Enable PLLSAI
 	while(!(RCC->CR & RCC_CR_PLLSAIRDY)); 					// Wait for PLLSAI to be ready
+}
+
+void TIM2_IRQHandler(void) {
+	if (TIM2->SR & TIM_SR_UIF) 				// Check if update interrupt flag is set
+	{
+		millis++; 							// Increment milliseconds counter
+		TIM2->SR &= ~TIM_SR_UIF; 			// Clear update interrupt flag
+	}
 }
