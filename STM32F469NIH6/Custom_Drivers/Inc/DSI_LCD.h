@@ -28,7 +28,7 @@
 #define DSI_LCD___VFP					150	// Display vertical front porch size 	(pixels)
 #define DSI_LCD___VBP					150	// Display vertical back porch size 	(pixels)
 
-#define DSI_LDC___LANE_FREQUENCY		500000000
+#define DSI_LDC___LANE_FREQUENCY			500000000
 
 #define DSI_LCD___LANE_COUNT				0x02 	// number of data lanes, 1: 1 lane, 2: 2 lanes
 #define DSI_LCD___DATA_HS2LP_TIME			0x23	// Max high speed to low power mode switch time in lengths of byte lane periods		 One byte-cycle period = 8 * UI, where UI = 1 / lane_bitrate (seconds per bit)
