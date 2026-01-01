@@ -9,8 +9,14 @@
 #include "DSI_LCD.h"
 #include "Clock.h"
 #include "nt35510.h"
+#include "stdlib.h"
 
 // TODO implement real delays using timer in clock file
+
+uint32_t TE_Flag = 0;
+uint8_t* pending_Buffer_Address = NULL;
+void (*Swap_Callback)(void) = NULL;
+
 
 void DSI_IO_WriteCmd(uint32_t NbrParams, uint8_t *pParams)
 {
@@ -76,6 +82,10 @@ void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdat
 
 void DSI_LCD___DSI_Init(void)
 {
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOJEN; 												// Enable GPIOJ clock
+	GPIOJ->MODER |= GPIO_MODER_MODER2_1; 												// Set PJ2 to Alternate Function mode
+	GPIOJ->AFR[0] |= (13 << GPIO_AFRL_AFSEL2_Pos); 										// Set PJ2 to DSI Alternate Function (AF13)
+
 	// Enable DSI clock
 	RCC->APB2ENR |= RCC_APB2ENR_DSIEN;
 	while (!(RCC->APB2ENR & RCC_APB2ENR_DSIEN)); 										// Wait for DSI clock to be enabled
@@ -138,6 +148,12 @@ void DSI_LCD___DSI_Init(void)
 	DSI -> LCOLCR   =   DSI_LCD___LCOLC_RGB888; 										// Set color coding format to RGB888
 	DSI -> WCFGR    =   DSI_LCD___COLMUX_RGB888;
 
+	DSI -> WIER 	= 	DSI_WIER_TEIE; 													// Enable Tearing Effect Interrupt
+
+	NVIC_EnableIRQ(DSI_IRQn); 															// Enable DSI Interrupt in NVIC
+	NVIC_SetPriority(DSI_IRQn, 12); 														// Set DSI Interrupt priority
+
+	DSI -> WCFGR    |= 	DSI_WCFGR_TESRC; 												// Set Tearing Effect Source to External Pin
 	DSI -> WCR 		= 	DSI_WCR_DSIEN;										 			// Enable DSI Wrapper
 	DSI -> CR 		= 	DSI_CR_EN; 														// Enable DSI
 
@@ -217,4 +233,64 @@ void DSI_LCD___Init(void)
 	DSI_LCD___LTDC_Init();
 	DSI_LCD___DSI_Init();
 	DSI -> MCR &= ~DSI_MCR_CMDM;
+
+	GPIOD->MODER 	|= GPIO_MODER_MODER4_0; 												// Set PD4 to Output mode
+	GPIOD->ODR 		|= GPIO_ODR_OD4; 														// Set PD4 High (LED on)
+
+}
+
+void DSI_LCD___Set_Buffer(uint8_t* buf)
+{
+	LTDC_Layer1->CFBAR = (uint32_t) buf; 			// Set frame buffer address
+	LTDC->SRCR = LTDC_SRCR_IMR; 					// Reload shadow registers
+}
+
+void DSI_LCD___Set_Pending_Buffer(uint8_t* buf)
+{
+	pending_Buffer_Address = buf;
+}
+
+void DSI_LCD___Reset_TE_Flag(void)
+{
+	TE_Flag = 0;
+}
+
+uint32_t DSI_LCD___Get_TE_Flag(void)
+{
+	return(TE_Flag);
+}
+
+void DSI_LCD___Set_Swap_Callback(void (*callback)(void))
+{
+	Swap_Callback = callback;
+}
+
+void DSI_IRQHandler(void)
+{
+	uint32_t pending_ier = DSI->WISR & DSI->WIER;
+
+	if (pending_ier & DSI_WISR_TEIF) 				// Tearing Effect Interrupt
+	{
+		TE_Flag = 1;
+
+		if (GPIOD->ODR & GPIO_ODR_OD4)
+		{
+			GPIOD->ODR &= ~GPIO_ODR_OD4;
+		}
+		else
+		{
+			GPIOD->ODR |= GPIO_ODR_OD4;
+		}
+
+		if (pending_Buffer_Address != NULL)
+		{
+			DSI_LCD___Set_Buffer((uint8_t*) pending_Buffer_Address);
+			if (Swap_Callback != NULL)
+			{
+				Swap_Callback();
+			}
+			pending_Buffer_Address = NULL;
+		}
+		DSI->WIFCR = DSI_WIFCR_CTEIF; 	// Clear Tearing Effect Interrupt Flag
+	}
 }

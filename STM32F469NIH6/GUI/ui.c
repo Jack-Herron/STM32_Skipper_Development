@@ -19,7 +19,6 @@ lv_anim_t * Map_Animation(lv_obj_t * TargetObject, int delay);
 lv_anim_t * Knob_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
-void ui_event____initial_actions0(lv_event_t * e);
 lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
@@ -311,20 +310,6 @@ lv_anim_t * Knob_Animation(lv_obj_t * TargetObject, int delay)
 }
 
 ///////////////////// FUNCTIONS ////////////////////
-void ui_event____initial_actions0(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
-        Wave1_Animation(ui_Wave1, 0);
-        Wave2_Animation(ui_Wave2, 0);
-        Particle3_Animation(ui_Image_Particle3, 0);
-        Particle2_Animation(ui_Image_Particle2, 0);
-        Particle1_Animation(ui_Image_Particle1, 0);
-        Knob_Animation(ui_Gps_Knob_Bg, 0);
-        Map_Animation(ui_Map_Bg, 0);
-    }
-}
 
 ///////////////////// SCREENS ////////////////////
 
@@ -335,17 +320,12 @@ void ui_init(void)
     lv_disp_t * dispp = lv_display_get_default();
     lv_theme_t * theme = lv_theme_simple_init(dispp);
     lv_disp_set_theme(dispp, theme);
-    ui_Home_screen_init();
-    ui_Settings_screen_init();
+    ui_Screen1_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
-    lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
-
-    lv_disp_load_scr(ui____initial_actions0);
-    lv_disp_load_scr(ui_Home);
+    lv_disp_load_scr(ui_Screen1);
 }
 
 void ui_destroy(void)
 {
-    ui_Home_screen_destroy();
-    ui_Settings_screen_destroy();
+    ui_Screen1_screen_destroy();
 }

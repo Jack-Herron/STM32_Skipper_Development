@@ -21,7 +21,7 @@ void TIM2_Init()
 	TIM2->CNT = 0;                      							// Reset counter
 	TIM2->DIER |= TIM_DIER_UIE;                						// Enable update interrupt
 	NVIC_EnableIRQ(TIM2_IRQn);              						// Enable TIM2 interrupt in NVIC
-	NVIC_SetPriority(TIM2_IRQn, 1);       							// Set TIM2 interrupt priority
+	NVIC_SetPriority(TIM2_IRQn, 11);       							// Set TIM2 interrupt priority
 	TIM2->CR1 |= TIM_CR1_CEN;          								// Enable TIM2
 }
 

@@ -20,8 +20,7 @@ extern "C" {
 
 ///////////////////// SCREENS ////////////////////
 
-#include "screens/ui_Home.h"
-#include "screens/ui_Settings.h"
+#include "screens/ui_Screen1.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -38,40 +37,7 @@ extern lv_anim_t * Knob_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
-void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
-
-// IMAGES AND IMAGE SETS
-extern const char * ui_img_ebike_bg_png;  // assets/ebike_bg.png
-extern const char * ui_img_slider_battery_png;  // assets/slider_battery.png
-extern const char * ui_img_speed_slider_png;  // assets/speed_slider.png
-extern const char * ui_img_icn_flash_png;  // assets/icn_flash.png
-extern const char * ui_img_menu_on_png;  // assets/menu_on.png
-extern const char * ui_img_icn_bike_png;  // assets/icn_bike.png
-extern const char * ui_img_icn_battery_png;  // assets/icn_battery.png
-extern const char * ui_img_icn_map_png;  // assets/icn_map.png
-extern const char * ui_img_menu_line_png;  // assets/menu_line.png
-extern const char * ui_img_particle_1_png;  // assets/particle_1.png
-extern const char * ui_img_water_2_png;  // assets/water_2.png
-extern const char * ui_img_particle_3_png;  // assets/particle_3.png
-extern const char * ui_img_water_1_png;  // assets/water_1.png
-extern const char * ui_img_particle_2_png;  // assets/particle_2.png
-extern const char * ui_img_battery_bg_png;  // assets/battery_bg.png
-extern const char * ui_img_icn_charge_png;  // assets/icn_charge.png
-extern const char * ui_img_pin_line_png;  // assets/pin_line.png
-extern const char * ui_img_pin_on_png;  // assets/pin_on.png
-extern const char * ui_img_icn_x_png;  // assets/icn_x.png
-extern const char * ui_img_icn_ok_png;  // assets/icn_ok.png
-extern const char * ui_img_map_png;  // assets/map.png
-extern const char * ui_img_gps_knob_png;  // assets/gps_knob.png
-extern const char * ui_img_gps_bg_png;  // assets/gps_bg.png
-extern const char * ui_img_right_png;  // assets/right.png
-extern const char * ui_img_settings_corner_png;  // assets/settings_corner.png
-extern const char * ui_img_icn_settings_png;  // assets/icn_settings.png
-extern const char * ui_img_settings_bg_png;  // assets/settings_bg.png
-extern const char * ui_img_volume_on_png;  // assets/volume_on.png
-extern const char * ui_img_volume_off_png;  // assets/volume_off.png
-extern const char * ui_img_icn_x2_png;  // assets/icn_x2.png
 
 // FONTS
 LV_FONT_DECLARE(ui_font_Big);

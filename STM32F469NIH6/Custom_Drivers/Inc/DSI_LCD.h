@@ -67,5 +67,10 @@ void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdat
 void DSI_LCD___Short_Write(uint32_t channel_ID, uint32_t data_Type, uint32_t data1, uint32_t data2);
 void DSI_LCD___Generate_Pattern(uint8_t mode, uint8_t orientation);
 void DSI_LCD___Init(void);
+void DSI_LCD___Reset_TE_Flag(void);
+uint32_t DSI_LCD___Get_TE_Flag(void);
+void DSI_LCD___Set_Buffer(uint8_t* buf);
+void DSI_LCD___Set_Pending_Buffer(uint8_t* buf);
+void DSI_LCD___Set_Swap_Callback(void (*callback)(void));
 
 #endif /* INC_DSI_LCD_H_ */

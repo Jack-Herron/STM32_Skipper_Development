@@ -234,6 +234,7 @@ g_pfnVectors:
   .word	LCD_TFT_1_IRQHandler         			/* LTDC global error interrupt                                        */
   .word	DMA2D_IRQHandler             			/* DMA2D global interrupt                                             */
   .word	QUADSPI_IRQHandler           			/* QuadSPI global interrupt                                           */
+  .word DSI_IRQHandler                    		/* DSI                          									  */
   .size g_pfnVectors, .-g_pfnVectors
 
 /*******************************************************************************
@@ -543,6 +544,9 @@ g_pfnVectors:
 
 	.weak	QUADSPI_IRQHandler
 	.thumb_set QUADSPI_IRQHandler,Default_Handler
+
+	.weak      DSI_IRQHandler
+   	.thumb_set DSI_IRQHandler,Default_Handler
 
 	.weak	SystemInit
 
