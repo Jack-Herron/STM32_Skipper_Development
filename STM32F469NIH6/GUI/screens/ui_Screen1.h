@@ -14,16 +14,8 @@ extern "C" {
 extern void ui_Screen1_screen_init(void);
 extern void ui_Screen1_screen_destroy(void);
 extern lv_obj_t * ui_Screen1;
-extern lv_obj_t * ui_Spinner1;
 extern lv_obj_t * ui_Spinner2;
-extern lv_obj_t * ui_Label1;
-extern lv_obj_t * ui_Chart1;
-extern lv_obj_t * ui_Chart1_Xaxis;
-extern lv_obj_t * ui_Chart1_Yaxis1;
-extern lv_obj_t * ui_Chart1_Yaxis2;
 // CUSTOM VARIABLES
-extern lv_obj_t * uic_Spinner1;
-extern lv_obj_t * uic_FPS_DISPLAY;
 
 #ifdef __cplusplus
 } /*extern "C"*/

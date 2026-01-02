@@ -159,7 +159,6 @@ void lv_draw_dma2d_configure_and_start_transfer(const lv_draw_dma2d_configuratio
 {
     /* number of lines register */
     DMA2D->NLR = (conf->w << DMA2D_NLR_PL_Pos) | (conf->h << DMA2D_NLR_NL_Pos);
-
     /* output */
 
     /* output memory address register */

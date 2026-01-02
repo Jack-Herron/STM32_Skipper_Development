@@ -95,26 +95,26 @@ void lv_draw_dma2d_fill(lv_draw_task_t * t, void * first_pixel, int32_t w, int32
     uint32_t output_offset = (stride / cf_size) - w;
 
     lv_draw_dma2d_configuration_t conf = {
-        .mode = LV_DRAW_DMA2D_MODE_MEMORY_TO_MEMORY_WITH_BLENDING,
-        .w = w,
-        .h = h,
+        .mode 				= LV_DRAW_DMA2D_MODE_MEMORY_TO_MEMORY_WITH_BLENDING,
+        .w 					= w,
+        .h 					= h,
 
-        .output_address = first_pixel,
-        .output_offset = output_offset,
-        .output_cf = output_cf,
+        .output_address 	= first_pixel,
+        .output_offset 		= output_offset,
+        .output_cf 			= output_cf,
 
-        .fg_color = lv_color_to_u32(color),
-        .fg_address = first_pixel,
-        .fg_offset = output_offset,
-        .fg_alpha_mode = LV_DRAW_DMA2D_ALPHA_MODE_REPLACE_ALPHA_CHANNEL,
-        .fg_alpha = opa,
-        .fg_cf = LV_DRAW_DMA2D_FGBG_CF_A8,
+        .fg_color 			= lv_color_to_u32(color),
+        .fg_address 		= first_pixel,
+        .fg_offset 			= output_offset,
+        .fg_alpha_mode 		= LV_DRAW_DMA2D_ALPHA_MODE_REPLACE_ALPHA_CHANNEL,
+        .fg_alpha 			= opa,
+        .fg_cf 				= LV_DRAW_DMA2D_FGBG_CF_A8,
 
-        .bg_address = first_pixel,
-        .bg_offset = output_offset,
-        .bg_alpha_mode = LV_DRAW_DMA2D_ALPHA_MODE_NO_MODIFY_IMAGE_ALPHA_CHANNEL,
-        .bg_alpha = opa,
-        .bg_cf = (lv_draw_dma2d_fgbg_cf_t) output_cf
+        .bg_address 		= first_pixel,
+        .bg_offset 			= output_offset,
+        .bg_alpha_mode 		= LV_DRAW_DMA2D_ALPHA_MODE_NO_MODIFY_IMAGE_ALPHA_CHANNEL,
+        .bg_alpha 			= opa,
+        .bg_cf 				= (lv_draw_dma2d_fgbg_cf_t) output_cf
     };
 
     /* Background alpha channel should be treated as 0xFF if the cf is XRGB */

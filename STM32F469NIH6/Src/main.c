@@ -15,6 +15,7 @@
 #include "stdio.h"
 #include "ui.h"
 #include "lv_draw_dma2d.h"
+#include "TS.h"
 
 #define LCD_HORIZONTAL_RESOLUTION 800
 #define LCD_VERTICAL_RESOLUTION 480
@@ -22,6 +23,7 @@
 #define LCD_BUFFER1_ADDRESS (uint8_t*)(0xc0000000)
 #define LCD_BUFFER2_ADDRESS (uint8_t*)(LCD_BUFFER1_ADDRESS + LCD_BUFFER_SIZE)
 
+#define FLUSH_READY_FLAG (1U << 0)
 
 uint32_t* frame_buffer_address = (uint32_t*)0xc0000000;
 
@@ -32,34 +34,14 @@ lv_display_t * display = NULL;
 osThreadId defaultTaskHandle;
 osThreadId GFXTaskHandle;
 
-#define FPS_SAMPLES 150
-uint32_t FPS_Array[FPS_SAMPLES];
-float FPS_Value = 0;
-uint32_t frame_Counter = 0;
+uint8_t flush_ready = 0;
+
 void StartDefaultTask(void const * argument);
 void startGFXTask(void const * argument);
 
 void DSI_Buffer_Swap_Callback(void)
 {
-    lv_display_flush_ready(display);
-
-    uint32_t now = clock___millis();
-    uint32_t idx = frame_Counter % FPS_SAMPLES;
-
-    // CRUDE FPS CALCULATION
-    FPS_Array[idx] = now;
-    frame_Counter++;
-
-    if(frame_Counter >= FPS_SAMPLES)
-    {
-        /* Oldest sample is the next one that will be overwritten */
-        uint32_t oldest_idx = frame_Counter % FPS_SAMPLES;
-        uint32_t oldest = FPS_Array[oldest_idx];
-
-        uint32_t dt = now - oldest;
-        if(dt > 0)
-        	FPS_Value = 1000.0f * (float)(FPS_SAMPLES - 1) / (float)dt;
-    }
+	osSignalSet(GFXTaskHandle, FLUSH_READY_FLAG);
 }
 
 int main(void)
@@ -76,7 +58,7 @@ int main(void)
 
 	DSI_LCD___Init();
 	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
-	//TODO add init functions for QSPI, DMA2D (ChromArt)
+	//TODO add init functions for QSPI
 
 	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
 	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
@@ -95,8 +77,7 @@ void StartDefaultTask(void const * argument)
 
 	for(;;)
 	{
-		osDelay(100);
-
+		osDelay(3);
 	}
 }
 
@@ -107,7 +88,6 @@ static uint32_t my_tick_cb(void)
 
 static void my_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
 {
-	//TODO: after dual buffer integration, this function needs to wait for tearing signal, and swap buffers
 	if(lv_disp_flush_is_last(disp))
 	{
 		DSI_LCD___Set_Pending_Buffer(px_map);
@@ -118,6 +98,12 @@ static void my_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * p
 	}
 }
 
+void my_flush_wait_cb(lv_display_t * disp)
+{
+    osSignalWait(FLUSH_READY_FLAG, 100);
+    lv_display_flush_ready(disp);
+}
+
 void startGFXTask(void const * argument)
 {
 	lv_init();
@@ -125,18 +111,15 @@ void startGFXTask(void const * argument)
 	display = lv_display_create(LCD_HORIZONTAL_RESOLUTION, LCD_VERTICAL_RESOLUTION);
 
 	lv_display_set_buffers(display, LCD_BUFFER1_ADDRESS, LCD_BUFFER2_ADDRESS, LCD_BUFFER_SIZE, LV_DISPLAY_RENDER_MODE_DIRECT);
+
 	lv_tick_set_cb(my_tick_cb);
 	lv_display_set_flush_cb(display, my_flush_cb);
-
+	lv_display_set_flush_wait_cb(display, my_flush_wait_cb);
 	ui_init();
+
 	for(;;)
 	{
-		uint32_t time_Until_Refresh = lv_timer_handler();
-		char str[30] = "Initializing...";
-		sprintf(str, "FPS: %.2f", FPS_Value);
-
-		lv_label_set_text(uic_FPS_DISPLAY, str);
-		osDelay(time_Until_Refresh);
+		uint32_t t = lv_timer_handler();
+		osDelay(t);
 	}
 }
-
