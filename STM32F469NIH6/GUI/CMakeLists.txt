@@ -1,13 +1,7 @@
-SET(SOURCES components/ui_comp_dropdown.c
-    components/ui_comp_roller.c
-    components/ui_comp.c
-    screens/ui_Screen1.c
+SET(SOURCES screens/ui_Screen1.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
-    fonts/ui_font_Big.c
-    fonts/ui_font_Medium.c
-    fonts/ui_font_Number.c
-    fonts/ui_font_Small.c)
+    fonts/ui_font_Small_Font.c)
 
 add_library(ui ${SOURCES})

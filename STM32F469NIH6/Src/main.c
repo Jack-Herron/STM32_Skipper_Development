@@ -15,6 +15,7 @@
 #include "stdio.h"
 #include "ui.h"
 #include "lv_draw_dma2d.h"
+#include "I2C.h"
 #include "TS.h"
 
 #define LCD_HORIZONTAL_RESOLUTION 800
@@ -24,6 +25,17 @@
 #define LCD_BUFFER2_ADDRESS (uint8_t*)(LCD_BUFFER1_ADDRESS + LCD_BUFFER_SIZE)
 
 #define FLUSH_READY_FLAG (1U << 0)
+#define TS_EVENT_FLAG (1 << 0)
+
+typedef struct {
+    uint16_t x;
+    uint16_t y;
+    uint8_t  pressed;
+} ts_sample_t;
+
+static volatile ts_sample_t g_ts = {0};
+static osMutexId g_ts_mutex;
+osMutexDef(TS_MUTEX);
 
 uint32_t* frame_buffer_address = (uint32_t*)0xc0000000;
 
@@ -44,6 +56,11 @@ void DSI_Buffer_Swap_Callback(void)
 	osSignalSet(GFXTaskHandle, FLUSH_READY_FLAG);
 }
 
+void TS_Event_Callback(void)
+{
+	osSignalSet(defaultTaskHandle, TS_EVENT_FLAG);
+}
+
 int main(void)
 {
 	clock_Init();
@@ -58,6 +75,9 @@ int main(void)
 
 	DSI_LCD___Init();
 	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
+	TS___Init();
+	TS___Set_Event_Callback(TS_Event_Callback);
+
 	//TODO add init functions for QSPI
 
 	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
@@ -66,6 +86,7 @@ int main(void)
 
 	osThreadDef(GFXTask, startGFXTask, osPriorityNormal, 0, 16384);
 	GFXTaskHandle = osThreadCreate(osThread(GFXTask), NULL);
+	g_ts_mutex = osMutexCreate(osMutex(TS_MUTEX));
 
 	osKernelStart();
 
@@ -77,13 +98,51 @@ void StartDefaultTask(void const * argument)
 
 	for(;;)
 	{
-		osDelay(3);
+		osSignalWait(TS_EVENT_FLAG, osWaitForever);
+
+		uint16_t x;
+		uint16_t y;
+		uint8_t pressed = 0;
+		uint8_t num_Points = 0;
+
+		num_Points = TS___Get_Num_Points_Pressed();
+		TS___Get_Point(&x, &y);
+
+		if(num_Points != 0)
+		{
+			pressed = 1;
+		}
+
+		// remap points to LVGLs format
+
+		uint16_t new_X;
+		uint16_t new_Y;
+
+		new_X = y;
+		new_Y = 479 - x;
+
+		osMutexWait(g_ts_mutex, osWaitForever);
+		g_ts.x = new_X;
+		g_ts.y = new_Y;
+		g_ts.pressed = pressed;
+		osMutexRelease(g_ts_mutex);
 	}
 }
 
 static uint32_t my_tick_cb(void)
 {
     return(clock___millis());
+}
+
+static void my_touch_read_cb(lv_indev_t * indev, lv_indev_data_t * data)
+{
+	osMutexWait(g_ts_mutex, osWaitForever);
+
+	data->point.x = g_ts.x;
+	data->point.y = g_ts.y;
+	data->state = g_ts.pressed;
+
+	osMutexRelease(g_ts_mutex);
 }
 
 static void my_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
@@ -115,6 +174,11 @@ void startGFXTask(void const * argument)
 	lv_tick_set_cb(my_tick_cb);
 	lv_display_set_flush_cb(display, my_flush_cb);
 	lv_display_set_flush_wait_cb(display, my_flush_wait_cb);
+
+    lv_indev_t * indev = lv_indev_create();
+    lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
+    lv_indev_set_read_cb(indev, my_touch_read_cb);
+
 	ui_init();
 
 	for(;;)

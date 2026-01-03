@@ -260,15 +260,6 @@ void DSI_IRQHandler(void)
 
 	if (pending_ier & DSI_WISR_TEIF) 				// Tearing Effect Interrupt
 	{
-		if (GPIOD->ODR & GPIO_ODR_OD4)
-		{
-			GPIOD->ODR &= ~GPIO_ODR_OD4;
-		}
-		else
-		{
-			GPIOD->ODR |= GPIO_ODR_OD4;
-		}
-
 		if (pending_Buffer_Address != NULL)
 		{
 			DSI_LCD___Set_Buffer((uint8_t*) pending_Buffer_Address);
@@ -281,9 +272,4 @@ void DSI_IRQHandler(void)
 
 		DSI->WIFCR = DSI_WIFCR_CTEIF; 	// Clear Tearing Effect Interrupt Flag
 	}
-}
-
-void LTDC_IRQHandler(void)
-{
-    // Handle LTDC interrupts if needed
 }
