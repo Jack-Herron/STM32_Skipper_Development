@@ -11,7 +11,7 @@
 #include <stdint.h>
 
 #define TS___I2C_ADDRESS		0x38
-#define TS___I2C_FREQ			100000
+#define TS___I2C_FREQ			350000
 #define TS___I2C_RISE_TIME_ns	100
 #define TS___I2C_PORT			1
 

@@ -96,6 +96,7 @@ int I2C___Init(uint8_t port, I2C___Conf_TypeDef* I2C_Conf)
 	return(0);
 }
 
+//TODO add timeout values to while loops to avoid indefinite blocking
 int I2C___Write(uint8_t port, uint8_t address, uint8_t* buffer, uint32_t write_Length)
 {
 	I2C_TypeDef* I2Cx = I2C___Get_Instance_From_Port(port)->I2Cx;
@@ -135,6 +136,8 @@ int I2C___Write(uint8_t port, uint8_t address, uint8_t* buffer, uint32_t write_L
 	return(0);
 }
 
+
+//TODO add timeout values to while loops to avoid indefinite blocking
 int I2C___Read_Reg(uint8_t port, uint8_t address, uint8_t reg_Address, uint8_t* buffer, uint32_t read_Length)
 {
 	I2C_TypeDef* I2Cx = I2C___Get_Instance_From_Port(port)->I2Cx;
