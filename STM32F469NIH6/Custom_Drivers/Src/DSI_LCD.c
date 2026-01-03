@@ -144,8 +144,8 @@ void DSI_LCD___DSI_Init(void)
 	DSI -> VVFPCR   =   DSI_LCD___VFP; 													// Set Vertical Front Porch duration in pixels
 	DSI -> VVBPCR   =   DSI_LCD___VBP; 													// Set Vertical Back Porch duration in pixels
 
-	DSI -> LCOLCR   =   DSI_LCD___LCOLC_RGB888; 										// Set color coding format to RGB888
-	DSI -> WCFGR    =   DSI_LCD___COLMUX_RGB888;
+	DSI -> LCOLCR   =   DSI_LCD___LCOLC_RGB565; 										// Set color coding format to RGB888
+	DSI -> WCFGR    =   DSI_LCD___COLMUX_RGB565 << DSI_WCFGR_COLMUX_Pos;
 
 	DSI -> WIER 	= 	DSI_WIER_TEIE; 													// Enable Tearing Effect Interrupt
 
@@ -156,7 +156,7 @@ void DSI_LCD___DSI_Init(void)
 	DSI -> WCR 		= 	DSI_WCR_DSIEN;										 			// Enable DSI Wrapper
 	DSI -> CR 		= 	DSI_CR_EN; 														// Enable DSI
 
-	NT35510_Init(NT35510_FORMAT_RGB888, NT35510_ORIENTATION_LANDSCAPE);
+	NT35510_Init(NT35510_FORMAT_RBG565, NT35510_ORIENTATION_LANDSCAPE);
 
 	NT35510_IO_Delay(10);
 }
@@ -208,7 +208,7 @@ void DSI_LCD___LTDC_Init(void)
 	LTDC_Layer1->WVPCR 	= 	((DSI_LCD___VBP + DSI_LCD___VSA) 						<< LTDC_LxWVPCR_WVSTPOS_Pos) | 		// Set vertical start position
 							((DSI_LCD___VACT + DSI_LCD___VBP + DSI_LCD___VSA - 1) 	<< LTDC_LxWVPCR_WVSPPOS_Pos);		// Set vertical stop position
 
-	LTDC_Layer1->PFCR 	=	DSI_LCD___PF_ARGB8888; 																		// Set pixel format to RGB888
+	LTDC_Layer1->PFCR 	=	DSI_LCD___PF_RGB565; 																		// Set pixel format to RGB888
 
 	LTDC_Layer1->DCCR   =   0xffAAfff2; 																				// Set default color to Teal with full opacity
 

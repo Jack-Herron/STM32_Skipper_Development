@@ -56,10 +56,16 @@
 // Register Fill values
 
 #define DSI_LCD___LCOLC_RGB888 				0x05
-#define DSI_LCD___COLMUX_RGB888				0x0A
+#define DSI_LCD___LCOLC_RGB565 				0x00
+
+#define DSI_LCD___COLMUX_RGB888				0x05
+#define DSI_LCD___COLMUX_RGB565				0x00
+
 #define DSI_LCD___VMT_MODE_BURST			0x02
 
 #define DSI_LCD___PF_ARGB8888				0x00
+#define DSI_LCD___PF_RGB565					0x02
+
 #define DSI_LCD___ARGB_BYTES_PER_PIXEL		0x04
 // Functions
 
