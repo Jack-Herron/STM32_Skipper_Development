@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+void GUI_Toggle_Bright_Mode(lv_event_t * e);
+
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif

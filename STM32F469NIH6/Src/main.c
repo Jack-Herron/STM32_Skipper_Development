@@ -33,23 +33,39 @@ typedef struct {
     uint8_t  pressed;
 } ts_sample_t;
 
+typedef struct {
+	uint8_t 	white;
+	uint8_t 	purple;
+	uint8_t 	lime;
+	uint8_t 	red;
+	uint8_t 	far_Red;
+	uint8_t 	mode;
+} lighting_Channels_TypeDef;
+
+static volatile lighting_Channels_TypeDef lighting = {0};
+static osMutexId lighting_Channels_Mutex;
+osMutexDef(LIGHTING_MUTEX);
+
 static volatile ts_sample_t g_ts = {0};
 static osMutexId g_ts_mutex;
 osMutexDef(TS_MUTEX);
 
-uint32_t* frame_buffer_address = (uint32_t*)0xc0000000;
-
 uint32_t SystemCoreClock = HCLK_FREQ;
 
-lv_display_t * display = NULL;
-
-osThreadId defaultTaskHandle;
+osThreadId controlTaskHandle;
+osThreadId sensorHandle;
+osThreadId profileTaskHandle;
+osThreadId TSTaskHandle;
 osThreadId GFXTaskHandle;
 
 uint8_t flush_ready = 0;
 
-void StartDefaultTask(void const * argument);
+void StartControlTask(void const * argument);
+void StartSensorTask(void const * argument);
+void StartProfileTask(void const * argument);
+void StartTSTask(void const * argument);
 void startGFXTask(void const * argument);
+
 
 void DSI_Buffer_Swap_Callback(void)
 {
@@ -58,7 +74,7 @@ void DSI_Buffer_Swap_Callback(void)
 
 void TS_Event_Callback(void)
 {
-	osSignalSet(defaultTaskHandle, TS_EVENT_FLAG);
+	osSignalSet(TSTaskHandle, TS_EVENT_FLAG);
 }
 
 int main(void)
@@ -66,26 +82,27 @@ int main(void)
 	clock_Init();
 	millis_Init();
 	FMC_SDRAM___SDRAM_Init();
-
-	/* CRUDE FRAMEBUFFER INITIALIZATION */
-	for(uint32_t i = 0; i < (LCD_BUFFER_SIZE/4)*2; i++)
-	{
-		((uint32_t*)LCD_BUFFER1_ADDRESS)[i] = 0xFF000000; // Fill the framebuffer with black
-	}
-
 	DSI_LCD___Init();
 	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
 	TS___Init();
 	TS___Set_Event_Callback(TS_Event_Callback);
 
-	//TODO add init functions for QSPI
+	osThreadDef(sensorTask, StartSensorTask, osPriorityNormal, 0, 512);
+	sensorHandle = osThreadCreate(osThread(sensorTask), NULL);
 
-	osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 4096);
-	defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+	osThreadDef(controlTask, StartControlTask, osPriorityNormal, 0, 512);
+	controlTaskHandle = osThreadCreate(osThread(controlTask), NULL);
 
+	osThreadDef(profileTask, StartProfileTask, osPriorityNormal, 0, 4096);
+	profileTaskHandle = osThreadCreate(osThread(profileTask), NULL);
 
 	osThreadDef(GFXTask, startGFXTask, osPriorityNormal, 0, 16384);
 	GFXTaskHandle = osThreadCreate(osThread(GFXTask), NULL);
+
+	osThreadDef(TSTask, StartTSTask, osPriorityNormal, 0, 512);
+	TSTaskHandle = osThreadCreate(osThread(TSTask), NULL);
+
+	lighting_Channels_Mutex = osMutexCreate(osMutex(LIGHTING_MUTEX));
 	g_ts_mutex = osMutexCreate(osMutex(TS_MUTEX));
 
 	osKernelStart();
@@ -93,7 +110,55 @@ int main(void)
 	for(;;);
 }
 
-void StartDefaultTask(void const * argument)
+void StartControlTask(void const * argument)
+{
+	for(;;)
+	{
+		osDelay(100);
+	}
+}
+
+void StartSensorTask(void const * argument)
+{
+	for(;;)
+	{
+
+
+		osDelay(100);
+	}
+}
+
+void StartProfileTask(void const * argument)
+{
+	for(;;)
+	{
+		// simulated profile reads
+		osMutexWait(lighting_Channels_Mutex, osWaitForever);
+		if(lighting.mode == 0)
+		{
+			lighting.white 		= 100;
+			lighting.purple 	= 180;
+			lighting.lime 		= 90;
+			lighting.red 		= 200;
+			lighting.far_Red 	= 70;
+		}
+		else
+		{
+			lighting.white 		= 255;
+			lighting.purple 	= 0;
+			lighting.lime 		= 0;
+			lighting.red 		= 0;
+			lighting.far_Red 	= 0;
+		}
+		osMutexRelease(lighting_Channels_Mutex);
+
+
+
+		osDelay(100);
+	}
+}
+
+void StartTSTask(void const * argument)
 {
 
 	for(;;)
@@ -159,15 +224,37 @@ static void my_flush_cb(lv_display_t * disp, const lv_area_t * area, uint8_t * p
 
 void my_flush_wait_cb(lv_display_t * disp)
 {
-    osSignalWait(FLUSH_READY_FLAG, 100);
+    osSignalWait(FLUSH_READY_FLAG, 1000);
     lv_display_flush_ready(disp);
+}
+
+void GUI_Toggle_Bright_Mode(lv_event_t * e)
+{
+	osMutexWait(lighting_Channels_Mutex, osWaitForever);
+
+	lighting.mode ^= 1;
+
+	osMutexRelease(lighting_Channels_Mutex);
+}
+
+void GUI_Refresh_Lighting_Indicators(void)
+{
+	osMutexWait(lighting_Channels_Mutex, osWaitForever);
+
+	_ui_bar_set_property(uic_White_Light_Indicator, 	0, 	lighting.white);
+	_ui_bar_set_property(uic_Purple_Light_Indicator, 	0, 	lighting.purple);
+	_ui_bar_set_property(uic_Lime_Light_Indicator, 		0, 	lighting.lime);
+	_ui_bar_set_property(uic_Red_Light_Indicator, 		0, 	lighting.red);
+	_ui_bar_set_property(uic_Far_Red_Light_Indicator, 	0, 	lighting.far_Red);
+
+	osMutexRelease(lighting_Channels_Mutex);
 }
 
 void startGFXTask(void const * argument)
 {
 	lv_init();
 
-	display = lv_display_create(LCD_HORIZONTAL_RESOLUTION, LCD_VERTICAL_RESOLUTION);
+	lv_display_t* display = lv_display_create(LCD_HORIZONTAL_RESOLUTION, LCD_VERTICAL_RESOLUTION);
 
 	lv_display_set_buffers(display, LCD_BUFFER1_ADDRESS, LCD_BUFFER2_ADDRESS, LCD_BUFFER_SIZE, LV_DISPLAY_RENDER_MODE_DIRECT);
 
@@ -183,6 +270,7 @@ void startGFXTask(void const * argument)
 
 	for(;;)
 	{
+		GUI_Refresh_Lighting_Indicators();
 		uint32_t t = lv_timer_handler();
 		osDelay(t);
 	}

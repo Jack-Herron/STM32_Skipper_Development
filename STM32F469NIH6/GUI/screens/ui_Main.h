@@ -14,11 +14,13 @@ extern "C" {
 extern void ui_Main_screen_init(void);
 extern void ui_Main_screen_destroy(void);
 extern lv_obj_t * ui_Main;
+extern void ui_event_Panel1(lv_event_t * e);
 extern lv_obj_t * ui_Panel1;
 extern lv_obj_t * ui_Label1;
 extern lv_obj_t * ui_Label2;
 extern void ui_event_Image1(lv_event_t * e);
 extern lv_obj_t * ui_Image1;
+extern void ui_event_Panel2(lv_event_t * e);
 extern lv_obj_t * ui_Panel2;
 extern lv_obj_t * ui_Label3;
 extern lv_obj_t * ui_Label7;
@@ -27,6 +29,7 @@ extern lv_obj_t * ui_Label8;
 extern lv_obj_t * ui_Label5;
 extern lv_obj_t * ui_Label9;
 extern lv_obj_t * ui_Container2;
+extern void ui_event_Panel3(lv_event_t * e);
 extern lv_obj_t * ui_Panel3;
 extern lv_obj_t * ui_Panel5;
 extern lv_obj_t * ui_Bar1;
@@ -35,15 +38,16 @@ extern lv_obj_t * ui_Bar3;
 extern lv_obj_t * ui_Bar4;
 extern lv_obj_t * ui_Bar5;
 extern lv_obj_t * ui_Label6;
-extern lv_obj_t * ui_Switch1;
 extern void ui_event_Panel6(lv_event_t * e);
 extern lv_obj_t * ui_Panel6;
 extern lv_obj_t * ui_Label13;
+extern void ui_event_Panel7(lv_event_t * e);
 extern lv_obj_t * ui_Panel7;
 extern lv_obj_t * ui_Label14;
 extern void ui_event_Panel8(lv_event_t * e);
 extern lv_obj_t * ui_Panel8;
 extern lv_obj_t * ui_Label15;
+extern void ui_event_Panel4(lv_event_t * e);
 extern lv_obj_t * ui_Panel4;
 extern lv_obj_t * ui_Chart2;
 extern lv_obj_t * ui_Chart2_Xaxis;
@@ -53,6 +57,11 @@ extern lv_obj_t * ui_Label10;
 extern lv_obj_t * ui_Label11;
 extern lv_obj_t * ui_Label12;
 // CUSTOM VARIABLES
+extern lv_obj_t * uic_Far_Red_Light_Indicator;
+extern lv_obj_t * uic_Red_Light_Indicator;
+extern lv_obj_t * uic_Purple_Light_Indicator;
+extern lv_obj_t * uic_Lime_Light_Indicator;
+extern lv_obj_t * uic_White_Light_Indicator;
 
 #ifdef __cplusplus
 } /*extern "C"*/
