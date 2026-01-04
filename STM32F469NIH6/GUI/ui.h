@@ -18,7 +18,10 @@ extern "C" {
 
 ///////////////////// SCREENS ////////////////////
 
-#include "screens/ui_Screen1.h"
+#include "screens/ui_Main.h"
+#include "screens/ui_Settings.h"
+#include "screens/ui_Statistics.h"
+#include "screens/ui_Profiles.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -26,6 +29,9 @@ extern "C" {
 // EVENTS
 
 extern lv_obj_t * ui____initial_actions0;
+
+// IMAGES AND IMAGE SETS
+LV_IMG_DECLARE(ui_img_habonero_icon_scaled_png);    // assets/Habonero_Icon_Scaled.png
 
 // UI INIT
 void ui_init(void);

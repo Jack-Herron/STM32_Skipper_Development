@@ -9,7 +9,7 @@
 #include "cmsis_os.h"
 #include "Clock.h"
 #include "FMC_SDRAM.h"
-#include "QSPI_Flash.h"
+#include "QSPI.h"
 #include "DSI_LCD.h"
 #include "lvgl.h"
 #include "stdio.h"
