@@ -24,6 +24,7 @@ extern "C" {
 #include "screens/ui_Profiles.h"
 #include "screens/ui_Status.h"
 #include "screens/ui_Calander.h"
+#include "screens/ui_Water.h"
 
 ///////////////////// VARIABLES ////////////////////
 

@@ -25,7 +25,7 @@ void ui_Status_screen_init(void)
 {
     ui_Status = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_Status, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Status, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Status, lv_color_hex(0x09090B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Status, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_Status, lv_color_hex(0x00FFC0), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Status, 255, LV_PART_MAIN | LV_STATE_DEFAULT);

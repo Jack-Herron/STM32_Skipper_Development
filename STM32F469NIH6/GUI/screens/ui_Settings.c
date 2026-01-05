@@ -25,9 +25,9 @@ void ui_Settings_screen_init(void)
 {
     ui_Settings = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_Settings, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Settings, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Settings, lv_color_hex(0x09090B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Settings, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Settings, lv_color_hex(0x005DFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Settings, lv_color_hex(0x5B5F65), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Settings, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Settings, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_side(ui_Settings, LV_BORDER_SIDE_TOP, LV_PART_MAIN | LV_STATE_DEFAULT);

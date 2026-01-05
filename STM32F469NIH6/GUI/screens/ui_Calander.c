@@ -25,7 +25,7 @@ void ui_Calander_screen_init(void)
 {
     ui_Calander = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_Calander, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Calander, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Calander, lv_color_hex(0x09090B), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Calander, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_Calander, lv_color_hex(0xFF00FD), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Calander, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
