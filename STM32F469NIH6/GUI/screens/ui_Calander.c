@@ -54,7 +54,7 @@ void ui_Calander_screen_init(void)
     lv_obj_set_y(ui_Label25, -47);
     lv_obj_set_x(ui_Label25, lv_pct(0));
     lv_obj_set_align(ui_Label25, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label25, "Calander page unimplemented");
+    lv_label_set_text(ui_Label25, "Calander page not yet implemented");
     lv_obj_set_style_text_font(ui_Label25, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Button5, ui_event_Button5, LV_EVENT_ALL, NULL);

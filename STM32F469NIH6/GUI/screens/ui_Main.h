@@ -39,7 +39,6 @@ extern lv_obj_t * ui_Bar3;
 extern lv_obj_t * ui_Bar4;
 extern lv_obj_t * ui_Bar5;
 extern lv_obj_t * ui_Label6;
-extern void ui_event_Panel6(lv_event_t * e);
 extern lv_obj_t * ui_Panel6;
 extern lv_obj_t * ui_Label13;
 extern void ui_event_Panel7(lv_event_t * e);
@@ -54,6 +53,14 @@ extern lv_obj_t * ui_Chart2;
 extern lv_obj_t * ui_Chart2_Xaxis;
 extern lv_obj_t * ui_Chart2_Yaxis1;
 extern lv_obj_t * ui_Chart2_Yaxis2;
+extern lv_obj_t * ui_Label26;
+extern lv_obj_t * ui_Label27;
+extern lv_obj_t * ui_Label28;
+extern lv_obj_t * ui_Label29;
+extern lv_obj_t * ui_Label30;
+extern lv_obj_t * ui_Label31;
+extern lv_obj_t * ui_Label32;
+extern lv_obj_t * ui_Label33;
 extern lv_obj_t * ui_Label10;
 extern lv_obj_t * ui_Label11;
 extern lv_obj_t * ui_Label12;
@@ -63,6 +70,14 @@ extern lv_obj_t * uic_Red_Light_Indicator;
 extern lv_obj_t * uic_Purple_Light_Indicator;
 extern lv_obj_t * uic_Lime_Light_Indicator;
 extern lv_obj_t * uic_White_Light_Indicator;
+extern lv_obj_t * uic_Soil_Moisture_Chart;
+extern lv_obj_t * uic_Graph_1HAgo;
+extern lv_obj_t * uic_Graph_2HAgo;
+extern lv_obj_t * uic_Graph_3HAgo;
+extern lv_obj_t * uic_Graph_4HAgo;
+extern lv_obj_t * uic_Graph_5HAgo;
+extern lv_obj_t * uic_Graph_6HAgo;
+extern lv_obj_t * uic_Graph_7HAgo;
 
 #ifdef __cplusplus
 } /*extern "C"*/
