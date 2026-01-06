@@ -19,10 +19,10 @@ void (*App___GUI_GFX_Frame_Ready_CallBack)(uint8_t* buf) = NULL;
 uint8_t (*App___GUI_TS_Get_Point_Callback)(uint16_t* x, uint16_t* y);
 
 
-volatile App___Profiles_State_TypeDef 	App___Profiles_State;
+volatile App___Profiles_State_TypeDef 		App___Profiles_State;
 volatile App___GUI_TS_State_TypeDef 		App___GUI_TS_State;
 volatile App___GUI_GFX_State_TypeDef	 	App___GUI_GFX_State;
-volatile App___IO_Sensor_State_TypeDef 	App___IO_Sensor_State;
+volatile App___IO_Sensor_State_TypeDef 		App___IO_Sensor_State;
 volatile App___IO_Control_State_TypeDef 	App___IO_Control_State;
 
 osMutexId App___IO_Control_State_Mutex;

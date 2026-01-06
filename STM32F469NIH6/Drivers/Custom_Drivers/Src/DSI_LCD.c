@@ -229,9 +229,6 @@ void DSI_LCD___Init(void)
 	DSI_LCD___LTDC_Init();
 	DSI_LCD___DSI_Init();
 	DSI -> MCR &= ~DSI_MCR_CMDM;
-
-	GPIOD->MODER 	|= GPIO_MODER_MODER4_0; 												// Set PD4 to Output mode
-	GPIOD->ODR 		|= GPIO_ODR_OD4; 														// Set PD4 High (LED on)
 }
 
 void DSI_LCD___Set_Buffer(uint8_t* buf)

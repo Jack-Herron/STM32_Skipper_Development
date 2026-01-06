@@ -6,6 +6,9 @@
 #include "../ui.h"
 
 lv_obj_t * ui_Water = NULL;
+lv_obj_t * ui_Duck = NULL;
+lv_obj_t * ui_Panel11 = NULL;
+lv_obj_t * ui_Panel12 = NULL;
 lv_obj_t * ui_Button6 = NULL;
 lv_obj_t * ui_Label34 = NULL;
 lv_obj_t * ui_Label35 = NULL;
@@ -25,17 +28,52 @@ void ui_Water_screen_init(void)
 {
     ui_Water = lv_obj_create(NULL);
     lv_obj_remove_flag(ui_Water, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Water, lv_color_hex(0x09090B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Water, lv_color_hex(0x4F99BA), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Water, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_color(ui_Water, lv_color_hex(0x0099FF), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Water, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Water, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_side(ui_Water, LV_BORDER_SIDE_TOP, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Button6 = lv_button_create(ui_Water);
+    ui_Duck = lv_image_create(ui_Water);
+    lv_image_set_src(ui_Duck, &ui_img_duck_80x80_png);
+    lv_obj_set_width(ui_Duck, LV_SIZE_CONTENT);   /// 80
+    lv_obj_set_height(ui_Duck, LV_SIZE_CONTENT);    /// 80
+    lv_obj_set_x(ui_Duck, -462);
+    lv_obj_set_y(ui_Duck, -99);
+    lv_obj_set_align(ui_Duck, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Duck, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_Duck, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Panel11 = lv_obj_create(ui_Water);
+    lv_obj_set_width(ui_Panel11, 800);
+    lv_obj_set_height(ui_Panel11, 318);
+    lv_obj_set_align(ui_Panel11, LV_ALIGN_BOTTOM_MID);
+    lv_obj_remove_flag(ui_Panel11, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel11, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel11, lv_color_hex(0x5FF6FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel11, 220, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel11, lv_color_hex(0x9AC3E5), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel11, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui_Panel11, LV_BORDER_SIDE_TOP, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Panel12 = lv_obj_create(ui_Panel11);
+    lv_obj_set_width(ui_Panel12, 592);
+    lv_obj_set_height(ui_Panel12, 161);
+    lv_obj_set_x(ui_Panel12, 0);
+    lv_obj_set_y(ui_Panel12, 7);
+    lv_obj_set_align(ui_Panel12, LV_ALIGN_CENTER);
+    lv_obj_remove_flag(ui_Panel12, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_Panel12, 30, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Panel12, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel12, 130, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel12, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel12, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Button6 = lv_button_create(ui_Panel12);
     lv_obj_set_width(ui_Button6, 347);
     lv_obj_set_height(ui_Button6, 50);
-    lv_obj_set_y(ui_Button6, 22);
+    lv_obj_set_y(ui_Button6, 26);
     lv_obj_set_x(ui_Button6, lv_pct(0));
     lv_obj_set_align(ui_Button6, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Button6, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
@@ -48,10 +86,10 @@ void ui_Water_screen_init(void)
     lv_label_set_text(ui_Label34, "Go Back");
     lv_obj_set_style_text_font(ui_Label34, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label35 = lv_label_create(ui_Water);
+    ui_Label35 = lv_label_create(ui_Panel12);
     lv_obj_set_width(ui_Label35, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label35, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_y(ui_Label35, -47);
+    lv_obj_set_y(ui_Label35, -40);
     lv_obj_set_x(ui_Label35, lv_pct(0));
     lv_obj_set_align(ui_Label35, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label35, "Water level page not yet implemented");
@@ -67,6 +105,9 @@ void ui_Water_screen_destroy(void)
 
     // NULL screen variables
     ui_Water = NULL;
+    ui_Duck = NULL;
+    ui_Panel11 = NULL;
+    ui_Panel12 = NULL;
     ui_Button6 = NULL;
     ui_Label34 = NULL;
     ui_Label35 = NULL;

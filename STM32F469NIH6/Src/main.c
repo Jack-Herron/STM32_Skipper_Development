@@ -60,6 +60,12 @@ int main(void)
 	clock_Init();
 	millis_Init();
 	FMC_SDRAM___SDRAM_Init();
+
+	for(uint32_t i = 0; i < 768000/2; i++)					// fill framebuffers with black
+	{
+		((uint32_t*)(0xc0000000))[i] = 0x0000;
+	}
+
 	DSI_LCD___Init();
 	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
 	TS___Init();

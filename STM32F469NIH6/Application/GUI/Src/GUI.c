@@ -91,6 +91,8 @@ void GUI___GFX_Start_Task(void const * argument)
 
 	ui_init();
 
+	DuckAnim_Animation(ui_Duck, 0);
+
 	for(;;)
 	{
 		GUI___Refresh_Lighting_Indicators();
@@ -112,9 +114,6 @@ void GUI___TS_Start_Task(void const * argument)
 		uint8_t num_Points = 0;
 
 		num_Points = App___GUI_TS_Get_Point(&x, &y);
-
-		//num_Points = TS___Get_Num_Points_Pressed();
-		//TS___Get_Point(&x, &y);
 
 		if(num_Points != 0)
 		{

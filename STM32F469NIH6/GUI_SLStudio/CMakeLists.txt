@@ -8,6 +8,7 @@ SET(SOURCES screens/ui_Main.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
-    images/ui_img_habonero_icon_scaled_png.c)
+    images/ui_img_habonero_icon_scaled_png.c
+    images/ui_img_duck_80x80_png.c)
 
 add_library(ui ${SOURCES})

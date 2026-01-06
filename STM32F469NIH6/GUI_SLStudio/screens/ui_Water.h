@@ -14,6 +14,9 @@ extern "C" {
 extern void ui_Water_screen_init(void);
 extern void ui_Water_screen_destroy(void);
 extern lv_obj_t * ui_Water;
+extern lv_obj_t * ui_Duck;
+extern lv_obj_t * ui_Panel11;
+extern lv_obj_t * ui_Panel12;
 extern void ui_event_Button6(lv_event_t * e);
 extern lv_obj_t * ui_Button6;
 extern lv_obj_t * ui_Label34;

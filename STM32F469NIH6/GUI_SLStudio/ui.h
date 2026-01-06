@@ -28,6 +28,7 @@ extern "C" {
 
 ///////////////////// VARIABLES ////////////////////
 
+extern lv_anim_t * DuckAnim_Animation(lv_obj_t * TargetObject, int delay);
 
 // EVENTS
 
@@ -35,6 +36,7 @@ extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_habonero_icon_scaled_png);    // assets/Habonero_Icon_Scaled.png
+LV_IMG_DECLARE(ui_img_duck_80x80_png);    // assets/Duck_80x80.png
 
 // UI INIT
 void ui_init(void);
