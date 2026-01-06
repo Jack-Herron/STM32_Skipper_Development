@@ -24,8 +24,14 @@
 #define LCD_BUFFER1_ADDRESS (uint8_t*)(0xc0000000)
 #define LCD_BUFFER2_ADDRESS (uint8_t*)(LCD_BUFFER1_ADDRESS + LCD_BUFFER_SIZE)
 
-#define FLUSH_READY_FLAG (1U << 0)
-#define TS_EVENT_FLAG (1 << 0)
+#define FLUSH_READY_FLAG (1U << 1)
+#define TS_EVENT_FLAG (1U << 1)
+
+#define GFX_TASK_START_FLAG (1 << 0)
+#define PROFILE_TASK_START_FLAG (1 << 0)
+#define TS_TASK_START_FLAG (1 << 0)
+#define SENSOR_TASK_START_FLAG (1 << 0)
+#define CONTROL_TASK_START_FLAG (1 << 0)
 
 typedef struct {
     uint16_t x;
@@ -52,6 +58,7 @@ osMutexDef(TS_MUTEX);
 
 uint32_t SystemCoreClock = HCLK_FREQ;
 
+osThreadId HWTaskHandle;
 osThreadId controlTaskHandle;
 osThreadId sensorHandle;
 osThreadId profileTaskHandle;
@@ -60,6 +67,7 @@ osThreadId GFXTaskHandle;
 
 uint8_t flush_ready = 0;
 
+void StartHWTask(void const * argument);
 void StartControlTask(void const * argument);
 void StartSensorTask(void const * argument);
 void StartProfileTask(void const * argument);
@@ -80,12 +88,9 @@ void TS_Event_Callback(void)
 int main(void)
 {
 	clock_Init();
-	millis_Init();
-	FMC_SDRAM___SDRAM_Init();
-	DSI_LCD___Init();
-	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
-	TS___Init();
-	TS___Set_Event_Callback(TS_Event_Callback);
+
+	osThreadDef(HWTask, StartHWTask, osPriorityNormal, 0, 512);
+	HWTaskHandle = osThreadCreate(osThread(HWTask), NULL);
 
 	osThreadDef(sensorTask, StartSensorTask, osPriorityNormal, 0, 512);
 	sensorHandle = osThreadCreate(osThread(sensorTask), NULL);
@@ -110,8 +115,31 @@ int main(void)
 	for(;;);
 }
 
+void StartHWTask(void const * argument)
+{
+	millis_Init();
+	FMC_SDRAM___SDRAM_Init();
+	DSI_LCD___Init();
+	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
+	TS___Init();
+	TS___Set_Event_Callback(TS_Event_Callback);
+
+	osSignalSet(GFXTaskHandle, GFX_TASK_START_FLAG);
+	osSignalSet(profileTaskHandle, PROFILE_TASK_START_FLAG);
+	osSignalSet(TSTaskHandle, TS_TASK_START_FLAG);
+	osSignalSet(sensorHandle, SENSOR_TASK_START_FLAG);
+	osSignalSet(controlTaskHandle, CONTROL_TASK_START_FLAG);
+
+	for (;;)
+	{
+		osDelay(100);
+	}
+}
+
 void StartControlTask(void const * argument)
 {
+	osSignalWait(CONTROL_TASK_START_FLAG, osWaitForever);
+
 	for(;;)
 	{
 		osDelay(100);
@@ -120,16 +148,18 @@ void StartControlTask(void const * argument)
 
 void StartSensorTask(void const * argument)
 {
+	osSignalWait(SENSOR_TASK_START_FLAG, osWaitForever);
+
 	for(;;)
 	{
-
-
 		osDelay(100);
 	}
 }
 
 void StartProfileTask(void const * argument)
 {
+	osSignalWait(PROFILE_TASK_START_FLAG, osWaitForever);
+
 	for(;;)
 	{
 		// simulated profile reads
@@ -152,7 +182,7 @@ void StartProfileTask(void const * argument)
 		}
 		osMutexRelease(lighting_Channels_Mutex);
 
-
+		//TODO implement QSPI + littlefs reads
 
 		osDelay(100);
 	}
@@ -160,6 +190,7 @@ void StartProfileTask(void const * argument)
 
 void StartTSTask(void const * argument)
 {
+	osSignalWait(TS_TASK_START_FLAG, osWaitForever);
 
 	for(;;)
 	{
@@ -252,6 +283,8 @@ void GUI_Refresh_Lighting_Indicators(void)
 
 void startGFXTask(void const * argument)
 {
+	osSignalWait(GFX_TASK_START_FLAG, osWaitForever);
+
 	lv_init();
 
 	lv_display_t* display = lv_display_create(LCD_HORIZONTAL_RESOLUTION, LCD_VERTICAL_RESOLUTION);
