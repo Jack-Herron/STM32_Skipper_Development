@@ -108,20 +108,6 @@ int main(void)
 	clock_Init();
 	millis_Init();
 	RTC___Init();
-
-	RTC___Time_TypeDef time;
-	time.hour = 7;
-	time.minute = 39;
-	time.second = 0;
-	time.pm		= 1;
-
-	RTC___Date_TypeDef date;
-	date.year = 26;
-	date.month = 1;
-	date.day = 6;
-
-	RTC___Set_Time_And_Date(time, date);
-
 	FMC_SDRAM___SDRAM_Init();
 
 	for(uint32_t i = 0; i < 768000/2; i++)					// fill framebuffers with black

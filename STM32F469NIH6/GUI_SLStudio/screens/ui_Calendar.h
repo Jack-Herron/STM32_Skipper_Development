@@ -16,6 +16,7 @@ extern void ui_Calendar_screen_destroy(void);
 extern lv_obj_t * ui_Calendar;
 extern void ui_event_Button5(lv_event_t * e);
 extern lv_obj_t * ui_Button5;
+extern lv_obj_t * ui_Label36;
 extern lv_obj_t * ui_Calendar1;
 extern void ui_event_Panel15(lv_event_t * e);
 extern lv_obj_t * ui_Panel15;
@@ -39,6 +40,9 @@ extern lv_obj_t * ui_Label41;
 extern void ui_event_Button7(lv_event_t * e);
 extern lv_obj_t * ui_Button7;
 extern lv_obj_t * ui_Label42;
+extern void ui_event_Button8(lv_event_t * e);
+extern lv_obj_t * ui_Button8;
+extern lv_obj_t * ui_Label43;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Calendar;
 extern lv_obj_t * uic_Calendar_Clock;
