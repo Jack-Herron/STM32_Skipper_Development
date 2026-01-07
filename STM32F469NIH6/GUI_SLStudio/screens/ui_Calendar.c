@@ -176,6 +176,7 @@ void ui_Calendar_screen_init(void)
     lv_obj_set_width(ui_DTSelectorPanel, lv_pct(92));
     lv_obj_set_height(ui_DTSelectorPanel, lv_pct(88));
     lv_obj_set_align(ui_DTSelectorPanel, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DTSelectorPanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_remove_flag(ui_DTSelectorPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_bg_color(ui_DTSelectorPanel, lv_color_hex(0x18171C), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_DTSelectorPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
