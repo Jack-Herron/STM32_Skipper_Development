@@ -13,7 +13,7 @@
 #include "lvgl.h"
 #include "ui.h"
 #include "stdio.h"
-
+#include "string.h"
 
 
 static uint32_t GUI___LV_Get_Tick_Callback(void)
@@ -74,6 +74,41 @@ void GUI___Refresh_Lighting_Indicators(void)
 	osMutexRelease(App___IO_Control_State_Mutex);
 }
 
+uint8_t GUI___Get_Hour_xHours_Ago(uint8_t hour_Now, uint8_t x)
+{
+	uint8_t hour_Now_Adjusted = hour_Now-1;
+	uint32_t hour_New = (((1200ul + (hour_Now_Adjusted - x)) % 12ul)+1ul);		// 1200 picked because it is > 255+12, and divisible by 12
+
+	return((uint8_t)hour_New);
+}
+
+char* GUI___Formated_Time_String(uint8_t hour, uint8_t minute, uint8_t pm, char* buffer)
+{
+	if(pm == 1)
+	{
+		sprintf(buffer, "%d:%02d PM", hour, minute);
+	}
+	else if(pm == 0)
+	{
+		sprintf(buffer, "%d:%02d AM", hour, minute);
+	}
+	else
+	{
+		sprintf(buffer, "%d:%02d", hour, minute);
+	}
+
+	return(buffer);
+}
+
+int GUI___Set_Text_If_Changed(lv_obj_t *label, const char *new_text)
+{
+    const char *current = lv_label_get_text(label);
+    if(current && new_text && strcmp(current, new_text) == 0) return false;
+
+    lv_label_set_text(label, new_text);
+    return true;
+}
+
 void GUI___Refresh_Time()
 {
 	App___Time_TypeDef time = App___Get_Time();
@@ -87,18 +122,17 @@ void GUI___Refresh_Time()
 
 	lv_calendar_set_today_date(uic_Calendar, shown_date.year, shown_date.month, shown_date.day);
 
-	char time_Str[16];
+	char time_Str[32];
 
-	if(time.pm)
-	{
-		sprintf(time_Str, "%d:%02d PM", time.hour, time.minute);
-	}
-	else
-	{
-		sprintf(time_Str, "%d:%02d AM", time.hour, time.minute);
-	}
+	GUI___Set_Text_If_Changed(uic_Graph_7HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 7), time.minute, 2, time_Str));
+	GUI___Set_Text_If_Changed(uic_Graph_6HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 6), time.minute, 2, time_Str));
+	GUI___Set_Text_If_Changed(uic_Graph_5HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 5), time.minute, 2, time_Str));
+	GUI___Set_Text_If_Changed(uic_Graph_4HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 4), time.minute, 2, time_Str));
+	GUI___Set_Text_If_Changed(uic_Graph_3HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 3), time.minute, 2, time_Str));
+	GUI___Set_Text_If_Changed(uic_Graph_2HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 2), time.minute, 2, time_Str));
+	GUI___Set_Text_If_Changed(uic_Graph_1HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 1), time.minute, 2, time_Str));
 
-	_ui_label_set_property(uic_Main_Clock, 0, time_Str);
+	GUI___Set_Text_If_Changed(uic_Main_Clock, GUI___Formated_Time_String(time.hour, time.minute, time.pm, time_Str));
 	_ui_label_set_property(uic_Calendar_Clock, 0, time_Str);
 }
 

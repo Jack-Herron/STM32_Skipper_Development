@@ -10,10 +10,64 @@
 #include "Clock.h"
 #include "RTC.h"
 
+#define RTC___INIT_HOUR			1
+#define RTC___INIT_MINUTE		0
+#define RTC___INIT_SECOND		0
+#define RTC___INIT_AMPM			1
+#define RTC___INIT_YEAR			26
+#define RTC___INIT_MONTH		1
+#define RTC___INIT_DAY			1
+
+void RTC___Disable_Write_Protection(void)
+{
+	PWR -> CR 		|= PWR_CR_DBP;							// Unblock backupdomain writes
+
+	RTC->WPR = 0xCA;										// key to unlock RTC write (see ref manual)
+	RTC->WPR = 0x53;
+}
+
+void RTC___Enable_Write_Protection(void)
+{
+	RTC->WPR = 0x00;										// re-lock
+	PWR -> CR 		|= PWR_CR_DBP;							// Reblock
+}
+
+void RTC___Enter_Init_Mode(void)
+{
+	RTC->ISR |= RTC_ISR_INIT;								// enter init mode
+	while(!((RTC->ISR) & RTC_ISR_INITF));					// wait to enter init
+}
+
+void RTC___Exit_Init_Mode(void)
+{
+	RTC->ISR &= ~RTC_ISR_INIT;								// exit init mode
+}
+
 void RTC___Init(void)
 {
 	Clock___RTC_Init(1);
+
+	RTC___Date_TypeDef date;
+	RTC___Time_TypeDef time;
+
+	date.day = RTC___INIT_DAY;
+	date.month = RTC___INIT_MONTH;
+	date.year = RTC___INIT_YEAR;
+
+	time.hour = RTC___INIT_HOUR;
+	time.minute = RTC___INIT_MINUTE;
+	time.second = RTC___INIT_SECOND;
+	time.pm = RTC___INIT_AMPM;
+
+	RTC___Set_Time_And_Date(time, date);
+
+	RTC___Disable_Write_Protection();
+	RTC___Enter_Init_Mode();
+
 	RTC -> CR |= RTC_CR_FMT;
+
+	RTC___Exit_Init_Mode();
+	RTC___Enable_Write_Protection();
 }
 
 RTC___Time_TypeDef RTC___Get_Time(void)
@@ -45,13 +99,8 @@ RTC___Date_TypeDef RTC___Get_Date(void)
 //TODO make this have a loop timeout
 void RTC___Set_Time_And_Date(RTC___Time_TypeDef time, RTC___Date_TypeDef date)
 {
-	PWR -> CR 		|= PWR_CR_DBP;							// Unblock backupdomain writes
-
-	RTC->WPR = 0xCA;										// key to unlock RTC write (see ref manual)
-	RTC->WPR = 0x53;
-
-	RTC->ISR |= RTC_ISR_INIT;								// enter init mode
-	while(!((RTC->ISR) & RTC_ISR_INITF));					// wait to enter init
+	RTC___Disable_Write_Protection();
+	RTC___Enter_Init_Mode();
 
 	uint32_t TR = 0;
 
@@ -75,10 +124,6 @@ void RTC___Set_Time_And_Date(RTC___Time_TypeDef time, RTC___Date_TypeDef date)
 			((date.day 		%10) << RTC_DR_DU_Pos) ;
 
 	RTC->DR = DR;
-
-	RTC->ISR &= ~RTC_ISR_INIT;								// exit init mode
-
-	RTC->WPR = 0x00;										// re-lock
-
-	PWR -> CR 		|= PWR_CR_DBP;							// Reblock
+	RTC___Exit_Init_Mode();
+	RTC___Enable_Write_Protection();
 }
