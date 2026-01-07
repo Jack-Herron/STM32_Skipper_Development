@@ -89,6 +89,22 @@ void clock_Init(void)
 	while(!(RCC->CR & RCC_CR_PLLSAIRDY)); 					// Wait for PLLSAI to be ready
 }
 
+void Clock___RTC_Init(uint8_t src)
+{
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN; 				// Enable Power interface clock
+
+	PWR -> CR 		|= PWR_CR_DBP;					// Unblock backupdomain writes
+	RCC -> BDCR 	|= RCC_BDCR_BDRST;				// reset clock backup domain
+	RCC -> BDCR 	&= ~RCC_BDCR_BDRST;
+
+	RCC -> BDCR		|= RCC_BDCR_LSEON;				// turn on LSE
+	while(!((RCC->BDCR) & RCC_BDCR_LSERDY));		// wait for confirmation
+
+	RCC -> BDCR		|= src << RCC_BDCR_RTCSEL_Pos;	// set RTC source
+	RCC -> BDCR		|= RCC_BDCR_RTCEN;				// enable RTC
+	PWR -> CR 		&= ~PWR_CR_DBP;					// reblock backup domain writes
+}
+
 void TIM2_IRQHandler(void) {
 	if (TIM2->SR & TIM_SR_UIF) 				// Check if update interrupt flag is set
 	{

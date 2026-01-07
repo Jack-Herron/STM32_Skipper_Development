@@ -5,10 +5,35 @@
 
 #include "../ui.h"
 
+lv_obj_t * uic_DT_Selector_AMPM;
+lv_obj_t * uic_DT_Selector_Minute;
+lv_obj_t * uic_DT_Selector_Hour;
+lv_obj_t * uic_DT_Selector_Year;
+lv_obj_t * uic_DT_Selector_Day;
+lv_obj_t * uic_DT_Selector_Month;
+lv_obj_t * uic_Calander_Clock;
 lv_obj_t * ui_Calander = NULL;
 lv_obj_t * ui_Button5 = NULL;
-lv_obj_t * ui_Label24 = NULL;
+lv_obj_t * ui_Calendar1 = NULL;
+lv_obj_t * ui_Panel15 = NULL;
 lv_obj_t * ui_Label25 = NULL;
+lv_obj_t * ui_Panel14 = NULL;
+lv_obj_t * ui_CalanderClock = NULL;
+lv_obj_t * ui_DTSelectorPanel = NULL;
+lv_obj_t * ui_Roller1 = NULL;
+lv_obj_t * ui_Roller2 = NULL;
+lv_obj_t * ui_Roller3 = NULL;
+lv_obj_t * ui_Roller4 = NULL;
+lv_obj_t * ui_Roller5 = NULL;
+lv_obj_t * ui_Roller6 = NULL;
+lv_obj_t * ui_Label24 = NULL;
+lv_obj_t * ui_Label37 = NULL;
+lv_obj_t * ui_Label38 = NULL;
+lv_obj_t * ui_Label39 = NULL;
+lv_obj_t * ui_Label40 = NULL;
+lv_obj_t * ui_Label41 = NULL;
+lv_obj_t * ui_Button7 = NULL;
+lv_obj_t * ui_Label42 = NULL;
 // event funtions
 void ui_event_Button5(lv_event_t * e)
 {
@@ -16,6 +41,34 @@ void ui_event_Button5(lv_event_t * e)
 
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(&ui_Main, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_Main_screen_init);
+    }
+}
+
+void ui_event_Panel15(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_DTSelectorPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_REMOVE);
+    }
+}
+
+void ui_event_Panel14(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_screen_change(&ui_Calander, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_Calander_screen_init);
+    }
+}
+
+void ui_event_Button7(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+
+    if(event_code == LV_EVENT_CLICKED) {
+        _ui_flag_modify(ui_DTSelectorPanel, LV_OBJ_FLAG_HIDDEN, _UI_MODIFY_FLAG_ADD);
+        GUI___Date_Time_Change_Callback(e);
     }
 }
 
@@ -33,31 +86,234 @@ void ui_Calander_screen_init(void)
     lv_obj_set_style_border_side(ui_Calander, LV_BORDER_SIDE_TOP, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Button5 = lv_button_create(ui_Calander);
-    lv_obj_set_width(ui_Button5, 347);
     lv_obj_set_height(ui_Button5, 50);
-    lv_obj_set_y(ui_Button5, 22);
-    lv_obj_set_x(ui_Button5, lv_pct(0));
+    lv_obj_set_width(ui_Button5, lv_pct(36));
+    lv_obj_set_y(ui_Button5, 167);
+    lv_obj_set_x(ui_Button5, lv_pct(26));
     lv_obj_set_align(ui_Button5, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Button5, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_Button5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Label24 = lv_label_create(ui_Button5);
-    lv_obj_set_width(ui_Label24, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_Label24, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_Label24, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label24, "Go Back");
-    lv_obj_set_style_text_font(ui_Label24, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Calendar1 = lv_calendar_create(ui_Calander);
+    lv_obj_t * ui_Calendar1_header = lv_calendar_header_arrow_create(ui_Calendar1);
+    lv_obj_set_width(ui_Calendar1, 393);
+    lv_obj_set_height(ui_Calendar1, 390);
+    lv_obj_set_x(ui_Calendar1, -161);
+    lv_obj_set_y(ui_Calendar1, -2);
+    lv_obj_set_align(ui_Calendar1, LV_ALIGN_CENTER);
+    lv_obj_set_style_bg_color(ui_Calendar1, lv_color_hex(0x18171C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Calendar1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Label25 = lv_label_create(ui_Calander);
+    ui_Panel15 = lv_obj_create(ui_Calander);
+    lv_obj_set_width(ui_Panel15, lv_pct(37));
+    lv_obj_set_height(ui_Panel15, lv_pct(11));
+    lv_obj_set_x(ui_Panel15, lv_pct(26));
+    lv_obj_set_y(ui_Panel15, lv_pct(22));
+    lv_obj_set_align(ui_Panel15, LV_ALIGN_CENTER);
+    lv_obj_remove_flag(ui_Panel15, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_Panel15, lv_color_hex(0x18171C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel15, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel15, lv_color_hex(0x5C5D64), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel15, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_Panel15, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label25 = lv_label_create(ui_Panel15);
     lv_obj_set_width(ui_Label25, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label25, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_y(ui_Label25, -47);
-    lv_obj_set_x(ui_Label25, lv_pct(0));
     lv_obj_set_align(ui_Label25, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label25, "Calander page not yet implemented");
-    lv_obj_set_style_text_font(ui_Label25, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_Label25, "Set date and time");
+    lv_obj_set_style_text_font(ui_Label25, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_Label25, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Panel14 = lv_obj_create(ui_Calander);
+    lv_obj_set_width(ui_Panel14, lv_pct(37));
+    lv_obj_set_height(ui_Panel14, lv_pct(18));
+    lv_obj_set_x(ui_Panel14, lv_pct(26));
+    lv_obj_set_y(ui_Panel14, lv_pct(-33));
+    lv_obj_set_align(ui_Panel14, LV_ALIGN_CENTER);
+    lv_obj_remove_flag(ui_Panel14, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_Panel14, lv_color_hex(0x1E1E1E), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Panel14, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Panel14, lv_color_hex(0x7B7B87), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Panel14, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_Panel14, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_CalanderClock = lv_label_create(ui_Panel14);
+    lv_obj_set_width(ui_CalanderClock, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalanderClock, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_CalanderClock, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalanderClock, "TIME_ERR");
+    lv_obj_set_style_text_font(ui_CalanderClock, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_DTSelectorPanel = lv_obj_create(ui_Calander);
+    lv_obj_set_width(ui_DTSelectorPanel, lv_pct(92));
+    lv_obj_set_height(ui_DTSelectorPanel, lv_pct(88));
+    lv_obj_set_align(ui_DTSelectorPanel, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_DTSelectorPanel, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_remove_flag(ui_DTSelectorPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_DTSelectorPanel, lv_color_hex(0x18171C), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_DTSelectorPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_DTSelectorPanel, lv_color_hex(0x5C5D64), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_DTSelectorPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_DTSelectorPanel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_DTSelectorPanel, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_DTSelectorPanel, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Roller1 = lv_roller_create(ui_DTSelectorPanel);
+    lv_roller_set_options(ui_Roller1,
+                          "January	\nFebruary\nMarch\nApril\nMay\nJune\nJuly\nAugust\nSeptember\nOctober\nNovember\nDecember",
+                          LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(ui_Roller1, lv_pct(20));
+    lv_obj_set_height(ui_Roller1, lv_pct(50));
+    lv_obj_set_x(ui_Roller1, lv_pct(-34));
+    lv_obj_set_y(ui_Roller1, lv_pct(-11));
+    lv_obj_set_align(ui_Roller1, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_font(ui_Roller1, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Roller2 = lv_roller_create(ui_DTSelectorPanel);
+    lv_roller_set_options(ui_Roller2,
+                          "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31",
+                          LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(ui_Roller2, lv_pct(10));
+    lv_obj_set_height(ui_Roller2, lv_pct(50));
+    lv_obj_set_x(ui_Roller2, lv_pct(-16));
+    lv_obj_set_y(ui_Roller2, lv_pct(-11));
+    lv_obj_set_align(ui_Roller2, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_font(ui_Roller2, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Roller3 = lv_roller_create(ui_DTSelectorPanel);
+    lv_roller_set_options(ui_Roller3,
+                          "2000\n2001\n2002\n2003\n2004\n2005\n2006\n2007\n2008\n2009\n2010\n2011\n2012\n2013\n2014\n2015\n2016\n2017\n2018\n2019\n2020\n2021\n2022\n2023\n2024\n2025\n2026\n2027\n2028\n2029\n2030\n2031\n2032\n2033\n2034\n2035\n2036\n2037\n2038\n2039\n2040\n2041\n2042\n2043\n2044\n2045\n2046\n2047\n2048\n2049\n2050",
+                          LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(ui_Roller3, lv_pct(10));
+    lv_obj_set_height(ui_Roller3, lv_pct(50));
+    lv_obj_set_x(ui_Roller3, lv_pct(-3));
+    lv_obj_set_y(ui_Roller3, lv_pct(-11));
+    lv_obj_set_align(ui_Roller3, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_font(ui_Roller3, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Roller4 = lv_roller_create(ui_DTSelectorPanel);
+    lv_roller_set_options(ui_Roller4, "01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12", LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(ui_Roller4, lv_pct(10));
+    lv_obj_set_height(ui_Roller4, lv_pct(50));
+    lv_obj_set_x(ui_Roller4, lv_pct(10));
+    lv_obj_set_y(ui_Roller4, lv_pct(-11));
+    lv_obj_set_align(ui_Roller4, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_font(ui_Roller4, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Roller5 = lv_roller_create(ui_DTSelectorPanel);
+    lv_roller_set_options(ui_Roller5,
+                          "00\n01\n02\n03\n04\n05\n06\n07\n08\n09\n10\n11\n12\n13\n14\n15\n16\n17\n18\n19\n20\n21\n22\n23\n24\n25\n26\n27\n28\n29\n30\n31\n32\n33\n34\n35\n36\n37\n38\n39\n40\n41\n42\n43\n44\n45\n46\n47\n48\n49\n50\n51\n52\n53\n54\n55\n56\n57\n58\n59\n",
+                          LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(ui_Roller5, lv_pct(10));
+    lv_obj_set_height(ui_Roller5, lv_pct(50));
+    lv_obj_set_x(ui_Roller5, lv_pct(23));
+    lv_obj_set_y(ui_Roller5, lv_pct(-11));
+    lv_obj_set_align(ui_Roller5, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_font(ui_Roller5, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Roller6 = lv_roller_create(ui_DTSelectorPanel);
+    lv_roller_set_options(ui_Roller6, "AM\nPM", LV_ROLLER_MODE_NORMAL);
+    lv_obj_set_width(ui_Roller6, lv_pct(10));
+    lv_obj_set_height(ui_Roller6, lv_pct(50));
+    lv_obj_set_x(ui_Roller6, lv_pct(36));
+    lv_obj_set_y(ui_Roller6, lv_pct(-11));
+    lv_obj_set_align(ui_Roller6, LV_ALIGN_CENTER);
+    lv_obj_set_style_text_font(ui_Roller6, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label24 = lv_label_create(ui_DTSelectorPanel);
+    lv_obj_set_width(ui_Label24, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label24, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label24, lv_pct(-34));
+    lv_obj_set_y(ui_Label24, lv_pct(20));
+    lv_obj_set_align(ui_Label24, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label24, "Month");
+    lv_obj_set_style_text_color(ui_Label24, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label24, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label24, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label37 = lv_label_create(ui_DTSelectorPanel);
+    lv_obj_set_width(ui_Label37, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label37, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label37, lv_pct(-16));
+    lv_obj_set_y(ui_Label37, lv_pct(20));
+    lv_obj_set_align(ui_Label37, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label37, "Day");
+    lv_obj_set_style_text_color(ui_Label37, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label37, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label37, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label38 = lv_label_create(ui_DTSelectorPanel);
+    lv_obj_set_width(ui_Label38, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label38, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label38, lv_pct(-3));
+    lv_obj_set_y(ui_Label38, lv_pct(20));
+    lv_obj_set_align(ui_Label38, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label38, "Year");
+    lv_obj_set_style_text_color(ui_Label38, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label38, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label38, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label39 = lv_label_create(ui_DTSelectorPanel);
+    lv_obj_set_width(ui_Label39, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label39, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label39, lv_pct(10));
+    lv_obj_set_y(ui_Label39, lv_pct(20));
+    lv_obj_set_align(ui_Label39, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label39, "Hour");
+    lv_obj_set_style_text_color(ui_Label39, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label39, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label39, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label40 = lv_label_create(ui_DTSelectorPanel);
+    lv_obj_set_width(ui_Label40, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label40, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label40, lv_pct(23));
+    lv_obj_set_y(ui_Label40, lv_pct(20));
+    lv_obj_set_align(ui_Label40, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label40, "Minute");
+    lv_obj_set_style_text_color(ui_Label40, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label40, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label40, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label41 = lv_label_create(ui_DTSelectorPanel);
+    lv_obj_set_width(ui_Label41, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label41, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label41, lv_pct(36));
+    lv_obj_set_y(ui_Label41, lv_pct(20));
+    lv_obj_set_align(ui_Label41, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label41, "AM/PM");
+    lv_obj_set_style_text_color(ui_Label41, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_Label41, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_Label41, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Button7 = lv_button_create(ui_DTSelectorPanel);
+    lv_obj_set_width(ui_Button7, 200);
+    lv_obj_set_height(ui_Button7, 50);
+    lv_obj_set_x(ui_Button7, 0);
+    lv_obj_set_y(ui_Button7, lv_pct(40));
+    lv_obj_set_align(ui_Button7, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Button7, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_Button7, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_Label42 = lv_label_create(ui_Button7);
+    lv_obj_set_width(ui_Label42, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label42, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_Label42, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label42, "Set");
+    lv_obj_set_style_text_font(ui_Label42, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Button5, ui_event_Button5, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Panel15, ui_event_Panel15, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Panel14, ui_event_Panel14, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_Button7, ui_event_Button7, LV_EVENT_ALL, NULL);
+    uic_Calander_Clock = ui_CalanderClock;
+    uic_DT_Selector_Month = ui_Roller1;
+    uic_DT_Selector_Day = ui_Roller2;
+    uic_DT_Selector_Year = ui_Roller3;
+    uic_DT_Selector_Hour = ui_Roller4;
+    uic_DT_Selector_Minute = ui_Roller5;
+    uic_DT_Selector_AMPM = ui_Roller6;
 
 }
 
@@ -68,7 +324,32 @@ void ui_Calander_screen_destroy(void)
     // NULL screen variables
     ui_Calander = NULL;
     ui_Button5 = NULL;
-    ui_Label24 = NULL;
+    ui_Calendar1 = NULL;
+    ui_Panel15 = NULL;
     ui_Label25 = NULL;
+    ui_Panel14 = NULL;
+    uic_Calander_Clock = NULL;
+    ui_CalanderClock = NULL;
+    ui_DTSelectorPanel = NULL;
+    uic_DT_Selector_Month = NULL;
+    ui_Roller1 = NULL;
+    uic_DT_Selector_Day = NULL;
+    ui_Roller2 = NULL;
+    uic_DT_Selector_Year = NULL;
+    ui_Roller3 = NULL;
+    uic_DT_Selector_Hour = NULL;
+    ui_Roller4 = NULL;
+    uic_DT_Selector_Minute = NULL;
+    ui_Roller5 = NULL;
+    uic_DT_Selector_AMPM = NULL;
+    ui_Roller6 = NULL;
+    ui_Label24 = NULL;
+    ui_Label37 = NULL;
+    ui_Label38 = NULL;
+    ui_Label39 = NULL;
+    ui_Label40 = NULL;
+    ui_Label41 = NULL;
+    ui_Button7 = NULL;
+    ui_Label42 = NULL;
 
 }

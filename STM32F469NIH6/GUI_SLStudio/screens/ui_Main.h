@@ -75,6 +75,7 @@ extern lv_obj_t * uic_Red_Light_Indicator;
 extern lv_obj_t * uic_Purple_Light_Indicator;
 extern lv_obj_t * uic_Lime_Light_Indicator;
 extern lv_obj_t * uic_White_Light_Indicator;
+extern lv_obj_t * uic_Main_Clock;
 extern lv_obj_t * uic_Soil_Moisture_Chart;
 extern lv_obj_t * uic_Graph_1HAgo;
 extern lv_obj_t * uic_Graph_2HAgo;

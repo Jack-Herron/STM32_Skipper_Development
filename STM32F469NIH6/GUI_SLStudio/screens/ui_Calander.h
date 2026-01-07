@@ -16,9 +16,37 @@ extern void ui_Calander_screen_destroy(void);
 extern lv_obj_t * ui_Calander;
 extern void ui_event_Button5(lv_event_t * e);
 extern lv_obj_t * ui_Button5;
-extern lv_obj_t * ui_Label24;
+extern lv_obj_t * ui_Calendar1;
+extern void ui_event_Panel15(lv_event_t * e);
+extern lv_obj_t * ui_Panel15;
 extern lv_obj_t * ui_Label25;
+extern void ui_event_Panel14(lv_event_t * e);
+extern lv_obj_t * ui_Panel14;
+extern lv_obj_t * ui_CalanderClock;
+extern lv_obj_t * ui_DTSelectorPanel;
+extern lv_obj_t * ui_Roller1;
+extern lv_obj_t * ui_Roller2;
+extern lv_obj_t * ui_Roller3;
+extern lv_obj_t * ui_Roller4;
+extern lv_obj_t * ui_Roller5;
+extern lv_obj_t * ui_Roller6;
+extern lv_obj_t * ui_Label24;
+extern lv_obj_t * ui_Label37;
+extern lv_obj_t * ui_Label38;
+extern lv_obj_t * ui_Label39;
+extern lv_obj_t * ui_Label40;
+extern lv_obj_t * ui_Label41;
+extern void ui_event_Button7(lv_event_t * e);
+extern lv_obj_t * ui_Button7;
+extern lv_obj_t * ui_Label42;
 // CUSTOM VARIABLES
+extern lv_obj_t * uic_Calander_Clock;
+extern lv_obj_t * uic_DT_Selector_Month;
+extern lv_obj_t * uic_DT_Selector_Day;
+extern lv_obj_t * uic_DT_Selector_Year;
+extern lv_obj_t * uic_DT_Selector_Hour;
+extern lv_obj_t * uic_DT_Selector_Minute;
+extern lv_obj_t * uic_DT_Selector_AMPM;
 
 #ifdef __cplusplus
 } /*extern "C"*/

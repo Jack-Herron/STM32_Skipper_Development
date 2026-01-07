@@ -13,6 +13,7 @@ lv_obj_t * uic_Graph_3HAgo;
 lv_obj_t * uic_Graph_2HAgo;
 lv_obj_t * uic_Graph_1HAgo;
 lv_obj_t * uic_Soil_Moisture_Chart;
+lv_obj_t * uic_Main_Clock;
 lv_obj_t * uic_White_Light_Indicator;
 lv_obj_t * uic_Lime_Light_Indicator;
 lv_obj_t * uic_Purple_Light_Indicator;
@@ -518,7 +519,7 @@ void ui_Main_screen_init(void)
     lv_obj_set_width(ui_Label14, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label14, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label14, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label14, "8:53 PM");
+    lv_label_set_text(ui_Label14, "TIME_ERR");
     lv_obj_set_style_text_font(ui_Label14, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Panel8 = lv_obj_create(ui_Container2);
@@ -735,6 +736,7 @@ void ui_Main_screen_init(void)
     uic_Purple_Light_Indicator = ui_Bar3;
     uic_Lime_Light_Indicator = ui_Bar4;
     uic_White_Light_Indicator = ui_Bar5;
+    uic_Main_Clock = ui_Label14;
     uic_Soil_Moisture_Chart = ui_Chart2;
     uic_Graph_1HAgo = ui_Label27;
     uic_Graph_2HAgo = ui_Label28;
@@ -785,6 +787,7 @@ void ui_Main_screen_destroy(void)
     ui_Panel6 = NULL;
     ui_Label13 = NULL;
     ui_Panel7 = NULL;
+    uic_Main_Clock = NULL;
     ui_Label14 = NULL;
     ui_Panel8 = NULL;
     ui_Label15 = NULL;

@@ -161,4 +161,6 @@ void clock_Init(void);
 void millis_Init(void);
 uint32_t clock___millis(void);
 void clock___delay_ms(uint32_t delay);
+void Clock___RTC_Init(uint8_t src);
+
 #endif /* INC_CLOCK_H_ */
