@@ -11,14 +11,15 @@ lv_obj_t * uic_DT_Selector_Hour;
 lv_obj_t * uic_DT_Selector_Year;
 lv_obj_t * uic_DT_Selector_Day;
 lv_obj_t * uic_DT_Selector_Month;
-lv_obj_t * uic_Calander_Clock;
-lv_obj_t * ui_Calander = NULL;
+lv_obj_t * uic_Calendar_Clock;
+lv_obj_t * uic_Calendar;
+lv_obj_t * ui_Calendar = NULL;
 lv_obj_t * ui_Button5 = NULL;
 lv_obj_t * ui_Calendar1 = NULL;
 lv_obj_t * ui_Panel15 = NULL;
 lv_obj_t * ui_Label25 = NULL;
 lv_obj_t * ui_Panel14 = NULL;
-lv_obj_t * ui_CalanderClock = NULL;
+lv_obj_t * ui_CalendarClock = NULL;
 lv_obj_t * ui_DTSelectorPanel = NULL;
 lv_obj_t * ui_Roller1 = NULL;
 lv_obj_t * ui_Roller2 = NULL;
@@ -58,7 +59,7 @@ void ui_event_Panel14(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_Calander, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_Calander_screen_init);
+        _ui_screen_change(&ui_Calendar, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_Calendar_screen_init);
     }
 }
 
@@ -74,18 +75,18 @@ void ui_event_Button7(lv_event_t * e)
 
 // build funtions
 
-void ui_Calander_screen_init(void)
+void ui_Calendar_screen_init(void)
 {
-    ui_Calander = lv_obj_create(NULL);
-    lv_obj_remove_flag(ui_Calander, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_Calander, lv_color_hex(0x09090B), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_Calander, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_color(ui_Calander, lv_color_hex(0xFF00FD), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_opa(ui_Calander, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_width(ui_Calander, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_border_side(ui_Calander, LV_BORDER_SIDE_TOP, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_Calendar = lv_obj_create(NULL);
+    lv_obj_remove_flag(ui_Calendar, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_bg_color(ui_Calendar, lv_color_hex(0x09090B), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_Calendar, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_color(ui_Calendar, lv_color_hex(0xFF00FD), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_Calendar, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_Calendar, 10, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_side(ui_Calendar, LV_BORDER_SIDE_TOP, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Button5 = lv_button_create(ui_Calander);
+    ui_Button5 = lv_button_create(ui_Calendar);
     lv_obj_set_height(ui_Button5, 50);
     lv_obj_set_width(ui_Button5, lv_pct(36));
     lv_obj_set_y(ui_Button5, 167);
@@ -94,7 +95,9 @@ void ui_Calander_screen_init(void)
     lv_obj_add_flag(ui_Button5, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_Button5, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
-    ui_Calendar1 = lv_calendar_create(ui_Calander);
+    ui_Calendar1 = lv_calendar_create(ui_Calendar);
+    lv_calendar_set_today_date(ui_Calendar1, 2026, 1, 1);
+    lv_calendar_set_showed_date(ui_Calendar1, 2026, 1);
     lv_obj_t * ui_Calendar1_header = lv_calendar_header_arrow_create(ui_Calendar1);
     lv_obj_set_width(ui_Calendar1, 393);
     lv_obj_set_height(ui_Calendar1, 390);
@@ -104,7 +107,7 @@ void ui_Calander_screen_init(void)
     lv_obj_set_style_bg_color(ui_Calendar1, lv_color_hex(0x18171C), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Calendar1, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Panel15 = lv_obj_create(ui_Calander);
+    ui_Panel15 = lv_obj_create(ui_Calendar);
     lv_obj_set_width(ui_Panel15, lv_pct(37));
     lv_obj_set_height(ui_Panel15, lv_pct(11));
     lv_obj_set_x(ui_Panel15, lv_pct(26));
@@ -125,7 +128,7 @@ void ui_Calander_screen_init(void)
     lv_obj_set_style_text_font(ui_Label25, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Label25, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Panel14 = lv_obj_create(ui_Calander);
+    ui_Panel14 = lv_obj_create(ui_Calendar);
     lv_obj_set_width(ui_Panel14, lv_pct(37));
     lv_obj_set_height(ui_Panel14, lv_pct(18));
     lv_obj_set_x(ui_Panel14, lv_pct(26));
@@ -138,14 +141,14 @@ void ui_Calander_screen_init(void)
     lv_obj_set_style_border_opa(ui_Panel14, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Panel14, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_CalanderClock = lv_label_create(ui_Panel14);
-    lv_obj_set_width(ui_CalanderClock, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_CalanderClock, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_CalanderClock, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_CalanderClock, "TIME_ERR");
-    lv_obj_set_style_text_font(ui_CalanderClock, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_CalendarClock = lv_label_create(ui_Panel14);
+    lv_obj_set_width(ui_CalendarClock, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_CalendarClock, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_CalendarClock, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_CalendarClock, "TIME_ERR");
+    lv_obj_set_style_text_font(ui_CalendarClock, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_DTSelectorPanel = lv_obj_create(ui_Calander);
+    ui_DTSelectorPanel = lv_obj_create(ui_Calendar);
     lv_obj_set_width(ui_DTSelectorPanel, lv_pct(92));
     lv_obj_set_height(ui_DTSelectorPanel, lv_pct(88));
     lv_obj_set_align(ui_DTSelectorPanel, LV_ALIGN_CENTER);
@@ -307,7 +310,8 @@ void ui_Calander_screen_init(void)
     lv_obj_add_event_cb(ui_Panel15, ui_event_Panel15, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel14, ui_event_Panel14, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Button7, ui_event_Button7, LV_EVENT_ALL, NULL);
-    uic_Calander_Clock = ui_CalanderClock;
+    uic_Calendar = ui_Calendar1;
+    uic_Calendar_Clock = ui_CalendarClock;
     uic_DT_Selector_Month = ui_Roller1;
     uic_DT_Selector_Day = ui_Roller2;
     uic_DT_Selector_Year = ui_Roller3;
@@ -317,19 +321,20 @@ void ui_Calander_screen_init(void)
 
 }
 
-void ui_Calander_screen_destroy(void)
+void ui_Calendar_screen_destroy(void)
 {
-    if(ui_Calander) lv_obj_del(ui_Calander);
+    if(ui_Calendar) lv_obj_del(ui_Calendar);
 
     // NULL screen variables
-    ui_Calander = NULL;
+    ui_Calendar = NULL;
     ui_Button5 = NULL;
+    uic_Calendar = NULL;
     ui_Calendar1 = NULL;
     ui_Panel15 = NULL;
     ui_Label25 = NULL;
     ui_Panel14 = NULL;
-    uic_Calander_Clock = NULL;
-    ui_CalanderClock = NULL;
+    uic_Calendar_Clock = NULL;
+    ui_CalendarClock = NULL;
     ui_DTSelectorPanel = NULL;
     uic_DT_Selector_Month = NULL;
     ui_Roller1 = NULL;

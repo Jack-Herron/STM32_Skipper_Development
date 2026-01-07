@@ -96,7 +96,7 @@ void ui_init(void)
     ui_Statistics_screen_init();
     ui_Profiles_screen_init();
     ui_Status_screen_init();
-    ui_Calander_screen_init();
+    ui_Calendar_screen_init();
     ui_Water_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_Main);
@@ -109,6 +109,6 @@ void ui_destroy(void)
     ui_Statistics_screen_destroy();
     ui_Profiles_screen_destroy();
     ui_Status_screen_destroy();
-    ui_Calander_screen_destroy();
+    ui_Calendar_screen_destroy();
     ui_Water_screen_destroy();
 }

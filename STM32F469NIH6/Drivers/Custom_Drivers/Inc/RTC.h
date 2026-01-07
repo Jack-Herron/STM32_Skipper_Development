@@ -25,6 +25,8 @@ typedef struct
 
 void RTC___Init(void);
 RTC___Time_TypeDef RTC___Get_Time(void);
+RTC___Date_TypeDef RTC___Get_Date(void);
+
 void RTC___Set_Time_And_Date(RTC___Time_TypeDef time, RTC___Date_TypeDef date);
 
 #endif /* CUSTOM_DRIVERS_INC_RTC_H_ */

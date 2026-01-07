@@ -18,6 +18,8 @@ uint32_t (*App___Get_Tick_CallBack)(void) = NULL;
 void (*App___GUI_GFX_Frame_Ready_CallBack)(uint8_t* buf) = NULL;
 uint8_t (*App___GUI_TS_Get_Point_Callback)(uint16_t* x, uint16_t* y);
 App___Time_TypeDef (*App___Get_Time_Callback)(void);
+App___Date_TypeDef (*App___Get_Date_Callback)(void);
+
 void (*App___Time_And_Date_Set_Callback)(App___Time_TypeDef time, App___Date_TypeDef date);
 
 volatile App___Profiles_State_TypeDef 		App___Profiles_State;
@@ -169,6 +171,11 @@ void App___Set_Get_Time_CallBack(App___Time_TypeDef (*get_Time_CallBack)(void))
 	App___Get_Time_Callback = get_Time_CallBack;
 }
 
+void App___Set_Get_Date_CallBack(App___Date_TypeDef (*get_Date_CallBack)(void))
+{
+	App___Get_Date_Callback = get_Date_CallBack;
+}
+
 App___Time_TypeDef App___Get_Time(void)
 {
 	App___Time_TypeDef ret = {0};
@@ -176,6 +183,18 @@ App___Time_TypeDef App___Get_Time(void)
 	if(App___Get_Time_Callback != NULL)
 	{
 		ret = App___Get_Time_Callback();
+	}
+
+	return(ret);
+}
+
+App___Date_TypeDef App___Get_Date(void)
+{
+	App___Date_TypeDef ret = {0};
+
+	if(App___Get_Date_Callback != NULL)
+	{
+		ret = App___Get_Date_Callback();
 	}
 
 	return(ret);

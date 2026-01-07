@@ -3,17 +3,17 @@
 // LVGL version: 9.2.2
 // Project name: SquareLine_Project
 
-#ifndef UI_CALANDER_H
-#define UI_CALANDER_H
+#ifndef UI_CALENDAR_H
+#define UI_CALENDAR_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// SCREEN: ui_Calander
-extern void ui_Calander_screen_init(void);
-extern void ui_Calander_screen_destroy(void);
-extern lv_obj_t * ui_Calander;
+// SCREEN: ui_Calendar
+extern void ui_Calendar_screen_init(void);
+extern void ui_Calendar_screen_destroy(void);
+extern lv_obj_t * ui_Calendar;
 extern void ui_event_Button5(lv_event_t * e);
 extern lv_obj_t * ui_Button5;
 extern lv_obj_t * ui_Calendar1;
@@ -22,7 +22,7 @@ extern lv_obj_t * ui_Panel15;
 extern lv_obj_t * ui_Label25;
 extern void ui_event_Panel14(lv_event_t * e);
 extern lv_obj_t * ui_Panel14;
-extern lv_obj_t * ui_CalanderClock;
+extern lv_obj_t * ui_CalendarClock;
 extern lv_obj_t * ui_DTSelectorPanel;
 extern lv_obj_t * ui_Roller1;
 extern lv_obj_t * ui_Roller2;
@@ -40,7 +40,8 @@ extern void ui_event_Button7(lv_event_t * e);
 extern lv_obj_t * ui_Button7;
 extern lv_obj_t * ui_Label42;
 // CUSTOM VARIABLES
-extern lv_obj_t * uic_Calander_Clock;
+extern lv_obj_t * uic_Calendar;
+extern lv_obj_t * uic_Calendar_Clock;
 extern lv_obj_t * uic_DT_Selector_Month;
 extern lv_obj_t * uic_DT_Selector_Day;
 extern lv_obj_t * uic_DT_Selector_Year;

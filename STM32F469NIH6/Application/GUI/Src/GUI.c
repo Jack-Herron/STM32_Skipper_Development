@@ -77,6 +77,15 @@ void GUI___Refresh_Lighting_Indicators(void)
 void GUI___Refresh_Time()
 {
 	App___Time_TypeDef time = App___Get_Time();
+	App___Date_TypeDef date = App___Get_Date();
+
+	lv_calendar_date_t shown_date = {
+	    .year  	= date.year,
+	    .month 	= date.month,
+		.day	= date.day
+	};
+
+	lv_calendar_set_today_date(uic_Calendar, shown_date.year, shown_date.month, shown_date.day);
 
 	char time_Str[16];
 
@@ -90,7 +99,7 @@ void GUI___Refresh_Time()
 	}
 
 	_ui_label_set_property(uic_Main_Clock, 0, time_Str);
-	_ui_label_set_property(uic_Calander_Clock, 0, time_Str);
+	_ui_label_set_property(uic_Calendar_Clock, 0, time_Str);
 }
 
 void GUI___TS_Start_Task(void const * argument)
@@ -144,10 +153,12 @@ void GUI___Date_Time_Change_Callback(lv_event_t * e)
 	time.pm		= AMPM_Index;
 
 	App___Date_TypeDef date;
-	date.year	= year_Index-2000;
+	date.year	= year_Index;
 	date.month 	= month_Index+1;
 	date.day 	= day_Index+1;
 
+
+	lv_calendar_set_showed_date(uic_Calendar, date.year, date.month);
 	App___Set_Time_And_Date(time, date);
 
 	GUI___Refresh_Time();

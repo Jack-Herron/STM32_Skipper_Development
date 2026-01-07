@@ -29,6 +29,19 @@ RTC___Time_TypeDef RTC___Get_Time(void)
 	return(ret);
 }
 
+
+RTC___Date_TypeDef RTC___Get_Date(void)
+{
+	RTC___Date_TypeDef ret = {0};
+	uint32_t DR = (uint32_t)RTC->DR;
+
+	ret.year = ((DR & RTC_DR_YT_Msk) >> RTC_DR_YT_Pos) * 10 + ((DR & RTC_DR_YU_Msk) >> RTC_DR_YU_Pos);
+	ret.month = ((DR & RTC_DR_MT_Msk) >> RTC_DR_MT_Pos) * 10 + ((DR & RTC_DR_MU_Msk) >> RTC_DR_MU_Pos);
+	ret.day = ((DR & RTC_DR_DT_Msk) >> RTC_DR_DT_Pos) * 10 + ((DR & RTC_DR_DU_Msk) >> RTC_DR_DU_Pos);
+
+	return(ret);
+}
+
 //TODO make this have a loop timeout
 void RTC___Set_Time_And_Date(RTC___Time_TypeDef time, RTC___Date_TypeDef date)
 {

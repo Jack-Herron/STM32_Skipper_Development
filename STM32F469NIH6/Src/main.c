@@ -74,6 +74,17 @@ App___Time_TypeDef get_Time_CallBack(void)
 	return(ret);
 }
 
+App___Date_TypeDef get_Date_CallBack(void)
+{
+	RTC___Date_TypeDef date = RTC___Get_Date();
+	App___Date_TypeDef ret;
+	ret.year = date.year;
+	ret.month = date.month;
+	ret.day = date.day;
+
+	return(ret);
+}
+
 void set_Time_And_Date_Callback(App___Time_TypeDef time, App___Date_TypeDef date)
 {
 	RTC___Time_TypeDef RTC_Time;
@@ -131,6 +142,7 @@ int main(void)
 	App___Set_Get_Tick_Callback(tick_Callback);
 	App___Set_GUI_TS_Get_Point_CallBack(TS_Get_Point_Callback);
 	App___Set_Get_Time_CallBack(get_Time_CallBack);
+	App___Set_Get_Date_CallBack(get_Date_CallBack);
 	App___Set_Time_And_Date_Callback(set_Time_And_Date_Callback);
 
 	// App init

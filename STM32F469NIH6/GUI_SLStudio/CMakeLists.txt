@@ -3,7 +3,7 @@ SET(SOURCES screens/ui_Main.c
     screens/ui_Statistics.c
     screens/ui_Profiles.c
     screens/ui_Status.c
-    screens/ui_Calander.c
+    screens/ui_Calendar.c
     screens/ui_Water.c
     ui.c
     components/ui_comp_hook.c
