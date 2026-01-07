@@ -13,6 +13,7 @@
 void RTC___Init(void)
 {
 	Clock___RTC_Init(1);
+	RTC -> CR |= RTC_CR_FMT;
 }
 
 RTC___Time_TypeDef RTC___Get_Time(void)
