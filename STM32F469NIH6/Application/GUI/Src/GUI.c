@@ -46,7 +46,7 @@ static void GUI___LV_Flush_Callback(lv_display_t * disp, const lv_area_t * area,
 
 void GUI___LV_Flush_wait_Callback(lv_display_t * disp)
 {
-    osSignalWait(APP___GUI_GFX_FLUSH_READY_FLAG, 1000);
+    osSignalWait(APP___GUI_GFX_FLUSH_READY_FLAG, 2000);
     lv_display_flush_ready(disp);
 }
 

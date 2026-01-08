@@ -102,7 +102,7 @@ extern uint32_t App___GUI_Buffer_Size;
 
 // Graphics task flags
 #define APP___GUI_GFX_TASK_START_FLAG (1 << 0)
-#define APP___GUI_GFX_FLUSH_READY_FLAG (1U << 1)
+#define APP___GUI_GFX_FLUSH_READY_FLAG (1U << 0)
 
 // Profile task flags
 #define APP___PROFILES_TASK_START_FLAG (1 << 0)

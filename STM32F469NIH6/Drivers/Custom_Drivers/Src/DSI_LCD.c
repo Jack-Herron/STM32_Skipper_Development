@@ -144,6 +144,7 @@ void DSI_LCD___DSI_Init(void)
 	DSI -> LCOLCR   =   DSI_LCD___LCOLC_RGB565; 										// Set color coding format to RGB888
 	DSI -> WCFGR    =   DSI_LCD___COLMUX_RGB565 << DSI_WCFGR_COLMUX_Pos;
 
+	//DSI -> WCFGR	|=  DSI_WCFGR_TEPOL;
 	DSI -> WIER 	= 	DSI_WIER_TEIE; 													// Enable Tearing Effect Interrupt
 
 	NVIC_EnableIRQ(DSI_IRQn); 															// Enable DSI Interrupt in NVIC
@@ -220,6 +221,11 @@ void DSI_LCD___LTDC_Init(void)
 
 	LTDC->SRCR = LTDC_SRCR_IMR; 																						// Reload shadow registers
 
+	LTDC->IER |= LTDC_IER_RRIE;
+
+	NVIC_EnableIRQ(LTDC_IRQn); 															// Enable LTDC Interrupt in NVIC
+	NVIC_SetPriority(LTDC_IRQn, 12); 													// Set LTDC Interrupt priority
+
 	LTDC->GCR |= LTDC_GCR_LTDCEN; 																						// Enable LTDC
 }
 
@@ -234,7 +240,7 @@ void DSI_LCD___Init(void)
 void DSI_LCD___Set_Buffer(uint8_t* buf)
 {
 	LTDC_Layer1->CFBAR = (uint32_t) buf; 			// Set frame buffer address
-	LTDC->SRCR = LTDC_SRCR_IMR; 					// Reload shadow registers
+	LTDC->SRCR = LTDC_SRCR_VBR; 					// Reload shadow registers
 
 }
 
@@ -257,13 +263,22 @@ void DSI_IRQHandler(void)
 		if (pending_Buffer_Address != NULL)
 		{
 			DSI_LCD___Set_Buffer((uint8_t*) pending_Buffer_Address);
-			if (Swap_Callback != NULL)
-			{
-				Swap_Callback();
-			}
 			pending_Buffer_Address = NULL;
 		}
-
 		DSI->WIFCR = DSI_WIFCR_CTEIF; 	// Clear Tearing Effect Interrupt Flag
+	}
+}
+
+void LCD_TFT_IRQHandler(void)
+{
+	uint32_t pending_ier = LTDC->ISR;
+	if(pending_ier & LTDC_ISR_RRIF)
+	{
+		LTDC->ICR |= LTDC_ICR_CRRIF;
+
+		if ((Swap_Callback != NULL))
+		{
+			Swap_Callback();
+		}
 	}
 }
