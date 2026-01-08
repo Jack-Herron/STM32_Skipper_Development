@@ -15,6 +15,62 @@
 #include "stdio.h"
 #include "string.h"
 
+uint32_t GUI___TS_Get_Recent_Point_Index()
+{
+	uint32_t w_Cursor = App___GUI_TS_State.point_FIFO.w_Cursor;
+	return((w_Cursor+APP___GUI_TS_FIFO_DEPTH-1) % APP___GUI_TS_FIFO_DEPTH);
+}
+
+void GUI___TS_Push_Point(App___GUI_TS_Point_TypeDef point)
+{
+	osMutexWait(App___GUI_TS_State_Mutex, osWaitForever);
+
+	uint32_t w_Cursor = App___GUI_TS_State.point_FIFO.w_Cursor;
+	uint32_t r_Cursor = App___GUI_TS_State.point_FIFO.r_Cursor;
+
+	if(point.pressed != App___GUI_TS_State.point_FIFO.point[w_Cursor].pressed)
+	{
+
+		if(w_Cursor+1 == r_Cursor)
+		{
+			App___GUI_TS_State.point_FIFO.r_Cursor = (r_Cursor+1) % APP___GUI_TS_FIFO_DEPTH;
+		}
+
+		App___GUI_TS_State.point_FIFO.w_Cursor = (w_Cursor+1) % APP___GUI_TS_FIFO_DEPTH;
+		w_Cursor = (w_Cursor+1) % APP___GUI_TS_FIFO_DEPTH;
+
+		App___GUI_TS_State.point_FIFO.point[w_Cursor] = point;
+
+	}
+	else
+	{
+		App___GUI_TS_State.point_FIFO.point[w_Cursor].x = point.x;
+		App___GUI_TS_State.point_FIFO.point[w_Cursor].y = point.y;
+	}
+
+	osMutexRelease(App___GUI_TS_State_Mutex);
+}
+
+App___GUI_TS_Point_TypeDef GUI___TS_Pop_Point()
+{
+	App___GUI_TS_Point_TypeDef ret;
+
+	osMutexWait(App___GUI_TS_State_Mutex, osWaitForever);
+
+	uint32_t w_Cursor = App___GUI_TS_State.point_FIFO.w_Cursor;
+	uint32_t r_Cursor = App___GUI_TS_State.point_FIFO.r_Cursor;
+
+	ret = App___GUI_TS_State.point_FIFO.point[r_Cursor];
+
+	if(r_Cursor != w_Cursor)
+	{
+		App___GUI_TS_State.point_FIFO.r_Cursor = (r_Cursor+1) % APP___GUI_TS_FIFO_DEPTH;
+	}
+
+	osMutexRelease(App___GUI_TS_State_Mutex);
+
+	return(ret);
+}
 
 static uint32_t GUI___LV_Get_Tick_Callback(void)
 {
@@ -23,13 +79,13 @@ static uint32_t GUI___LV_Get_Tick_Callback(void)
 
 static void GUI___LV_Touch_Read_Callback(lv_indev_t * indev, lv_indev_data_t * data)
 {
-	osMutexWait(App___GUI_GFX_State_Mutex, osWaitForever);
 
-	data->point.x 	= App___GUI_TS_State.last_Point.x;
-	data->point.y 	= App___GUI_TS_State.last_Point.y;
-	data->state 	= App___GUI_TS_State.last_Point.pressed;
+	App___GUI_TS_Point_TypeDef point = GUI___TS_Pop_Point();
 
-	osMutexRelease(App___GUI_GFX_State_Mutex);
+	data->point.x 	= point.x;
+	data->point.y 	= point.y;
+	data->state 	= point.pressed;
+
 }
 
 static void GUI___LV_Flush_Callback(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
@@ -163,11 +219,13 @@ void GUI___TS_Start_Task(void const * argument)
 		new_X = y;
 		new_Y = 479 - x;
 
-		osMutexWait(App___GUI_TS_State_Mutex, osWaitForever);
-		App___GUI_TS_State.last_Point.x = new_X;
-		App___GUI_TS_State.last_Point.y = new_Y;
-		App___GUI_TS_State.last_Point.pressed = pressed;
-		osMutexRelease(App___GUI_TS_State_Mutex);
+		App___GUI_TS_Point_TypeDef point;
+
+		point.x = new_X;
+		point.y = new_Y;
+		point.pressed = pressed;
+
+		GUI___TS_Push_Point(point);
 	}
 }
 

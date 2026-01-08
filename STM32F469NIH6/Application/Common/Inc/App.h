@@ -18,6 +18,8 @@
 #define APP___GUI_BUFFER1_ADDRESS 		(uint8_t*)(0xc0000000)
 #define APP___GUI_BUFFER2_ADDRESS 		(uint8_t*)(LCD_BUFFER1_ADDRESS + LCD_BUFFER_SIZE)
 
+#define APP___GUI_TS_FIFO_DEPTH			32
+
 // module data structures
 
 typedef struct
@@ -71,8 +73,16 @@ typedef struct {
     uint8_t  pressed;
 } App___GUI_TS_Point_TypeDef;
 
+
+typedef struct
+{
+	App___GUI_TS_Point_TypeDef point[APP___GUI_TS_FIFO_DEPTH];
+	uint32_t r_Cursor;
+	uint32_t w_Cursor;
+}App___GUI_TS_Point_FIFO_TypeDef;
+
 typedef struct {
-	App___GUI_TS_Point_TypeDef last_Point;
+	App___GUI_TS_Point_FIFO_TypeDef point_FIFO;
 } App___GUI_TS_State_TypeDef;
 
 // Profiles typedefs
