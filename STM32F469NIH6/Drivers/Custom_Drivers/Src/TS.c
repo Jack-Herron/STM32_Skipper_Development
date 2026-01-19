@@ -101,7 +101,12 @@ void TS_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
 uint8_t TS_IO_Read(uint8_t Addr, uint8_t Reg)
 {
 	uint8_t temp;
-	I2C___Read_Reg(TS___I2C_PORT, Addr, Reg, &temp, 1);
+
+	uint8_t ret;
+	ret = I2C___Read_Reg(TS___I2C_PORT, Addr, Reg, &temp, 1);
+
+	while(ret);
+
 	return(temp);
 }
 

@@ -199,8 +199,8 @@ void GUI___TS_Start_Task(void const * argument)
 	for(;;)
 	{
 		osSignalWait(APP___GUI_TS_EVENT_FLAG, osWaitForever);
-		uint16_t x;
-		uint16_t y;
+		uint16_t x = 0;
+		uint16_t y = 0;
 		uint8_t pressed = 0;
 		uint8_t num_Points = 0;
 
