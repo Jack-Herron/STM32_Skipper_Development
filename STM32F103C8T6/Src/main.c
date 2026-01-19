@@ -1,6 +1,9 @@
 #include <stdint.h>
 #include "stm32f1xx.h"
 
+uint16_t CAN_ID_Self = 0;
+uint16_t CAN_ID_Subscribe = 0;
+
 typedef struct
 {
 	uint16_t ID;
@@ -70,8 +73,8 @@ void CAN_Transmit(CAN_Tansmit_TypeDef Payload)
 }
 
 
-//															|		1 CAN bit			|
-void CAN_Init()		// baud rate = 250kHz				 	[ 1 Sync | 13 TS1 | 2 TS2 	] (16 bit times total)
+//														|		1 CAN bit			|
+void CAN_Init()		// baud rate = 250kHz				[ 1 Sync | 13 TS1 | 2 TS2 	] (16 bit times total)
 {
 	RCC->APB1ENR |= RCC_APB1ENR_CAN1EN;					// enable CAN clock
 
@@ -89,7 +92,28 @@ void CAN_Init()		// baud rate = 250kHz				 	[ 1 Sync | 13 TS1 | 2 TS2 	] (16 bit
 	CAN1->MCR &= ~CAN_MCR_INRQ;							// exit INIT mode
     while ((CAN1->MSR & CAN_MSR_INAK) != 0);			// wait for confirmation
 
+    CAN1->IER |= CAN_IER_FMPIE0;							// enable FIFO full interrupt
+
+    NVIC_SetPriority (CAN1_RX0_IRQn, 1);				// Set Interrupt Priority
+	NVIC_EnableIRQ (CAN1_RX0_IRQn);						// Enable Interrupt
+
     CAN1->MCR &= ~CAN_MCR_SLEEP;						// exit sleep mode
+}
+
+void CAN_Accept_All_Messages()
+{
+	CAN1->FMR |= CAN_FMR_FINIT;
+
+	CAN1->FS1R |=  (1 << 0);   // bank 0 = 32-bit
+	CAN1->FM1R &= ~(1 << 0);   // mask mode
+	CAN1->FFA1R &= ~(1 << 0);  // FIFO 0
+
+	CAN1->sFilterRegister[0].FR1 = 0;
+	CAN1->sFilterRegister[0].FR2 = 0;
+
+	CAN1->FA1R |= (1 << 0);    // enable bank 0
+
+	CAN1->FMR &= ~CAN_FMR_FINIT;
 }
 
 int main(void)
@@ -97,24 +121,36 @@ int main(void)
 	Clock_Init();
 	GPIO_Init();
 	CAN_Init();
+	CAN_Accept_All_Messages();
+
+	CAN_ID_Self 	 = 0x100 | (( (GPIOB->IDR) & GPIO_IDR_IDR1) >> GPIO_IDR_IDR1_Pos);			// Read own CAN ID from PB1
+	CAN_ID_Subscribe = 0x100 | ((~(GPIOB->IDR) & GPIO_IDR_IDR1) >> GPIO_IDR_IDR1_Pos);			// Read own CAN ID from PB1
 
 	for(;;)
 	{
-		for(uint32_t i = 0; i < 0xfffff; i++);
-		GPIOC->ODR |= (1<<13);
-		for(uint32_t i = 0; i < 0xfffff; i++);
-		GPIOC->ODR &= ~(1<<13);
+		for(uint32_t i = 0; i < 0xffff; i++);										// small delay ~60Hz
+
 		CAN_Tansmit_TypeDef Payload;
-		Payload.ID = 0x123;
-		Payload.data_Length = 8;
-		Payload.data[0] = 0xDE;
-		Payload.data[1] = 0xAD;
-		Payload.data[2] = 0xBE;
-		Payload.data[3] = 0xEF;
-		Payload.data[4] = 0xDE;
-		Payload.data[5] = 0xAD;
-		Payload.data[6] = 0xBE;
-		Payload.data[7] = 0xEF;
-		CAN_Transmit(Payload);
+		Payload.ID = CAN_ID_Self;													// ID = own ID
+		Payload.data_Length = 1;													// send one byte
+		Payload.data[0] = ((GPIOB->IDR) & GPIO_IDR_IDR0) >> GPIO_IDR_IDR0_Pos;		// data = button state
+		CAN_Transmit(Payload);														// send payload through CAN
+	}
+}
+
+void USB_LP_CAN_RX0_IRQHandler(void)
+{
+	if (CAN1->RF0R & CAN_RF0R_FMP0) {                 // if pending message
+
+		uint32_t RIR  = CAN1->sFIFOMailBox[0].RIR;
+		uint32_t RDLR = CAN1->sFIFOMailBox[0].RDLR;
+
+		if(((RIR & CAN_RI0R_STID) >> CAN_RI0R_STID_Pos) == CAN_ID_Subscribe)
+		{
+			GPIOC->ODR &= ~GPIO_ODR_ODR13_Msk;					// Clear on board LED
+			GPIOC->ODR |= (RDLR << GPIO_ODR_ODR13_Pos);			// Set on board LED to received CAN value
+		}
+
+		CAN1->RF0R |= CAN_RF0R_RFOM0;                 			// release FIFO0 output mailbox
 	}
 }
