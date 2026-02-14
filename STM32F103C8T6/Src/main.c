@@ -29,12 +29,33 @@ void Clock_Init(){	// initiate clock ()
 	RCC -> CR &= ~(1<<0);																							// Turn off HSI
 }
 
+void ADC1_CH0_Init()
+{
+	RCC->APB2ENR |= RCC_APB2ENR_ADC1EN;
+
+	ADC1->SMPR2 = 0xffffff; // set max sampe time for all 8 channels
+	ADC1->SQR1 = 0;   // 1 conversion in sequence
+	ADC1->SQR3 = 0x0; // select channel zero for first conversion in sequence
+
+
+	ADC1->CR2 |= ADC_CR2_ADON;
+
+	for (volatile int i=0; i<1000; i++); // short startup delay
+
+	ADC1->CR2 |= ADC_CR2_RSTCAL;
+	while (ADC1->CR2 & ADC_CR2_RSTCAL);
+
+	ADC1->CR2 |= ADC_CR2_CAL;
+	while (ADC1->CR2 & ADC_CR2_CAL);
+}
+
 void GPIO_Init()
 {
 	RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;					// enable alt function clock
 
 	RCC->APB2ENR |= RCC_APB2ENR_IOPCEN;					// Enable GPIOC clock
 	RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;					// Enable GPIOB clock
+	RCC->APB2ENR |= RCC_APB2ENR_IOPAEN;					// Enable GPIOA clock
 
 	GPIOC->CRH &= ~GPIO_CRH_MODE13_Msk;					// Clear PC13 mode
 	GPIOC->CRH &= ~GPIO_CRH_CNF13_Msk;					// clear PC13 configuration
@@ -53,6 +74,10 @@ void GPIO_Init()
 
 	AFIO->MAPR &= ~AFIO_MAPR_CAN_REMAP_Msk;				// clear CAN remap
 	AFIO->MAPR |= AFIO_MAPR_CAN_REMAP_1;				// remap CAN to PB8,PB9
+
+	GPIOA->CRL &= ~ GPIO_CRL_MODE0_Msk;					// clear PA0 mode
+	GPIOA->CRL &= ~ GPIO_CRL_CNF0_Msk;					// set PA0 to analog mode
+
 
 }
 
@@ -116,10 +141,31 @@ void CAN_Accept_All_Messages()
 	CAN1->FMR &= ~CAN_FMR_FINIT;
 }
 
+uint16_t ADC1_CH0_Read(void)
+{
+    ADC1->CR2 |= ADC_CR2_ADON;        // wake (safe)
+    ADC1->CR2 |= ADC_CR2_SWSTART;     // start conversion
+    while (!(ADC1->SR & ADC_SR_EOC)); // wait end-of-conv
+    return (uint16_t)ADC1->DR;
+}
+
+float out;
 int main(void)
 {
 	Clock_Init();
 	GPIO_Init();
+	ADC1_CH0_Init();
+	for(;;)
+	{
+		uint32_t val = 0;
+		for(uint16_t i = 0; i < 128; i++)
+		{
+			val += ADC1_CH0_Read();
+		}
+
+		out = (float)val/128.0;
+	}
+	/*
 	CAN_Init();
 	CAN_Accept_All_Messages();
 
@@ -136,6 +182,7 @@ int main(void)
 		Payload.data[0] = ((GPIOB->IDR) & GPIO_IDR_IDR0) >> GPIO_IDR_IDR0_Pos;		// data = button state
 		CAN_Transmit(Payload);														// send payload through CAN
 	}
+	*/
 }
 
 void USB_LP_CAN_RX0_IRQHandler(void)
