@@ -1,0 +1,129 @@
+/*
+ * RTC.c
+ *
+ *  Created on: Jan 6, 2026
+ *      Author: Jack Herron
+ */
+
+
+#include "STM32F4xx.h"
+#include "Clock.h"
+#include "RTC.h"
+
+#define RTC___INIT_HOUR			1
+#define RTC___INIT_MINUTE		0
+#define RTC___INIT_SECOND		0
+#define RTC___INIT_AMPM			1
+#define RTC___INIT_YEAR			26
+#define RTC___INIT_MONTH		1
+#define RTC___INIT_DAY			1
+
+void RTC___Disable_Write_Protection(void)
+{
+	PWR -> CR 		|= PWR_CR_DBP;							// Unblock backupdomain writes
+
+	RTC->WPR = 0xCA;										// key to unlock RTC write (see ref manual)
+	RTC->WPR = 0x53;
+}
+
+void RTC___Enable_Write_Protection(void)
+{
+	RTC->WPR = 0x00;										// re-lock
+	PWR -> CR 		|= PWR_CR_DBP;							// Reblock
+}
+
+void RTC___Enter_Init_Mode(void)
+{
+	RTC->ISR |= RTC_ISR_INIT;								// enter init mode
+	while(!((RTC->ISR) & RTC_ISR_INITF));					// wait to enter init
+}
+
+void RTC___Exit_Init_Mode(void)
+{
+	RTC->ISR &= ~RTC_ISR_INIT;								// exit init mode
+}
+
+void RTC___Init(void)
+{
+	Clock___RTC_Init(1);
+
+	RTC___Date_TypeDef date;
+	RTC___Time_TypeDef time;
+
+	date.day = RTC___INIT_DAY;
+	date.month = RTC___INIT_MONTH;
+	date.year = RTC___INIT_YEAR;
+
+	time.hour = RTC___INIT_HOUR;
+	time.minute = RTC___INIT_MINUTE;
+	time.second = RTC___INIT_SECOND;
+	time.pm = RTC___INIT_AMPM;
+
+	RTC___Set_Time_And_Date(time, date);
+
+	RTC___Disable_Write_Protection();
+	RTC___Enter_Init_Mode();
+
+	RTC -> CR |= RTC_CR_FMT;
+
+	RTC___Exit_Init_Mode();
+	RTC___Enable_Write_Protection();
+}
+
+RTC___Time_TypeDef RTC___Get_Time(void)
+{
+	RTC___Time_TypeDef ret = {0};
+	uint32_t TR = (uint32_t)RTC->TR;
+
+	ret.hour = ((TR & RTC_TR_HT_Msk) >> RTC_TR_HT_Pos) * 10 + ((TR & RTC_TR_HU_Msk) >> RTC_TR_HU_Pos);
+	ret.minute = ((TR & RTC_TR_MNT_Msk) >> RTC_TR_MNT_Pos) * 10 + ((TR & RTC_TR_MNU_Msk) >> RTC_TR_MNU_Pos);
+	ret.second = ((TR & RTC_TR_ST_Msk) >> RTC_TR_ST_Pos) * 10 + ((TR & RTC_TR_SU_Msk) >> RTC_TR_SU_Pos);
+	ret.pm = ((TR & RTC_TR_PM_Msk) >> RTC_TR_PM_Pos);
+
+	return(ret);
+}
+
+
+RTC___Date_TypeDef RTC___Get_Date(void)
+{
+	RTC___Date_TypeDef ret = {0};
+	uint32_t DR = (uint32_t)RTC->DR;
+
+	ret.year = ((DR & RTC_DR_YT_Msk) >> RTC_DR_YT_Pos) * 10 + ((DR & RTC_DR_YU_Msk) >> RTC_DR_YU_Pos);
+	ret.month = ((DR & RTC_DR_MT_Msk) >> RTC_DR_MT_Pos) * 10 + ((DR & RTC_DR_MU_Msk) >> RTC_DR_MU_Pos);
+	ret.day = ((DR & RTC_DR_DT_Msk) >> RTC_DR_DT_Pos) * 10 + ((DR & RTC_DR_DU_Msk) >> RTC_DR_DU_Pos);
+
+	return(ret);
+}
+
+//TODO make this have a loop timeout
+void RTC___Set_Time_And_Date(RTC___Time_TypeDef time, RTC___Date_TypeDef date)
+{
+	RTC___Disable_Write_Protection();
+	RTC___Enter_Init_Mode();
+
+	uint32_t TR = 0;
+
+	TR = 	((time.hour 	/10) << RTC_TR_HT_Pos) 	|		// set time
+			((time.hour 	%10) << RTC_TR_HU_Pos) 	|
+			((time.minute 	/10) << RTC_TR_MNT_Pos) |
+			((time.minute 	%10) << RTC_TR_MNU_Pos) |
+			((time.second 	/10) << RTC_TR_ST_Pos)  |
+			((time.second 	%10) << RTC_TR_SU_Pos)  |
+			((time.pm)           << RTC_TR_PM_Pos)	;
+
+	RTC->TR = TR;
+
+	uint32_t DR = 0;
+
+	DR = 	((date.year 	/10) << RTC_DR_YT_Pos) |		// set date
+			((date.year 	%10) << RTC_DR_YU_Pos) |
+			((date.month 	/10) << RTC_DR_MT_Pos) |
+			((date.month 	%10) << RTC_DR_MU_Pos) |
+			((date.day 		/10) << RTC_DR_DT_Pos) |
+			((date.day 		%10) << RTC_DR_DU_Pos) ;
+
+	RTC->DR = DR;
+	RTC___Exit_Init_Mode();
+	RTC___Enable_Write_Protection();
+}

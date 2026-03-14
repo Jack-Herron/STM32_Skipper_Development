@@ -17,7 +17,7 @@ void GPIO_Pin_Init(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin)
 	GPIOx->AFR[GPIO_Pin/8] |= (12 << ((GPIO_Pin & 0x07) * 4));		// set alternate function 12 (FMC)
 	GPIOx->MODER |= (2 << (GPIO_Pin * 2));							// set mode to alternate function
 	GPIOx->OSPEEDR |= (3 << (GPIO_Pin * 2));						// set speed to high
-	GPIOx->PUPDR |= (1 << (GPIO_Pin * 2));							// set pull-up
+	//GPIOx->PUPDR |= (1 << (GPIO_Pin * 2));							// set pull-up
 }
 
 void FMC_SDRAM___Pin_Init(void)
@@ -154,6 +154,8 @@ void FMC_SDRAM___SDRAM_Init(void)
 	Command.AutoRefreshNumber 		= 1;
 	Command.ModeRegisterDefinition 	= 0;
 	FMC_SDRAM___Send_Command(&Command);
+
+	for (volatile uint32_t i = 0; i < 100000; i++); // ~100us
 
 	Command.CommandMode 			= FMC_SDRAM___CMD_PALL;
 	Command.CommandTarget 			= FMC_SDRAM___CMD_TARGET_BANK1;
