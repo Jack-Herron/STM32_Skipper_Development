@@ -16,6 +16,9 @@
 //#include "TS.h"
 //#include "App.h"
 #include "RTC.h"
+
+uint32_t test = 0;
+
 /*
 #define COMPILE_HOUR   ((__TIME__[0] - '0') * 10 + (__TIME__[1] - '0'))
 #define COMPILE_MINUTE ((__TIME__[3] - '0') * 10 + (__TIME__[4] - '0'))
@@ -161,18 +164,23 @@ int main(void)
 	//App___Init();
 
 	//osKernelStart();
+	uint8_t mode = 0;
 	for(;;)
 	{
 		for(uint32_t i = 0; i <1000; i++)
 		{
 			TIM4->CCR2 = i;
-			clock___delay_ms(3);
+			clock___delay_ms(2);
 		}
+
 		for(uint32_t i = 1000; i > 0; i--)
 		{
-			TIM4->CCR2 = i;
-			clock___delay_ms(3);
+			TIM4->CCR2 = i-1;
+			clock___delay_ms(2);
 		}
+		mode = !mode;
+		DSI_LCD___Generate_Pattern(0, mode);
+		clock___delay_ms(50);
 	}
 }
 

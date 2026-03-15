@@ -16,7 +16,11 @@ void (*Swap_Callback)(void) = NULL;
 
 void DSI_IO_WriteCmd(uint32_t NbrParams, uint8_t *pParams)
 {
-	if(NbrParams <= 1)
+	if(NbrParams == 0)
+	{
+		DSI_LCD___Short_Write(0, DSI_LCD___DATA_TYPE_SHORT_WRITE_0P, pParams[0], 0);
+	}
+	else if(NbrParams == 1)
 	{
 		DSI_LCD___Short_Write(0, DSI_LCD___DATA_TYPE_SHORT_WRITE_1P, pParams[0], pParams[1]);
 	}
@@ -31,49 +35,49 @@ void E43GBIMW800CB_IO_Delay(uint32_t Delay)
 	clock___delay_ms(Delay);		// crude delay
 }
 
-void DSI_LCD___Short_Write(uint32_t channel_ID, uint32_t data_Type, uint32_t data1, uint32_t data2)
+void DSI_LCD___Short_Write(uint32_t channel_ID, uint32_t data_Type, uint32_t data0, uint32_t data1)
 {
 	while (!(DSI->GPSR & DSI_GPSR_CMDFE)); 											// Wait until command FIFO is empty
-	DSI->GHCR = (data_Type | (channel_ID << DSI_GHCR_VCID_Pos) | (data1 << DSI_GHCR_WCLSB_Pos) | (data2 << DSI_GHCR_WCMSB_Pos));
+	DSI->GHCR = (data_Type | (channel_ID << DSI_GHCR_VCID_Pos) | (data0 << DSI_GHCR_WCLSB_Pos) | (data1 << DSI_GHCR_WCMSB_Pos));
 }
 
-//DSI_LCD___Long_Write takes a list of parameters, with the last byte being the command byte [p1, p2, ..., pn, cmd]
+// DSI_LCD___Long_Write takes [cmd, p1, p2, ..., pn]
 void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdata, uint32_t size)
 {
-	uint8_t command = pdata[size - 1];
+    while (!(DSI->GPSR & DSI_GPSR_CMDFE));   // Wait until command FIFO is empty
 
-	while (!(DSI->GPSR & DSI_GPSR_CMDFE)); 									// Wait until command FIFO is empty
+    uint32_t first_word_bytes = (size <= 4U) ? size : 4U;
+    uint32_t first_word = 0;
 
-	uint32_t first_Word = command;
-	uint32_t first_Word_Params = (size <= 4) ? (size) : (4);
+    for (uint32_t i = 0; i < first_word_bytes; i++)
+    {
+        first_word |= ((uint32_t)(pdata[i])) << (8U * i);
+    }
 
-	for (uint32_t i = 1; i < first_Word_Params; i++) {
-		first_Word |= pdata[i-1] << (8 * (i));
-	}
+    DSI->GPDR = first_word;
 
-	DSI->GPDR = first_Word;
+    uint32_t remaining_size = size - first_word_bytes;
 
-	uint32_t remaining_Size = size - first_Word_Params;
+    for (uint32_t i = 0; i < remaining_size; i += 4U)
+    {
+        uint32_t word = 0;
+        uint32_t bytes_in_word = ((remaining_size - i) >= 4U) ? 4U : (remaining_size - i);
 
-	for (uint32_t i = 0; i < remaining_Size; i += 4) {
-		uint32_t word = 0;
-		uint32_t bytes_In_Word = (remaining_Size - i >= 4) ? 4 : (remaining_Size - i);
+        for (uint32_t j = 0; j < bytes_in_word; j++)
+        {
+            word |= ((uint32_t)pdata[first_word_bytes + i + j]) << (8U * j);
+        }
 
-		for (uint32_t j = 0; j < bytes_In_Word; j++)
-		{
-			word |= pdata[first_Word_Params + i + j - 1] << (8 * j);
-		}
+        DSI->GPDR = word;
+    }
 
-		DSI->GPDR = word;
-	}
+    uint32_t wc_lsb = size & 0xFFU;
+    uint32_t wc_msb = (size >> 8) & 0xFFU;
 
-	uint32_t wc_lsb = (size & 0xFF);
-	uint32_t wc_msb = ((size >> 8) & 0xFF);
-
-	DSI->GHCR = (data_Type)
-	              | (channel_ID << DSI_GHCR_VCID_Pos)
-	              | (wc_lsb << DSI_GHCR_WCLSB_Pos)
-	              | (wc_msb << DSI_GHCR_WCMSB_Pos);
+    DSI->GHCR = data_Type
+              | (channel_ID << DSI_GHCR_VCID_Pos)
+              | (wc_lsb << DSI_GHCR_WCLSB_Pos)
+              | (wc_msb << DSI_GHCR_WCMSB_Pos);
 }
 
 void DSI_LCD___DSI_Init(void)
@@ -147,8 +151,8 @@ void DSI_LCD___DSI_Init(void)
 	//DSI -> WCFGR	|=  DSI_WCFGR_TEPOL;
 	DSI -> WIER 	= 	DSI_WIER_TEIE; 													// Enable Tearing Effect Interrupt
 
-	NVIC_EnableIRQ(DSI_IRQn); 															// Enable DSI Interrupt in NVIC
-	NVIC_SetPriority(DSI_IRQn, 12); 													// Set DSI Interrupt priority
+	//NVIC_EnableIRQ(DSI_IRQn); 															// Enable DSI Interrupt in NVIC
+	//NVIC_SetPriority(DSI_IRQn, 12); 													// Set DSI Interrupt priority
 
 	DSI -> WCFGR    |= 	DSI_WCFGR_TESRC; 												// Set Tearing Effect Source to External Pin
 	DSI -> WCR 		= 	DSI_WCR_DSIEN;										 			// Enable DSI Wrapper
@@ -223,8 +227,8 @@ void DSI_LCD___LTDC_Init(void)
 
 	LTDC->IER |= LTDC_IER_RRIE;
 
-	NVIC_EnableIRQ(LTDC_IRQn); 															// Enable LTDC Interrupt in NVIC
-	NVIC_SetPriority(LTDC_IRQn, 12); 													// Set LTDC Interrupt priority
+	//NVIC_EnableIRQ(LTDC_IRQn); 															// Enable LTDC Interrupt in NVIC
+	//NVIC_SetPriority(LTDC_IRQn, 12); 													// Set LTDC Interrupt priority
 
 	LTDC->GCR |= LTDC_GCR_LTDCEN; 																						// Enable LTDC
 }

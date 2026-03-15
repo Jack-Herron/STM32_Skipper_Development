@@ -19,16 +19,16 @@
 
 #define DSI_LCD___FRAME_BUFFER_ADDRESS	0xc0000000
 
-#define DSI_LCD___HACT					480	// Display horizontal active size 		(pixels)
-#define DSI_LCD___HSA					4	// Display horizontal sync size 		(pixels)
-#define DSI_LCD___HFP					5	// Display horizontal front porch size 	(pixels)
-#define DSI_LCD___HBP					5	// Display horizontal back porch size 	(pixels)
-#define DSI_LCD___VACT					800	// Display vertical actual size 		(pixels)
-#define DSI_LCD___VSA					4	// Display vertical sync size 			(pixels)
-#define DSI_LCD___VFP					14	// Display vertical front porch size 	(pixels)
-#define DSI_LCD___VBP					14	// Display vertical back porch size 	(pixels)
+#define DSI_LCD___HACT					480		// Display horizontal active size 		(pixels)
+#define DSI_LCD___HSA					4		// Display horizontal sync size 		(pixels)
+#define DSI_LCD___HFP					10		// Display horizontal front porch size 	(pixels)
+#define DSI_LCD___HBP					10		// Display horizontal back porch size 	(pixels)
+#define DSI_LCD___VACT					800		// Display vertical actual size 		(pixels)
+#define DSI_LCD___VSA					4		// Display vertical sync size 			(pixels)
+#define DSI_LCD___VFP					40		// Display vertical front porch size 	(pixels)
+#define DSI_LCD___VBP					40		// Display vertical back porch size 	(pixels)
 
-#define DSI_LDC___LANE_FREQUENCY			300000000
+#define DSI_LDC___LANE_FREQUENCY			500000000
 
 #define DSI_LCD___LANE_COUNT				0x02 	// number of data lanes, 1: 1 lane, 2: 2 lanes
 #define DSI_LCD___DATA_HS2LP_TIME			0x23	// Max high speed to low power mode switch time in lengths of byte lane periods		 One byte-cycle period = 8 * UI, where UI = 1 / lane_bitrate (seconds per bit)
@@ -50,6 +50,8 @@
 #define DSI_LCD___HSA_FOR_DSI				(uint32_t)((DSI_LCD___HSA) * ((uint64_t)DSI_LCD___LANE_BYTE_CLK) / ((uint64_t)LCDTFT_FREQ))
 #define DSI_LCD___HBP_FOR_DSI				(uint32_t)((DSI_LCD___HBP) * ((uint64_t)DSI_LCD___LANE_BYTE_CLK) / ((uint64_t)LCDTFT_FREQ))
 
+
+#define DSI_LCD___DATA_TYPE_SHORT_WRITE_0P 	0x5
 #define DSI_LCD___DATA_TYPE_SHORT_WRITE_1P 	0x15
 #define DSI_LCD___DATA_TYPE_LONG_WRITE		0x39
 
