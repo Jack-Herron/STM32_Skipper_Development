@@ -9,5 +9,5 @@
 #define APPLICATION_DRIVERS_INC_SPI_H_
 
 void SPI___Init();
-void SPI___Transmit(uint16_t data);
+void SPI___Transmit(uint8_t data);
 #endif /* APPLICATION_DRIVERS_INC_SPI_H_ */
