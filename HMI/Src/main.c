@@ -18,6 +18,7 @@
 //#include "App.h"
 #include "RTC.h"
 #include "USART.h"
+#include "CAN.h"
 
 uint32_t test = 0;
 
@@ -147,6 +148,8 @@ int main(void)
 	DSI_LCD___Init();
 	TIM4CH2_Init();
 	USART___Init(4);
+	CAN___Init();
+	CAN___Accept_All_Messages();
 	//DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
 	//TS___Init();
 	//TS___Set_Event_Callback(TS_Event_Callback);
