@@ -2,20 +2,22 @@
 #define LV_LVGL_H_INCLUDE_SIMPLE
 
 
-#include <stdint.h>
 #include "stm32f4xx.h"
+#include <stdint.h>
+
 //#include "cmsis_os.h"
 #include "Clock.h"
 #include "FMC_SDRAM.h"
 //#include "QSPI.h"
 #include "DSI_LCD.h"
 //#include "lvgl.h"
-//#include "stdio.h"
+#include "stdio.h"
 //#include "ui.h"
 //#include "I2C.h"
 //#include "TS.h"
 //#include "App.h"
 #include "RTC.h"
+#include "USART.h"
 
 uint32_t test = 0;
 
@@ -144,6 +146,7 @@ int main(void)
 	FMC_SDRAM___SDRAM_Init();
 	DSI_LCD___Init();
 	TIM4CH2_Init();
+	USART___Init(4);
 	//DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
 	//TS___Init();
 	//TS___Set_Event_Callback(TS_Event_Callback);
@@ -181,6 +184,7 @@ int main(void)
 		mode = !mode;
 		DSI_LCD___Generate_Pattern(0, mode);
 		clock___delay_ms(50);
+		printf("test\n");
 	}
 }
 
