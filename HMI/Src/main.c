@@ -187,7 +187,6 @@ int main(void)
 		mode = !mode;
 		DSI_LCD___Generate_Pattern(0, mode);
 		clock___delay_ms(50);
-		printf("test\n");
 	}
 }
 

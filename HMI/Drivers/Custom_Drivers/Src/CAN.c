@@ -21,7 +21,7 @@ void CAN___GPIO_Init()
     GPIOB->MODER |=  (2 << (12 * 2));        // Alternate function mode
 
     GPIOB->PUPDR &= ~(3 << (12 * 2));
-    GPIOB->PUPDR |=  (1 << (12 * 2));        // Pull-up (recommended for CAN RX)
+    GPIOB->PUPDR |=  (1 << (12 * 2));        // Pull-up
 
     GPIOB->OSPEEDR |= (3 << (12 * 2));       // High speed
 
@@ -73,24 +73,29 @@ void CAN___Init()		// baud rate = 250kHz				[ 1 Sync | 15 TS1 | 2 TS2 	] (18 bit
     CAN2->MCR &= ~CAN_MCR_SLEEP;						// exit sleep mode
 }
 
-void CAN___Accept_All_Messages()
+void CAN___Accept_All_Messages(void)
 {
-	CAN2->FMR 	|= CAN_FMR_FINIT;
+    CAN1->FMR |= CAN_FMR_FINIT;                          // filter init mode
 
-	CAN2->FS1R 	|=  (1 << 0);   // bank 0 = 32-bit
-	CAN2->FM1R 	&= ~(1 << 0);   // mask mode
-	CAN2->FFA1R &= ~(1 << 0);  // FIFO 0
+    CAN1->FMR &= ~CAN_FMR_CAN2SB_Msk;
+    CAN1->FMR |=  (14 << CAN_FMR_CAN2SB_Pos);           // banks 14..27 belong to CAN2
 
-	CAN2->sFilterRegister[0].FR1 = 0;
-	CAN2->sFilterRegister[0].FR2 = 0;
+    CAN1->FS1R  |=  (1 << 14);                          // bank 14 = 32-bit
+    CAN1->FM1R  &= ~(1 << 14);                          // mask mode
+    CAN1->FFA1R &= ~(1 << 14);                          // FIFO 0
 
-	CAN2->FA1R 	|= (1 << 0);    // enable bank 0
+    CAN1->sFilterRegister[14].FR1 = 0;                  // accept all
+    CAN1->sFilterRegister[14].FR2 = 0;                  // accept all
 
-	CAN2->FMR 	&= ~CAN_FMR_FINIT;
+    CAN1->FA1R  |=  (1 << 14);                          // enable bank 14
+
+    CAN1->FMR &= ~CAN_FMR_FINIT;                        // leave filter init mode
 }
 
 void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
 {
+	while ((CAN2->TSR & CAN_TSR_TME0) == 0);
+
 	CAN2->sTxMailBox[0].TIR = (Payload.ID << CAN_TI1R_STID_Pos);				// Set message ID
 
 	CAN2->sTxMailBox[0].TDTR = (Payload.data_Length << CAN_TDT1R_DLC_Pos);		// set data length
@@ -110,9 +115,30 @@ void CAN2_RX0_IRQHandler(void)
 	if (CAN2->RF0R & CAN_RF0R_FMP0) {                 // if pending message
 
 		uint32_t RIR  = CAN2->sFIFOMailBox[0].RIR;
-		uint32_t RDLR = CAN2->sFIFOMailBox[0].RDLR;
+		uint32_t data[2];
+		data[0] = CAN2->sFIFOMailBox[0].RDLR;
+		data[1] = CAN2->sFIFOMailBox[0].RDHR;
 
-		printf("CAN Message Received: %d\n", (int)RDLR);
+		uint32_t RDTR = CAN2->sFIFOMailBox[0].RDTR;
+
+		uint16_t ID = ((RIR & CAN_RI0R_STID_Msk) >> CAN_RI0R_STID_Pos);
+		uint16_t data_Length = ((RDTR & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos);
+
+		if(ID >= 0x700)
+		{
+			uint8_t string_Code = (ID-0x700) % 2; // 0 = start string, 1 = data for string
+			if(string_Code == 0)
+			{
+				printf("%x : ", (int)ID);
+			}
+			else
+			{
+				for(uint8_t i = 0; i < data_Length; i++)
+				{
+					printf("%c", ((char*)data)[i]);
+				}
+			}
+		}
 
 		CAN2->RF0R |= CAN_RF0R_RFOM0;                 			// release FIFO0 output mailbox
 	}
