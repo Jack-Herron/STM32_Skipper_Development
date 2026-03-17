@@ -63,7 +63,7 @@ uint8_t TS_Get_Point_Callback(uint16_t* x, uint16_t* y)
 		TS___Get_Point(x, y);
 	}
 
-	return(0);//num_Points);
+	return(num_Points);
 }
 
 App___Time_TypeDef get_Time_CallBack(void)
@@ -145,9 +145,9 @@ int main(void)
 	FMC_SDRAM___SDRAM_Init();
 	DSI_LCD___Init();
 	TIM4CH2_Init();
-	//USART___Init(4);
-	//CAN___Init();
-	//CAN___Accept_All_Messages();
+	USART___Init(4);
+	CAN___Init();
+	CAN___Accept_All_Messages();
 
 	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
 	TS___Init();
@@ -167,6 +167,8 @@ int main(void)
 	// App init
 
 	App___Init();
+
+	printf("Starting... \n");
 
 	osKernelStart();
 

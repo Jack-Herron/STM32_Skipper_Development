@@ -42,12 +42,34 @@ void GT911_TS_Start(uint16_t DeviceAddr)
 
 uint8_t GT911_TS_DetectTouch(uint16_t DeviceAddr)
 {
+	uint8_t status = TS_IO_Read(DeviceAddr, GT911_READ_XY_REG);
+	uint8_t num_Points = status & GT911_STATUS_NUM_POINTS_Msk;
 
+	if(num_Points == 0)
+	{
+		TS_IO_Write(DeviceAddr, GT911_READ_XY_REG, 0);
+	}
+
+	return(num_Points);
 }
+
+uint16_t X_Debug = 0;
+uint16_t Y_Debug = 0;
 
 void GT911_TS_GetXY(uint16_t DeviceAddr, uint16_t *X, uint16_t *Y)
 {
+	uint8_t x_Low 	= TS_IO_Read(DeviceAddr, 0x8150);	// good
+	uint8_t x_High 	= TS_IO_Read(DeviceAddr, 0x8151);	// good
+	uint8_t y_Low 	= TS_IO_Read(DeviceAddr, 0x8152);	// good
+	uint8_t y_High 	= TS_IO_Read(DeviceAddr, 0x8153);
 
+	X[0] = 480-((uint16_t)x_Low | ((uint16_t)x_High << 8));
+	Y[0] = 800-((uint16_t)y_Low | ((uint16_t)y_High << 8));
+
+	X_Debug = X[0];
+	Y_Debug = Y[0];
+
+	TS_IO_Write(DeviceAddr, GT911_READ_XY_REG, 0);
 }
 
 void GT911_TS_EnableIT(uint16_t DeviceAddr)

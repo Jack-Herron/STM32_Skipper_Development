@@ -108,6 +108,7 @@ static void GUI___LV_Touch_Read_Callback(lv_indev_t * indev, lv_indev_data_t * d
 
 void rotate_Screen(const uint8_t *src_bytes, uint8_t *dst_bytes)
 {
+	uint32_t time_Start = clock___millis();
     const uint16_t *src = (const uint16_t *)src_bytes;
     uint16_t *dst = (uint16_t *)dst_bytes;
 
@@ -122,6 +123,8 @@ void rotate_Screen(const uint8_t *src_bytes, uint8_t *dst_bytes)
             d[dx] = src[sy * SRC_W + sx];
         }
     }
+
+    uint32_t time_Tota = clock___millis() - time_Start;
 }
 
 static void GUI___LV_Flush_Callback(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
@@ -312,7 +315,7 @@ void GUI___GFX_Start_Task(void const * argument)
 
 	lv_display_t* display = lv_display_create(App___GUI_Width, App___GUI_Height);
 
-	lv_display_set_buffers(display, App___GUI_Buffer1_Ptr, App___GUI_Buffer2_Ptr, App___GUI_Buffer_Size, LV_DISPLAY_RENDER_MODE_FULL);
+	lv_display_set_buffers(display, App___GUI_Buffer1_Ptr, App___GUI_Buffer2_Ptr, App___GUI_Buffer_Size, LV_DISPLAY_RENDER_MODE_DIRECT);
 
 	lv_tick_set_cb(GUI___LV_Get_Tick_Callback);
 	lv_display_set_flush_cb(display, GUI___LV_Flush_Callback);
