@@ -424,6 +424,247 @@ int I2C___Read_Reg(uint8_t port, uint8_t address, uint8_t reg_Address, uint8_t* 
     return(0);
 }
 
+int I2C___Read_Reg16(uint8_t port, uint8_t address, uint16_t reg_Address, uint8_t* buffer, uint32_t read_Length)
+{
+	I2C_TypeDef* I2Cx = I2C___Get_Instance_From_Port(port)->I2Cx;
+
+	uint32_t start_Tick = clock___millis();
+	uint32_t loop_Tick = start_Tick;
+	while ((I2Cx->SR2 & I2C_SR2_BUSY) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))			// wait for bus to be free
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+	I2Cx->CR1 |= I2C_CR1_START;					// trigger start generation
+
+	start_Tick = clock___millis();
+	loop_Tick = start_Tick;
+	while ((!(I2Cx->SR1 & I2C_SR1_SB)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))			// wait for start to be generated
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+	I2Cx->DR = (address << 1) | 0;				// sent slave address and write bit
+
+	start_Tick = clock___millis();
+	loop_Tick = start_Tick;
+	while ((!(I2Cx->SR1 & (I2C_SR1_ADDR | I2C_SR1_AF))) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))											// wait for address, or NACK
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+	if (I2Cx->SR1 & I2C_SR1_AF)
+	{
+		I2Cx->SR1 &= ~I2C_SR1_AF; 				// if address was NACKed, return
+		I2Cx->CR1 |= I2C_CR1_STOP;
+		return(1);
+	}
+
+	(void)I2Cx->SR1;							// read status registers to trigger next phase
+	(void)I2Cx->SR2;
+
+
+	start_Tick = clock___millis();
+	loop_Tick = start_Tick;
+	while ((!(I2Cx->SR1 & I2C_SR1_TXE)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))			// wait for TX path to be free
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+
+	I2Cx->DR = (reg_Address & 0xff00) >> 8;
+
+	start_Tick = clock___millis();
+	loop_Tick = start_Tick;
+	while ((!(I2Cx->SR1 & I2C_SR1_BTF)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))			// wait for the byte to be fully sent
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+
+	I2Cx->DR = (reg_Address & 0xff);
+
+	start_Tick = clock___millis();
+	loop_Tick = start_Tick;
+	while ((!(I2Cx->SR1 & I2C_SR1_BTF)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))			// wait for the byte to be fully sent
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+	I2Cx->CR1 |= I2C_CR1_START;					// trigger start generation
+
+	start_Tick = clock___millis();
+	loop_Tick = start_Tick;
+	while ((!(I2Cx->SR1 & I2C_SR1_SB)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))			// wait for start to be generated
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+	I2Cx->DR = (address << 1) | 1;				// sent slave address and write bit
+
+	start_Tick = clock___millis();
+	loop_Tick = start_Tick;
+	while ((!(I2Cx->SR1 & (I2C_SR1_ADDR | I2C_SR1_AF))) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))												// wait for address, or NACK
+	{
+		loop_Tick = clock___millis();
+	}
+
+	if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+	{
+		return(1);
+	}
+
+	if (I2Cx->SR1 & I2C_SR1_AF) { I2Cx->SR1 &= ~I2C_SR1_AF; I2Cx->CR1 |= I2C_CR1_STOP; return(1); }	// if address was NACKed, return
+
+	(void)I2Cx->SR1;							// read status registers to trigger next phase
+	(void)I2Cx->SR2;
+
+    if (read_Length == 0)
+    {
+        I2Cx->CR1 |= I2C_CR1_STOP;				// Generate stop
+    }
+    else if (read_Length == 1)
+    {
+        I2Cx->CR1 &= ~I2C_CR1_ACK;				// Nack byte
+
+        I2Cx->CR1 |= I2C_CR1_STOP;				// Generate stop
+
+    	start_Tick = clock___millis();
+    	loop_Tick = start_Tick;
+    	while ((!(I2Cx->SR1 & I2C_SR1_RXNE)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))
+        {
+        	loop_Tick = clock___millis();
+        }
+
+        if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+		{
+			return(1);
+		}
+
+        buffer[0] = (uint8_t)I2Cx->DR;			// Get the byte
+    }
+    else if (read_Length == 2)					// if receiving 2 bytes
+    {
+        I2Cx->CR1 &= ~I2C_CR1_ACK;				// Special case: use POS, disable ACK
+        I2Cx->CR1 |=  I2C_CR1_POS;
+
+        start_Tick = clock___millis();
+    	loop_Tick = start_Tick;
+        while ((!(I2Cx->SR1 & I2C_SR1_BTF)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT)) 		// Wait for byte transfer to finish
+        {
+        	loop_Tick = clock___millis();
+        }
+
+        if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+		{
+			return(1);
+		}
+
+        I2Cx->CR1 |= I2C_CR1_STOP;				// Generate stop
+
+        buffer[0] = (uint8_t)I2Cx->DR;			// Copy data to buffer
+        buffer[1] = (uint8_t)I2Cx->DR;
+
+        I2Cx->CR1 &= ~I2C_CR1_POS;				// Restore to previous state
+    }
+    else
+    {
+        I2Cx->CR1 |= I2C_CR1_ACK;				// set ack
+
+        uint32_t i = 0;
+        while (i < read_Length) {
+            if (i == read_Length - 3) {
+                // Handle last 3 bytes
+
+                start_Tick = clock___millis();
+            	loop_Tick = start_Tick;
+                while ((!(I2Cx->SR1 & I2C_SR1_BTF)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))
+                {
+                	loop_Tick = clock___millis();
+                }
+
+                if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+        		{
+        			return(1);
+        		}
+
+                I2Cx->CR1 &= ~I2C_CR1_ACK;     // prepare NACK for last byte
+                buffer[i++] = (uint8_t)I2Cx->DR;
+
+                I2Cx->CR1 |= I2C_CR1_STOP;
+
+                buffer[i++] = (uint8_t)I2Cx->DR;
+
+                start_Tick = clock___millis();
+            	loop_Tick = start_Tick;
+                while ((!(I2Cx->SR1 & I2C_SR1_RXNE)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))
+                {
+                	loop_Tick = clock___millis();
+                }
+
+                if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+				{
+					return(1);
+				}
+
+                buffer[i++] = (uint8_t)I2Cx->DR;
+                break;
+            }
+
+            start_Tick = clock___millis();
+            loop_Tick = start_Tick;
+            while ((!(I2Cx->SR1 & I2C_SR1_RXNE)) & (loop_Tick - start_Tick < I2C___LOOP_TIMEOUT))
+            {
+            	loop_Tick = clock___millis();
+            }
+
+            if(loop_Tick - start_Tick >= I2C___LOOP_TIMEOUT)
+			{
+				return(1);
+			}
+
+            buffer[i++] = (uint8_t)I2Cx->DR;
+        }
+    }
+
+    return(0);
+}
+
 int I2C___Is_Initilized(uint8_t port)
 {
 	if((port-1) < 3)

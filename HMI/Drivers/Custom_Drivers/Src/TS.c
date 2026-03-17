@@ -7,7 +7,7 @@
 
 #include "TS.h"
 #include "I2C.h"
-#include "ft6x06.h"
+#include "gt911.h"
 #include "Clock.h"
 #include <stdlib.h>
 
@@ -15,40 +15,53 @@ void (*event_Callback)(void) = NULL;
 
 void TS___I2C_Pin_Init(void)
 {
-	RCC -> AHB1ENR |= RCC_AHB1ENR_GPIOBEN;				// Enable GPIOB clock
-	RCC -> AHB1ENR |= RCC_AHB1ENR_GPIOJEN;				// Enable GPIOB clock
+	RCC -> AHB1ENR |= RCC_AHB1ENR_GPIOAEN;				// Enable GPIOA clock
+	RCC -> AHB1ENR |= RCC_AHB1ENR_GPIOCEN;				// Enable GPIOC clock
+
 	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;   			// enable SYSCFG clock
 
-	GPIOB -> MODER &= ~GPIO_MODER_MODER8_Msk;			// Clear mode fields for PB8, PB9
-	GPIOB -> MODER &= ~GPIO_MODER_MODER9_Msk;
-	GPIOB -> MODER |= GPIO_MODER_MODER8_1;				// Set PB8, PB9 to alt function mode
-	GPIOB -> MODER |= GPIO_MODER_MODER9_1;
+	GPIOA -> MODER &= ~GPIO_MODER_MODER8_Msk;			// Clear mode fields for PA8, PC9
+	GPIOC -> MODER &= ~GPIO_MODER_MODER9_Msk;
+	GPIOA -> MODER |= GPIO_MODER_MODER8_1;				// Set PB8, PC9 to alt function mode
+	GPIOC -> MODER |= GPIO_MODER_MODER9_1;
 
-	GPIOB->AFR[1] &= ~GPIO_AFRH_AFSEL8_Msk;
-	GPIOB->AFR[1] &= ~GPIO_AFRH_AFSEL9_Msk;
-	GPIOB->AFR[1] |= 4 << GPIO_AFRH_AFSEL8_Pos;			// Set PB8, PB9 to I2C mode (AF4)
-	GPIOB->AFR[1] |= 4 << GPIO_AFRH_AFSEL9_Pos;			// Set PB8, PB9 to I2C mode (AF4)
+	GPIOA->AFR[1] &= ~GPIO_AFRH_AFSEL8_Msk;
+	GPIOC->AFR[1] &= ~GPIO_AFRH_AFSEL9_Msk;
+	GPIOA->AFR[1] |= 4 << GPIO_AFRH_AFSEL8_Pos;			// Set PA8, PC9 to I2C mode (AF4)
+	GPIOC->AFR[1] |= 4 << GPIO_AFRH_AFSEL9_Pos;			// Set PA8, PC9 to I2C mode (AF4)
 
-	GPIOB->OTYPER &= ~GPIO_OTYPER_OT8_Msk;
-	GPIOB->OTYPER &= ~GPIO_OTYPER_OT9_Msk;
-	GPIOB->OTYPER |= GPIO_OTYPER_OT8;					// set PB8, PB9 to open drain
-	GPIOB->OTYPER |= GPIO_OTYPER_OT9;
+	GPIOA->OTYPER &= ~GPIO_OTYPER_OT8_Msk;
+	GPIOC->OTYPER &= ~GPIO_OTYPER_OT9_Msk;
+	GPIOA->OTYPER |= GPIO_OTYPER_OT8;					// set PA8, PC9 to open drain
+	GPIOC->OTYPER |= GPIO_OTYPER_OT9;
 
-	GPIOB->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED8_Msk;
-	GPIOB->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED9_Msk;
-	GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEED8_1;			// set PB8, PB9 to high speed mode
-	GPIOB->OSPEEDR |= GPIO_OSPEEDR_OSPEED9_1;
+	GPIOA->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED8_Msk;
+	GPIOC->OSPEEDR &= ~GPIO_OSPEEDR_OSPEED9_Msk;
+	GPIOA->OSPEEDR |= GPIO_OSPEEDR_OSPEED8_1;			// set PA8, PC9 to high speed mode
+	GPIOC->OSPEEDR |= GPIO_OSPEEDR_OSPEED9_1;
 
-	GPIOJ->MODER &= ~GPIO_MODER_MODER5_Msk;				// Clear PJ5 mode (input mode) this is the int pin from TS
+	GPIOA->MODER &= ~GPIO_MODER_MODER9_Msk;
 
-	GPIOJ->PUPDR &= ~GPIO_PUPDR_PUPD5_Msk;
-	GPIOJ->PUPDR |=  GPIO_PUPDR_PUPD5_0;  			  	// pull-up PJ5
+	GPIOA->MODER |= GPIO_MODER_MODER9_0; 												// Set PA9 to Output mode
+	GPIOA->ODR &= ~GPIO_ODR_OD9; 														// Set PA9 Low (while TS Reset active)
 
-	EXTI->IMR |= EXTI_IMR_MR5;							// enable Px5 interrupt
-	EXTI->FTSR |= EXTI_FTSR_TR5;						// enable PJ5 falling edge interrupt
 
-	SYSCFG->EXTICR[1] &= ~SYSCFG_EXTICR2_EXTI5_Msk;
-	SYSCFG->EXTICR[1] |=  SYSCFG_EXTICR2_EXTI5_PJ;  	// route EXTI5 to Port J
+	GPIOA->MODER |= GPIO_MODER_MODER10_0; 												// Set PA10 to Output mode
+	GPIOA->ODR &= ~GPIO_ODR_OD10; 														// Set PA10 Low (TS Reset active)
+	clock___delay_ms(20);					                                            // Delay 20ms
+	GPIOA->ODR |= GPIO_ODR_OD10; 														// Set PA10 High (TS Reset inactive)
+	clock___delay_ms(200);
+
+	GPIOA->MODER &= ~GPIO_MODER_MODER9_Msk;				// Clear PA9 mode (input mode) this is the int pin from TS
+
+	GPIOA->PUPDR &= ~GPIO_PUPDR_PUPD9_Msk;
+	GPIOA->PUPDR |=  GPIO_PUPDR_PUPD9_0;  			  	// pull-up PA9
+
+	EXTI->IMR |= EXTI_IMR_MR9;							// enable Px9 interrupt
+	EXTI->FTSR |= EXTI_FTSR_TR9;						// enable PJ9 falling edge interrupt
+
+	SYSCFG->EXTICR[2] &= ~SYSCFG_EXTICR3_EXTI9_Msk;
+	SYSCFG->EXTICR[2] |=  SYSCFG_EXTICR3_EXTI9_PA;  	// route EXTI5 to Port A
 
 	NVIC_EnableIRQ(EXTI9_5_IRQn);
 	NVIC_SetPriority(EXTI9_5_IRQn, 14);
@@ -67,21 +80,22 @@ void TS___I2C_Init(void)
 
 void TS___Get_Point(uint16_t* x, uint16_t* y)
 {
-	ft6x06_ts_drv.GetXY(TS___I2C_ADDRESS, x, y);
+	GT911_ts_drv.GetXY(TS___I2C_ADDRESS, x, y);
 }
 
 uint8_t TS___Get_Num_Points_Pressed()
 {
-	return(ft6x06_ts_drv.DetectTouch(TS___I2C_ADDRESS));
+	return(GT911_ts_drv.DetectTouch(TS___I2C_ADDRESS));
 }
 
 void TS___Init(void)
 {
 	TS___I2C_Pin_Init();
 	TS___I2C_Init();
-	ft6x06_ts_drv.Init(TS___I2C_ADDRESS);
-	ft6x06_ts_drv.Start(TS___I2C_ADDRESS);
-	ft6x06_ts_drv.EnableIT(TS___I2C_ADDRESS);
+	GT911_ts_drv.ReadID(TS___I2C_ADDRESS);
+	GT911_ts_drv.Init(TS___I2C_ADDRESS);
+	GT911_ts_drv.Start(TS___I2C_ADDRESS);
+	GT911_ts_drv.EnableIT(TS___I2C_ADDRESS);
 }
 
 void TS_IO_Init(void)
@@ -92,18 +106,18 @@ void TS_IO_Init(void)
 	}
 }
 
-void TS_IO_Write(uint8_t Addr, uint8_t Reg, uint8_t Value)
+void TS_IO_Write(uint8_t Addr, uint16_t Reg, uint8_t Value)
 {
-	uint8_t data[2] = {Reg, Value};
-	I2C___Write(TS___I2C_PORT, Addr, data, 2);
+	uint8_t data[3] = {((uint8_t*)&Reg)[1], ((uint8_t*)&Reg)[0], Value};
+	I2C___Write(TS___I2C_PORT, Addr, data, 3);
 }
 
-uint8_t TS_IO_Read(uint8_t Addr, uint8_t Reg)
+uint8_t TS_IO_Read(uint8_t Addr, uint16_t Reg)
 {
 	uint8_t temp;
 
 	uint8_t ret;
-	ret = I2C___Read_Reg(TS___I2C_PORT, Addr, Reg, &temp, 1);
+	ret = I2C___Read_Reg16(TS___I2C_PORT, Addr, Reg, &temp, 1);
 
 	while(ret);
 
@@ -127,8 +141,8 @@ void TS___Set_Event_Callback(void (*callback)(void))
 
 void EXTI9_5_IRQHandler(void)
 {
-	if (EXTI->PR & EXTI_PR_PR5) {
-		EXTI->PR = EXTI_PR_PR5;   // clear interrupt
+	if (EXTI->PR & EXTI_PR_PR9) {
+		EXTI->PR = EXTI_PR_PR9;   // clear interrupt
 		if(event_Callback != NULL)
 		{
 			event_Callback();

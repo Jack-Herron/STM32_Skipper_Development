@@ -34,5 +34,6 @@ typedef struct
 int I2C___Init(uint8_t port, I2C___Conf_TypeDef* I2C_Conf);
 int I2C___Is_Initilized(uint8_t port);
 int I2C___Read_Reg(uint8_t port, uint8_t address, uint8_t reg_Address, uint8_t* buffer, uint32_t read_Length);
+int I2C___Read_Reg16(uint8_t port, uint8_t address, uint16_t reg_Address, uint8_t* buffer, uint32_t read_Length);
 int I2C___Write(uint8_t port, uint8_t address, uint8_t* buffer, uint32_t write_Length);
 #endif /* INC_I2C_H_ */

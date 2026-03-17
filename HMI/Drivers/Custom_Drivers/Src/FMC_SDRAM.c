@@ -34,9 +34,10 @@ void FMC_SDRAM___Pin_Init(void)
 	// GPIOA
 
 	//GPIO_Pin_Init(GPIOH, 5);
-	GPIO_Pin_Init(GPIOA, 7);
+	//GPIO_Pin_Init(GPIOA, 7);
 	// GPIOC
 
+	GPIO_Pin_Init(GPIOC, 0);
 	GPIO_Pin_Init(GPIOC, 4);
 	GPIO_Pin_Init(GPIOC, 5);
 

@@ -88,11 +88,59 @@ static void GUI___LV_Touch_Read_Callback(lv_indev_t * indev, lv_indev_data_t * d
 
 }
 
+#define SRC_W   800
+#define SRC_H   480
+#define DST_W   480
+#define DST_H   800
+#define TILE    16
+
+/*
+ * Rotate RGB565 image:
+ *   source      = 800 x 480
+ *   destination = 480 x 800
+ *
+ * This version is 90 deg clockwise:
+ *   dst_x = 479 - y
+ *   dst_y = x
+ *
+ * src and dst must not overlap.
+ */
+
+void rotate_Screen(const uint8_t *src_bytes, uint8_t *dst_bytes)
+{
+    const uint16_t *src = (const uint16_t *)src_bytes;
+    uint16_t *dst = (uint16_t *)dst_bytes;
+
+    for(int dy = 0; dy < DST_H; dy++)
+    {
+        uint16_t *d = &dst[dy * DST_W];
+        int sx = SRC_W - 1 - dy;   // rightmost column first
+
+        for(int dx = 0; dx < DST_W; dx++)
+        {
+            int sy = dx;
+            d[dx] = src[sy * SRC_W + sx];
+        }
+    }
+}
+
 static void GUI___LV_Flush_Callback(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
 {
 	if(lv_disp_flush_is_last(disp))
 	{
-		App___Frame_Ready(px_map);
+		uint8_t* src = px_map;
+		uint8_t* dest;
+		if(px_map == App___GUI_Buffer1_Ptr)	// rotate into buffer 3
+		{
+			dest = App___GUI_Buffer3_Ptr;
+		}
+		else	// rotate into buffer 4
+		{
+			dest = App___GUI_Buffer4_Ptr;
+		}
+		rotate_Screen(src, dest);
+
+		App___Frame_Ready(dest);
 	}
 	else
 	{
@@ -264,7 +312,7 @@ void GUI___GFX_Start_Task(void const * argument)
 
 	lv_display_t* display = lv_display_create(App___GUI_Width, App___GUI_Height);
 
-	lv_display_set_buffers(display, App___GUI_Buffer1_Ptr, App___GUI_Buffer2_Ptr, App___GUI_Buffer_Size, LV_DISPLAY_RENDER_MODE_DIRECT);
+	lv_display_set_buffers(display, App___GUI_Buffer1_Ptr, App___GUI_Buffer2_Ptr, App___GUI_Buffer_Size, LV_DISPLAY_RENDER_MODE_FULL);
 
 	lv_tick_set_cb(GUI___LV_Get_Tick_Callback);
 	lv_display_set_flush_cb(display, GUI___LV_Flush_Callback);

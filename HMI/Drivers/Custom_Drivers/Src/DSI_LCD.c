@@ -82,9 +82,9 @@ void DSI_LCD___Long_Write(uint32_t channel_ID, uint32_t data_Type, uint8_t *pdat
 
 void DSI_LCD___DSI_Init(void)
 {
-	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOJEN; 												// Enable GPIOJ clock
-	GPIOJ->MODER |= GPIO_MODER_MODER2_1; 												// Set PJ2 to Alternate Function mode
-	GPIOJ->AFR[0] |= (13 << GPIO_AFRL_AFSEL2_Pos); 										// Set PJ2 to DSI Alternate Function (AF13)
+	RCC->AHB1ENR |= RCC_AHB1ENR_GPIOBEN; 												// Enable GPIOB clock
+	GPIOB->MODER |= GPIO_MODER_MODER11_1; 												// Set PB11 to Alternate Function mode
+	GPIOB->AFR[1] |= (13 << GPIO_AFRH_AFSEL11_Pos); 									// Set PB11 to DSI Alternate Function (AF13)
 
 	// Enable DSI clock
 	RCC->APB2ENR |= RCC_APB2ENR_DSIEN;
@@ -151,8 +151,8 @@ void DSI_LCD___DSI_Init(void)
 	//DSI -> WCFGR	|=  DSI_WCFGR_TEPOL;
 	DSI -> WIER 	= 	DSI_WIER_TEIE; 													// Enable Tearing Effect Interrupt
 
-	//NVIC_EnableIRQ(DSI_IRQn); 															// Enable DSI Interrupt in NVIC
-	//NVIC_SetPriority(DSI_IRQn, 12); 													// Set DSI Interrupt priority
+	NVIC_EnableIRQ(DSI_IRQn); 															// Enable DSI Interrupt in NVIC
+	NVIC_SetPriority(DSI_IRQn, 12); 													// Set DSI Interrupt priority
 
 	DSI -> WCFGR    |= 	DSI_WCFGR_TESRC; 												// Set Tearing Effect Source to External Pin
 	DSI -> WCR 		= 	DSI_WCR_DSIEN;										 			// Enable DSI Wrapper
@@ -227,8 +227,8 @@ void DSI_LCD___LTDC_Init(void)
 
 	LTDC->IER |= LTDC_IER_RRIE;
 
-	//NVIC_EnableIRQ(LTDC_IRQn); 															// Enable LTDC Interrupt in NVIC
-	//NVIC_SetPriority(LTDC_IRQn, 12); 													// Set LTDC Interrupt priority
+	NVIC_EnableIRQ(LTDC_IRQn); 															// Enable LTDC Interrupt in NVIC
+	NVIC_SetPriority(LTDC_IRQn, 12); 													// Set LTDC Interrupt priority
 
 	LTDC->GCR |= LTDC_GCR_LTDCEN; 																						// Enable LTDC
 }
@@ -242,8 +242,6 @@ void DSI_LCD___Init(void)
 	DSI_LCD___DSI_Init();
 
 	DSI -> MCR &= ~DSI_MCR_CMDM;
-
-	DSI_LCD___Generate_Pattern(0,0);
 }
 
 void DSI_LCD___Set_Buffer(uint8_t* buf)

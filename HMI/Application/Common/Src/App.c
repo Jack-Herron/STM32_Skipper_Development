@@ -56,6 +56,8 @@ uint32_t App___GUI_Height;
 
 void* App___GUI_Buffer1_Ptr;
 void* App___GUI_Buffer2_Ptr;
+void* App___GUI_Buffer3_Ptr;
+void* App___GUI_Buffer4_Ptr;
 
 uint32_t App___GUI_Buffer_Size;
 
@@ -142,10 +144,12 @@ void App___GUI_Set_Dimentions(uint32_t width, uint32_t height)
 	App___GUI_Height = height;
 }
 
-void App___GUI_Set_Buffers(void* buf1, void* buf2, uint32_t size)
+void App___GUI_Set_Buffers(void* buf1, void* buf2, void* buf3, void* buf4, uint32_t size)
 {
 	App___GUI_Buffer1_Ptr = buf1;
 	App___GUI_Buffer2_Ptr = buf2;
+	App___GUI_Buffer3_Ptr = buf3;
+	App___GUI_Buffer4_Ptr = buf4;
 	App___GUI_Buffer_Size = size;
 }
 

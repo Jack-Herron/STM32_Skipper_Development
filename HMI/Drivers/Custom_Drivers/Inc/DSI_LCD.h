@@ -17,7 +17,7 @@
 
 // -- configuration values --
 
-#define DSI_LCD___FRAME_BUFFER_ADDRESS	0xc0000000
+#define DSI_LCD___FRAME_BUFFER_ADDRESS	(void*)(0xc0000000 + 3*768000)
 
 #define DSI_LCD___HACT					480		// Display horizontal active size 		(pixels)
 #define DSI_LCD___HSA					4		// Display horizontal sync size 		(pixels)
