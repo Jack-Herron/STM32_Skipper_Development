@@ -53,6 +53,7 @@ extern lv_obj_t * ui_Label11;
 extern void ui_event_Panel18(lv_event_t * e);
 extern lv_obj_t * ui_Panel18;
 extern lv_obj_t * ui_Label12;
+extern lv_obj_t * ui_Slider2;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Graph_1HAgo;
 extern lv_obj_t * uic_Graph_2HAgo;
@@ -67,6 +68,7 @@ extern lv_obj_t * uic_Purple_Light_Indicator;
 extern lv_obj_t * uic_Lime_Light_Indicator;
 extern lv_obj_t * uic_White_Light_Indicator;
 extern lv_obj_t * uic_Main_ClockSD;
+extern lv_obj_t * uic_Backlight_Brightness;
 
 #ifdef __cplusplus
 } /*extern "C"*/

@@ -77,17 +77,27 @@ static uint32_t GUI___LV_Get_Tick_Callback(void)
     return(App___Get_Tick());
 }
 
+uint16_t debug_Y;
+uint16_t debug_X;
+
 static void GUI___LV_Touch_Read_Callback(lv_indev_t * indev, lv_indev_data_t * data)
 {
+    static int16_t last_x = 0;
+    static int16_t last_y = 0;
 
-	App___GUI_TS_Point_TypeDef point = GUI___TS_Pop_Point();
+    App___GUI_TS_Point_TypeDef point = GUI___TS_Pop_Point();
 
-	data->point.x 	= point.x;
-	data->point.y 	= point.y;
-	data->state 	= point.pressed;
+    if(point.pressed)
+    {
+        last_x = point.x;
+        last_y = point.y;
+    }
 
+    data->point.x = last_x;
+    data->point.y = last_y;
+    data->state = point.pressed ? LV_INDEV_STATE_PRESSED
+                                : LV_INDEV_STATE_RELEASED;
 }
-
 static void GUI___LV_Flush_Callback(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
 {
 	if(lv_disp_flush_is_last(disp))
@@ -190,6 +200,7 @@ void GUI___Refresh_Time()
 
 	GUI___Set_Text_If_Changed(uic_Main_Clock, GUI___Formated_Time_String(time.hour, time.minute, time.pm, time_Str));
 	_ui_label_set_property(uic_Calendar_Clock, 0, time_Str);
+
 }
 
 void GUI___TS_Start_Task(void const * argument)
@@ -225,6 +236,7 @@ void GUI___TS_Start_Task(void const * argument)
 		point.y = new_Y;
 		point.pressed = pressed;
 
+
 		GUI___TS_Push_Point(point);
 	}
 }
@@ -256,6 +268,12 @@ void GUI___Date_Time_Change_Callback(lv_event_t * e)
 	GUI___Refresh_Time();
 }
 
+void GUI___Backlight_Changed_Callback(lv_event_t * e)
+{
+    lv_obj_t * slider = lv_event_get_target(e);
+	App___Set_Backlight_Brightness(lv_slider_get_value(slider));
+}
+
 void GUI___GFX_Start_Task(void const * argument)
 {
 	osSignalWait(APP___GUI_GFX_TASK_START_FLAG, osWaitForever);
@@ -277,6 +295,7 @@ void GUI___GFX_Start_Task(void const * argument)
 	ui_init();
 
 	DuckAnim_Animation(ui_Duck, 0);
+	lv_obj_add_event_cb(uic_Backlight_Brightness, GUI___Backlight_Changed_Callback, LV_EVENT_VALUE_CHANGED, NULL);
 
 	uint32_t last_UI_Element_Update = 0;
 

@@ -145,7 +145,8 @@ App___Time_TypeDef App___Get_Time(void);
 App___Date_TypeDef App___Get_Date(void);
 void App___Set_Time_And_Date(App___Time_TypeDef time, App___Date_TypeDef date);
 void App___Set_Time_And_Date_Callback(void (*time_And_Date_Set_Callback)(App___Time_TypeDef time, App___Date_TypeDef date));
-
+void App___Set_Change_Backlight_Brightness_Callback(void (*callback)(uint16_t));
+void App___Set_Backlight_Brightness(uint16_t level);
 // functions
 uint32_t App___Get_Tick(void);
 

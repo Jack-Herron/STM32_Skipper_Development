@@ -5,6 +5,7 @@
 
 #include "../ui.h"
 
+lv_obj_t * uic_Backlight_Brightness;
 lv_obj_t * uic_Main_ClockSD;
 lv_obj_t * uic_White_Light_Indicator;
 lv_obj_t * uic_Lime_Light_Indicator;
@@ -53,6 +54,7 @@ lv_obj_t * ui_Panel17 = NULL;
 lv_obj_t * ui_Label11 = NULL;
 lv_obj_t * ui_Panel18 = NULL;
 lv_obj_t * ui_Label12 = NULL;
+lv_obj_t * ui_Slider2 = NULL;
 // event funtions
 void ui_event_Button2(lv_event_t * e)
 {
@@ -533,6 +535,19 @@ void ui_Settings_screen_init(void)
     lv_obj_set_style_text_font(ui_Label12, &lv_font_montserrat_18, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Label12, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_Slider2 = lv_slider_create(ui_Settings);
+    lv_slider_set_range(ui_Slider2, 50, 1000);
+    lv_slider_set_value(ui_Slider2, 525, LV_ANIM_OFF);
+    if(lv_slider_get_mode(ui_Slider2) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_Slider2, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_Slider2, 412);
+    lv_obj_set_height(ui_Slider2, 19);
+    lv_obj_set_x(ui_Slider2, 0);
+    lv_obj_set_y(ui_Slider2, 359);
+    lv_obj_set_align(ui_Slider2, LV_ALIGN_CENTER);
+
+    //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
+    if(lv_obj_get_style_pad_top(ui_Slider2, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_Slider2,
+                                                                                              lv_obj_get_style_pad_right(ui_Slider2, LV_PART_MAIN) + 1, LV_PART_MAIN);
     lv_obj_add_event_cb(ui_Button2, ui_event_Button2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel16, ui_event_Panel16, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel20, ui_event_Panel20, LV_EVENT_ALL, NULL);
@@ -551,6 +566,7 @@ void ui_Settings_screen_init(void)
     uic_Lime_Light_Indicator = ui_Bar10;
     uic_White_Light_Indicator = ui_WhiteLightIndicator;
     uic_Main_ClockSD = ui_Label11;
+    uic_Backlight_Brightness = ui_Slider2;
 
 }
 
@@ -604,5 +620,7 @@ void ui_Settings_screen_destroy(void)
     ui_Label11 = NULL;
     ui_Panel18 = NULL;
     ui_Label12 = NULL;
+    uic_Backlight_Brightness = NULL;
+    ui_Slider2 = NULL;
 
 }

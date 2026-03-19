@@ -19,6 +19,7 @@ void (*App___GUI_GFX_Frame_Ready_CallBack)(uint8_t* buf) = NULL;
 uint8_t (*App___GUI_TS_Get_Point_Callback)(uint16_t* x, uint16_t* y);
 App___Time_TypeDef (*App___Get_Time_Callback)(void);
 App___Date_TypeDef (*App___Get_Date_Callback)(void);
+void (*App___Set_Backlight_Brightness_Callback)(uint16_t level) = NULL;
 
 void (*App___Time_And_Date_Set_Callback)(App___Time_TypeDef time, App___Date_TypeDef date);
 
@@ -176,6 +177,20 @@ void App___Set_Get_Time_CallBack(App___Time_TypeDef (*get_Time_CallBack)(void))
 void App___Set_Get_Date_CallBack(App___Date_TypeDef (*get_Date_CallBack)(void))
 {
 	App___Get_Date_Callback = get_Date_CallBack;
+}
+
+void App___Set_Change_Backlight_Brightness_Callback(void (*callback)(uint16_t))
+{
+	App___Set_Backlight_Brightness_Callback = callback;
+}
+
+void App___Set_Backlight_Brightness(uint16_t level)
+{
+	if(App___Set_Backlight_Brightness_Callback != NULL)
+	{
+		App___Set_Backlight_Brightness_Callback(level);
+	}
+
 }
 
 App___Time_TypeDef App___Get_Time(void)

@@ -119,7 +119,10 @@ uint8_t TS_IO_Read(uint8_t Addr, uint16_t Reg)
 	uint8_t ret;
 	ret = I2C___Read_Reg16(TS___I2C_PORT, Addr, Reg, &temp, 1);
 
-	while(ret);
+	if(ret)
+	{
+		return(0);
+	}
 
 	return(temp);
 }

@@ -105,6 +105,11 @@ void set_Time_And_Date_Callback(App___Time_TypeDef time, App___Date_TypeDef date
 	RTC___Set_Time_And_Date(RTC_Time, RTC_Date);
 }
 
+void set_Backlight_Brightness_Callback(uint16_t brightness)
+{
+	TIM4->CCR2 = brightness;                             // duty 0-1000
+}
+
 // Tclk = 90Mhz
 void TIM4CH2_Init(void)
 {
@@ -162,7 +167,9 @@ int main(void)
 	App___Set_GUI_TS_Get_Point_CallBack(TS_Get_Point_Callback);
 	App___Set_Get_Time_CallBack(get_Time_CallBack);
 	App___Set_Get_Date_CallBack(get_Date_CallBack);
+	App___Set_Change_Backlight_Brightness_Callback(set_Backlight_Brightness_Callback);
 	App___Set_Time_And_Date_Callback(set_Time_And_Date_Callback);
+
 
 	// App init
 
