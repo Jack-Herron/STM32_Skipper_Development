@@ -136,7 +136,7 @@ void App___Frame_Ready(uint8_t* buf);
 void App___Set_GUI_GFX_Frame_Ready_CallBack(void (*frame_Ready_CallBack)(uint8_t* buf));
 void App___GUI_GFX_Buffer_Swap_Ready(void);
 void App___GUI_Set_Dimentions(const uint32_t width, const uint32_t height);
-void App___GUI_Set_Buffers(void* buf1, void* buf2, void* buf3, void* buf4, uint32_t size);
+void App___GUI_Set_Buffers(void* buf1, void* buf2, uint32_t size);
 uint8_t App___GUI_TS_Get_Point(uint16_t* x, uint16_t* y);
 void App___Set_GUI_TS_Get_Point_CallBack(uint8_t (*get_Point_Callback)(uint16_t* x, uint16_t* y));
 void App___Set_Get_Time_CallBack(App___Time_TypeDef (*get_Time_CallBack)(void));

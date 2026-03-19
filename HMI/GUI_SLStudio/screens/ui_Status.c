@@ -49,7 +49,7 @@ void ui_Status_screen_init(void)
     lv_obj_set_style_text_font(ui_Label22, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label23 = lv_label_create(ui_Status);
-    lv_obj_set_width(ui_Label23, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_width(ui_Label23, lv_pct(90));
     lv_obj_set_height(ui_Label23, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_y(ui_Label23, -47);
     lv_obj_set_x(ui_Label23, lv_pct(0));

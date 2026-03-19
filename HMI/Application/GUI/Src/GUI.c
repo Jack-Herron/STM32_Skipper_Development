@@ -88,62 +88,11 @@ static void GUI___LV_Touch_Read_Callback(lv_indev_t * indev, lv_indev_data_t * d
 
 }
 
-#define SRC_W   800
-#define SRC_H   480
-#define DST_W   480
-#define DST_H   800
-#define TILE    16
-
-/*
- * Rotate RGB565 image:
- *   source      = 800 x 480
- *   destination = 480 x 800
- *
- * This version is 90 deg clockwise:
- *   dst_x = 479 - y
- *   dst_y = x
- *
- * src and dst must not overlap.
- */
-
-void rotate_Screen(const uint8_t *src_bytes, uint8_t *dst_bytes)
-{
-	uint32_t time_Start = clock___millis();
-    const uint16_t *src = (const uint16_t *)src_bytes;
-    uint16_t *dst = (uint16_t *)dst_bytes;
-
-    for(int dy = 0; dy < DST_H; dy++)
-    {
-        uint16_t *d = &dst[dy * DST_W];
-        int sx = SRC_W - 1 - dy;   // rightmost column first
-
-        for(int dx = 0; dx < DST_W; dx++)
-        {
-            int sy = dx;
-            d[dx] = src[sy * SRC_W + sx];
-        }
-    }
-
-    uint32_t time_Tota = clock___millis() - time_Start;
-}
-
 static void GUI___LV_Flush_Callback(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map)
 {
 	if(lv_disp_flush_is_last(disp))
 	{
-		uint8_t* src = px_map;
-		uint8_t* dest;
-		if(px_map == App___GUI_Buffer1_Ptr)	// rotate into buffer 3
-		{
-			dest = App___GUI_Buffer3_Ptr;
-		}
-		else	// rotate into buffer 4
-		{
-			dest = App___GUI_Buffer4_Ptr;
-		}
-		rotate_Screen(src, dest);
-
-		App___Frame_Ready(dest);
+		App___Frame_Ready(px_map);
 	}
 	else
 	{
@@ -267,8 +216,8 @@ void GUI___TS_Start_Task(void const * argument)
 		uint16_t new_X;
 		uint16_t new_Y;
 
-		new_X = y;
-		new_Y = 479 - x;
+		new_X = x;
+		new_Y = y;
 
 		App___GUI_TS_Point_TypeDef point;
 
@@ -301,7 +250,7 @@ void GUI___Date_Time_Change_Callback(lv_event_t * e)
 	date.day 	= day_Index+1;
 
 
-	lv_calendar_set_showed_date(uic_Calendar, date.year, date.month);
+    lv_calendar_set_showed_date(uic_Calendar, date.year, date.month);
 	App___Set_Time_And_Date(time, date);
 
 	GUI___Refresh_Time();

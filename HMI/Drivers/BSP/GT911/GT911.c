@@ -66,8 +66,8 @@ void GT911_TS_GetXY(uint16_t DeviceAddr, uint16_t *X, uint16_t *Y)
 	X[0] = 480-((uint16_t)x_Low | ((uint16_t)x_High << 8));
 	Y[0] = 800-((uint16_t)y_Low | ((uint16_t)y_High << 8));
 
-	X_Debug = X[0];
 	Y_Debug = Y[0];
+	X_Debug = X[0];
 
 	TS_IO_Write(DeviceAddr, GT911_READ_XY_REG, 0);
 }

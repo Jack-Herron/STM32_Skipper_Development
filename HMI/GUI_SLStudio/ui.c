@@ -31,7 +31,7 @@ lv_anim_t * DuckAnim_Animation(lv_obj_t * TargetObject, int delay)
     lv_anim_set_time(&PropertyAnimation_0, 30000);
     lv_anim_set_user_data(&PropertyAnimation_0, PropertyAnimation_0_user_data);
     lv_anim_set_custom_exec_cb(&PropertyAnimation_0, _ui_anim_callback_set_x);
-    lv_anim_set_values(&PropertyAnimation_0, -450, 450);
+    lv_anim_set_values(&PropertyAnimation_0, -290, 290);
     lv_anim_set_path_cb(&PropertyAnimation_0, lv_anim_path_linear);
     lv_anim_set_delay(&PropertyAnimation_0, delay + 1000);
     lv_anim_set_deleted_cb(&PropertyAnimation_0, _ui_anim_callback_free_user_data);
@@ -94,9 +94,9 @@ void ui_init(void)
     ui_Main_screen_init();
     ui_Settings_screen_init();
     ui_Statistics_screen_init();
-    ui_Profiles_screen_init();
     ui_Status_screen_init();
     ui_Calendar_screen_init();
+    ui_Profiles_screen_init();
     ui_Water_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
     lv_disp_load_scr(ui_Main);
@@ -107,8 +107,8 @@ void ui_destroy(void)
     ui_Main_screen_destroy();
     ui_Settings_screen_destroy();
     ui_Statistics_screen_destroy();
-    ui_Profiles_screen_destroy();
     ui_Status_screen_destroy();
     ui_Calendar_screen_destroy();
+    ui_Profiles_screen_destroy();
     ui_Water_screen_destroy();
 }

@@ -49,11 +49,12 @@ void ui_Statistics_screen_init(void)
     lv_obj_set_style_text_font(ui_Label18, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Label19 = lv_label_create(ui_Statistics);
-    lv_obj_set_width(ui_Label19, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_width(ui_Label19, lv_pct(90));
     lv_obj_set_height(ui_Label19, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_y(ui_Label19, -47);
     lv_obj_set_x(ui_Label19, lv_pct(0));
     lv_obj_set_align(ui_Label19, LV_ALIGN_CENTER);
+    lv_label_set_long_mode(ui_Label19, LV_LABEL_LONG_SCROLL);
     lv_label_set_text(ui_Label19, "Statistics page not yet implemented");
     lv_obj_set_style_text_font(ui_Label19, &lv_font_montserrat_28, LV_PART_MAIN | LV_STATE_DEFAULT);
 

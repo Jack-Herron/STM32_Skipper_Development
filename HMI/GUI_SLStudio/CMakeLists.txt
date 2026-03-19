@@ -1,14 +1,16 @@
 SET(SOURCES screens/ui_Main.c
     screens/ui_Settings.c
     screens/ui_Statistics.c
-    screens/ui_Profiles.c
     screens/ui_Status.c
     screens/ui_Calendar.c
+    screens/ui_Profiles.c
     screens/ui_Water.c
     ui.c
     components/ui_comp_hook.c
     ui_helpers.c
-    images/ui_img_habonero_icon_scaled_png.c
+    images/ui_img_carolina_reaper_icon_250x250_png.c
+    images/ui_img_statistics_icon_60x60_png.c
+    images/ui_img_settings_icon_60x60_png.c
     images/ui_img_duck_80x80_png.c)
 
 add_library(ui ${SOURCES})

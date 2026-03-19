@@ -155,8 +155,8 @@ int main(void)
 
 	// App setup
 
-	App___GUI_Set_Buffers((void*)0xc0000000, (void*)(0xc0000000 + 768000), (void*)(0xc0000000 + 2*768000), (void*)(0xc0000000 + 3*768000), 768000);
-	App___GUI_Set_Dimentions(800, 480);
+	App___GUI_Set_Buffers((void*)0xc0000000, (void*)(0xc0000000 + 768000), 768000);
+	App___GUI_Set_Dimentions(480, 800);
 	App___Set_GUI_GFX_Frame_Ready_CallBack(frame_Ready_Callback);
 	App___Set_Get_Tick_Callback(tick_Callback);
 	App___Set_GUI_TS_Get_Point_CallBack(TS_Get_Point_Callback);

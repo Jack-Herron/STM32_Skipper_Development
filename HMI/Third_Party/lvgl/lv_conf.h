@@ -623,7 +623,7 @@
 #define LV_FONT_MONTSERRAT_26 1
 #define LV_FONT_MONTSERRAT_28 1
 #define LV_FONT_MONTSERRAT_30 0
-#define LV_FONT_MONTSERRAT_32 0
+#define LV_FONT_MONTSERRAT_32 1
 #define LV_FONT_MONTSERRAT_34 0
 #define LV_FONT_MONTSERRAT_36 1
 #define LV_FONT_MONTSERRAT_38 0
@@ -1068,7 +1068,7 @@
 
     /** 1: Show CPU usage and FPS count.
      *  - Requires `LV_USE_SYSMON = 1` */
-    #define LV_USE_PERF_MONITOR 1
+    #define LV_USE_PERF_MONITOR 0
     #if LV_USE_PERF_MONITOR
         #define LV_USE_PERF_MONITOR_POS LV_ALIGN_BOTTOM_LEFT
 
