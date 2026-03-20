@@ -56,8 +56,11 @@ void TIM2_IRQHandler(void)
 
 void clock___Delay_ms(uint32_t delay)
 {
-	uint32_t current_Millis = clock___Millis_Count;
-	while(clock___Millis_Count != current_Millis + delay);
+	if(delay > 0)
+	{
+		uint32_t current_Millis = clock___Millis_Count;
+		while(clock___Millis_Count != current_Millis + delay);
+	}
 }
 
 void clock___Init()
