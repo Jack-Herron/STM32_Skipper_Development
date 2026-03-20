@@ -122,12 +122,10 @@ void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
 
 void USB_LP_CAN_RX0_IRQHandler(void)
 {
-	if (CAN1->RF0R & CAN_RF0R_FMP0) {                 // if pending message
+	if (CAN1->RF0R & CAN_RF0R_FMP0) {                 			// if pending message
 
 		uint32_t RIR  = CAN1->sFIFOMailBox[0].RIR;
 		uint32_t RDLR = CAN1->sFIFOMailBox[0].RDLR;
-
-
 
 		CAN1->RF0R |= CAN_RF0R_RFOM0;                 			// release FIFO0 output mailbox
 	}

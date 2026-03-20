@@ -23,6 +23,9 @@
 #define CCS___CMD_SETUP_RB			0x09
 #define CCS___CMD_UPDATE_ALL		0x0A
 
+volatile float 	CCS___Channel_Current[7] 	= {0};
+const    uint8_t CCS___Channel[8] 			= {0,6,1,4,2,5,3,7};
+
 void CCS___GPIO_Init()
 {
 	RCC->APB2ENR |= RCC_APB2ENR_IOPBEN;
@@ -66,14 +69,15 @@ void CCS___Deselect_CS()
 
 void CCS___Write_Channel(uint8_t channel, float C_Set)
 {
+
 	if((C_Set >= 0.0f) && (C_Set <= CCS___MAX_CURRENT))
 	{
 		CCS___Select_CS();
-
+		CCS___Channel_Current[channel] = C_Set;
 		uint8_t tx[3];
 		uint16_t C_Code = (uint16_t)(((C_Set/2.5f)*4095.0f) + 0.5f);
 		uint16_t packet = (C_Code << 4);
-		tx[0] = (CCS___CMD_WRITE_AND_UPDATE << 4) | (channel & 0xf);
+		tx[0] = (CCS___CMD_WRITE_AND_UPDATE << 4) | (CCS___Channel[channel] & 0xf);
 		tx[1] = ((packet & 0xff00) >> 8);
 		tx[2] = (packet & 0xff);
 
@@ -86,9 +90,17 @@ void CCS___Write_Channel(uint8_t channel, float C_Set)
 	}
 }
 
+float CCS___Get_Channel_Current(uint8_t channel)
+{
+	return(CCS___Channel_Current[channel]);
+}
+
 void CCS___Init()
 {
 	CCS___GPIO_Init();
 	CCS___Reset();
-
+	for(uint8_t i = 0; i < CCS___NUM_CHANNELS; i++)
+	{
+		CCS___Write_Channel(i, CCS___RESET_VALUE);
+	}
 }

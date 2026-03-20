@@ -9,7 +9,9 @@
 #include "stm32f1xx.h"
 #include "ADC.h"
 
-volatile uint16_t ADC_Channel[9];
+volatile uint16_t 	ADC___Channel_Value[9];
+const 	 uint8_t 	ADC___Channel[9] = {0,6,1,5,2,4,3,7,8};
+
 
 void ADC___GPIO_Init()
 {
@@ -36,7 +38,7 @@ void ADC___DMA_Init()
 
     DMA1_Channel1->CCR &= ~DMA_CCR_EN;   // disable before config
     DMA1_Channel1->CPAR  = (uint32_t)&ADC1->DR;
-    DMA1_Channel1->CMAR  = (uint32_t)ADC_Channel;
+    DMA1_Channel1->CMAR  = (uint32_t)ADC___Channel_Value;
     DMA1_Channel1->CNDTR = 9;
 
     DMA1_Channel1->CCR =
@@ -106,7 +108,7 @@ void ADC___Init(void)
 
 float ADC___Get_Voltage(uint8_t channel)
 {
-	uint16_t code = ADC_Channel[channel];
+	uint16_t code = ADC___Channel_Value[ADC___Channel[channel]];
 	float voltage;
 
 	if(channel != 8)

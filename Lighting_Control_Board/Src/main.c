@@ -7,11 +7,9 @@
 #include "CCS.h"
 #include "CAN.h"
 #include "ADC.h"
+#include "main.h"
 
-#define test_Current 0.18f
-
-uint8_t LED[7] = {0,1,2,3,5,4,6};
-uint8_t ADC[7] = {0,1,2,3,4,5,6};
+#define test_Current 0.05f
 
 float measure_Vf(uint8_t channel, float current)
 {
@@ -20,17 +18,35 @@ float measure_Vf(uint8_t channel, float current)
 	float channel_Voltage = 60.0;
 	float gen_Voltage;
 
-	while(channel_Voltage > 1.0f + test_Current)
+	while(channel_Voltage > CCS___OVERHEAD_VOLTAGE + test_Current)
 	{
-		CCS___Write_Channel(LED[channel], current);
+		CCS___Write_Channel(channel, current);
 		clock___Delay_ms(125);
-		gen_Voltage = ADC___Get_Voltage(8);
-		channel_Voltage = ADC___Get_Voltage(ADC[channel]);
-		CCS___Write_Channel(LED[channel], 0);
+		gen_Voltage = ADC___Get_Voltage(ADC___BOOST);
+		channel_Voltage = ADC___Get_Voltage(channel);
+		CCS___Write_Channel(channel, 0);
 		boost_Voltage -= 0.1;
 		boost___Set_Voltage(boost_Voltage);
 	}
 	return(gen_Voltage - channel_Voltage);
+}
+
+void TIM5_Init(void)
+{
+    RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;   // Enable TIM5 clock
+
+    TIM3->CR1 = 0;                        // Upcounting, edge-aligned, disabled during setup
+    TIM3->PSC = 71;                       // 72 MHz / (71 + 1) = 1 MHz
+    TIM3->ARR = 99999;                    // 1 MHz / (99999 + 1) = 10 Hz (100 ms)
+
+    TIM3->CNT = 0;                        // Clear counter
+
+    TIM3->DIER |= TIM_DIER_UIE;           // Enable update interrupt
+    TIM3->EGR |= TIM_EGR_UG;              // Load prescaler immediately
+
+    NVIC_EnableIRQ(TIM3_IRQn);            // Enable TIM5 interrupt
+
+    TIM3->CR1 |= TIM_CR1_CEN;             // Start timer
 }
 
 int main(void)
@@ -40,7 +56,9 @@ int main(void)
 	boost___Init();
 	CCS___Init();
 	CAN___Init();
+	CAN___Accept_All_Messages();
 	ADC___Init();
+	TIM5_Init();
 
 	CCS___Write_Channel(0, 0);
 	CCS___Write_Channel(1, 0);
@@ -65,6 +83,7 @@ int main(void)
 	{
 		printf("Channel %d forward voltage = %0.3f\n", i, measure_Vf(i, test_Current));
 	}
+
 	for(;;)
 	{
 		/*
@@ -110,4 +129,22 @@ int main(void)
 		}
 		*/
 	}
+}
+
+uint8_t x =0;
+void TIM3_IRQHandler(void)				// 10Hz CAN status interrupt
+{
+    if (TIM3->SR & TIM_SR_UIF)
+    {
+        TIM3->SR &= ~TIM_SR_UIF;          // Clear interrupt flag
+
+        CAN_Tansmit_TypeDef payload;
+        payload.ID = CAN_ID_LIGHT_LEVEL_STATUS;
+        payload.data_Length = 7;
+        for(uint8_t i = 0; i < 7; i++)
+        {
+        	payload.data[i] = (uint8_t)((CCS___Get_Channel_Current(i) / CCS___MAX_CURRENT) * 100.0f);
+        }
+        CAN___Transmit(payload);
+    }
 }
