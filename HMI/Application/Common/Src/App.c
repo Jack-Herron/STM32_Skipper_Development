@@ -20,7 +20,6 @@ uint8_t (*App___GUI_TS_Get_Point_Callback)(uint16_t* x, uint16_t* y);
 App___Time_TypeDef (*App___Get_Time_Callback)(void);
 App___Date_TypeDef (*App___Get_Date_Callback)(void);
 void (*App___Set_Backlight_Brightness_Callback)(uint16_t level) = NULL;
-
 void (*App___Time_And_Date_Set_Callback)(App___Time_TypeDef time, App___Date_TypeDef date);
 
 volatile App___Profiles_State_TypeDef 		App___Profiles_State;
@@ -46,8 +45,8 @@ osMutexDef(App___PROFILES_STATE_MUTEX);
 
 // Declare thread handles
 
-osThreadId control_Task_Handle;
-osThreadId sensor_Task_Handle;
+osThreadId TX_Task_Handle;
+osThreadId RX_Task_Handle;
 osThreadId profiles_Task_Handle;
 osThreadId TS_Task_Handle;
 osThreadId GFX_Task_Handle;
@@ -66,11 +65,11 @@ void App___Init(void)
 {
 	// Create threads
 
-	osThreadDef(sensorTask, IO___Sensor_Start_Task, osPriorityNormal, 0, 512);
-	sensor_Task_Handle = osThreadCreate(osThread(sensorTask), NULL);
+	osThreadDef(TXTask, IO___TX_Start_Task, osPriorityNormal, 0, 512);
+	TX_Task_Handle = osThreadCreate(osThread(TXTask), NULL);
 
-	osThreadDef(controlTask, IO___Control_Start_Task, osPriorityNormal, 0, 512);
-	control_Task_Handle = osThreadCreate(osThread(controlTask), NULL);
+	osThreadDef(RXTask, IO___RX_Start_Task, osPriorityNormal, 0, 512);
+	RX_Task_Handle = osThreadCreate(osThread(RXTask), NULL);
 
 	osThreadDef(profilesTask, Profiles___Start_Task, osPriorityNormal, 0, 4096);
 	profiles_Task_Handle = osThreadCreate(osThread(profilesTask), NULL);
@@ -83,8 +82,8 @@ void App___Init(void)
 
 	// Register Mutexes
 
-	App___IO_Control_State_Mutex 	= osMutexCreate(osMutex(App___IO_CONTROL_STATE_MUTEX));
-	App___IO_Sensor_State_Mutex 	= osMutexCreate(osMutex(App___IO_SENSOR_STATE_MUTEX));
+	App___IO_TX_State_Mutex 		= osMutexCreate(osMutex(App___IO_TX_STATE_MUTEX));
+	App___IO_RX_State_Mutex 		= osMutexCreate(osMutex(App___IO_RX_STATE_MUTEX));
 	App___GUI_GFX_State_Mutex 		= osMutexCreate(osMutex(App___GUI_GFX_STATE_MUTEX));
 	App___GUI_TS_State_Mutex 		= osMutexCreate(osMutex(App___GUI_TS_STATE_MUTEX));
 	App___Profiles_State_Mutex 		= osMutexCreate(osMutex(App___PROFILES_STATE_MUTEX));
@@ -94,14 +93,19 @@ void App___Init(void)
 	osSignalSet(GFX_Task_Handle, 		APP___GUI_GFX_TASK_START_FLAG);
 	osSignalSet(profiles_Task_Handle, 	APP___PROFILES_TASK_START_FLAG);
 	osSignalSet(TS_Task_Handle, 		APP___GUI_TS_TASK_START_FLAG);
-	osSignalSet(sensor_Task_Handle, 	APP___SENSOR_TASK_START_FLAG);
-	osSignalSet(control_Task_Handle, 	APP___CONTROL_TASK_START_FLAG);
+	osSignalSet(RX_Task_Handle, 		APP___IO_RX_TASK_START_FLAG);
+	osSignalSet(TX_Task_Handle, 		APP___IO_TX_TASK_START_FLAG);
 
 }
 
 void App___GUI_TS_Event_Detected()
 {
 	osSignalSet(TS_Task_Handle, APP___GUI_TS_EVENT_FLAG);
+}
+
+void App___IO_Message_Received()
+{
+	//osSignalSet(IO_Task_Handle, APP___GUI_TS_EVENT_FLAG);
 }
 
 void App___Frame_Ready(uint8_t* buf)

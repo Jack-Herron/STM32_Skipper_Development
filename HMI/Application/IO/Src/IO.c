@@ -11,9 +11,9 @@
 #include "IO.h"
 #include "cmsis_os.h"
 
-void IO___Sensor_Start_Task(void const * argument)
+void IO___RX_Start_Task(void const * argument)
 {
-	osSignalWait(APP___SENSOR_TASK_START_FLAG, osWaitForever);
+	osSignalWait(APP___IO_RX_TASK_START_FLAG, osWaitForever);
 
 	for(;;)
 	{
@@ -21,9 +21,9 @@ void IO___Sensor_Start_Task(void const * argument)
 	}
 }
 
-void IO___Control_Start_Task(void const * argument)
+void IO___TX_Start_Task(void const * argument)
 {
-	osSignalWait(APP___CONTROL_TASK_START_FLAG, osWaitForever);
+	osSignalWait(APP___IO_TX_TASK_START_FLAG, osWaitForever);
 
 	for(;;)
 	{

@@ -112,7 +112,8 @@ void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
 
 void CAN2_RX0_IRQHandler(void)
 {
-	if (CAN2->RF0R & CAN_RF0R_FMP0) {                 // if pending message
+	if (CAN2->RF0R & CAN_RF0R_FMP0)
+		{                 // if pending message
 
 		uint32_t RIR  = CAN2->sFIFOMailBox[0].RIR;
 		uint32_t data[2];
