@@ -120,11 +120,11 @@ void GUI___LV_Flush_wait_Callback(lv_display_t * disp)
 // TODO rename this function
 void GUI_Toggle_Bright_Mode(lv_event_t * e)
 {
-	osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+	osMutexWait(App___Profiles_State_Mutex, osWaitForever);
 
-	//App___IO_Control_State.lighting.mode ^=1;
+	App___Profiles_State.lighting_Mode ^= 1;
 
-	osMutexRelease(App___IO_Control_State_Mutex);
+	osMutexRelease(App___Profiles_State_Mutex);
 }
 
 void GUI___Refresh_Lighting_Indicators(void)

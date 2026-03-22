@@ -20,6 +20,8 @@
 
 void RTC___Disable_Write_Protection(void)
 {
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;
+
 	PWR -> CR 		|= PWR_CR_DBP;							// Unblock backupdomain writes
 
 	RTC->WPR = 0xCA;										// key to unlock RTC write (see ref manual)
@@ -28,8 +30,8 @@ void RTC___Disable_Write_Protection(void)
 
 void RTC___Enable_Write_Protection(void)
 {
-	RTC->WPR = 0x00;										// re-lock
-	PWR -> CR 		|= PWR_CR_DBP;							// Reblock
+	RTC->WPR = 0xFF;                 // re-enable RTC write protection
+	PWR->CR &= ~PWR_CR_DBP;          // disable backup domain write access
 }
 
 void RTC___Enter_Init_Mode(void)
@@ -47,27 +49,27 @@ void RTC___Init(void)
 {
 	Clock___RTC_Init(1);
 
-	RTC___Date_TypeDef date;
-	RTC___Time_TypeDef time;
+	//RTC___Date_TypeDef date;
+	//RTC___Time_TypeDef time;
 
-	date.day = RTC___INIT_DAY;
-	date.month = RTC___INIT_MONTH;
-	date.year = RTC___INIT_YEAR;
+	//date.day = RTC___INIT_DAY;
+	//date.month = RTC___INIT_MONTH;
+	//date.year = RTC___INIT_YEAR;
 
-	time.hour = RTC___INIT_HOUR;
-	time.minute = RTC___INIT_MINUTE;
-	time.second = RTC___INIT_SECOND;
-	time.pm = RTC___INIT_AMPM;
+	//time.hour = RTC___INIT_HOUR;
+	//time.minute = RTC___INIT_MINUTE;
+	//time.second = RTC___INIT_SECOND;
+	//time.pm = RTC___INIT_AMPM;
 
-	RTC___Set_Time_And_Date(time, date);
+	//RTC___Set_Time_And_Date(time, date);
 
-	RTC___Disable_Write_Protection();
-	RTC___Enter_Init_Mode();
+	//RTC___Disable_Write_Protection();
+	//RTC___Enter_Init_Mode();
 
-	RTC -> CR |= RTC_CR_FMT;
+	//RTC -> CR |= RTC_CR_FMT;
 
-	RTC___Exit_Init_Mode();
-	RTC___Enable_Write_Protection();
+	//RTC___Exit_Init_Mode();
+	//RTC___Enable_Write_Protection();
 }
 
 RTC___Time_TypeDef RTC___Get_Time(void)

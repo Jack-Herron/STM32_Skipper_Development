@@ -91,18 +91,22 @@ void clock_Init(void)
 
 void Clock___RTC_Init(uint8_t src)
 {
-	RCC->APB1ENR |= RCC_APB1ENR_PWREN; 				// Enable Power interface clock
+	RCC->APB1ENR |= RCC_APB1ENR_PWREN;   // Enable Power interface clock
+	PWR->CR |= PWR_CR_DBP;               // Enable backup domain access
 
-	PWR -> CR 		|= PWR_CR_DBP;					// Unblock backupdomain writes
-	RCC -> BDCR 	|= RCC_BDCR_BDRST;				// reset clock backup domain
-	RCC -> BDCR 	&= ~RCC_BDCR_BDRST;
+	// If RTC is not already enabled, configure it
+	if ((RCC->BDCR & RCC_BDCR_RTCEN) == 0)
+	{
+		RCC->BDCR |= RCC_BDCR_LSEON;                  // turn on LSE
+		while ((RCC->BDCR & RCC_BDCR_LSERDY) == 0);  // wait for ready
 
-	RCC -> BDCR		|= RCC_BDCR_LSEON;				// turn on LSE
-	while(!((RCC->BDCR) & RCC_BDCR_LSERDY));		// wait for confirmation
+		RCC->BDCR &= ~RCC_BDCR_RTCSEL;               // clear old source
+		RCC->BDCR |= ((uint32_t)src << RCC_BDCR_RTCSEL_Pos);
 
-	RCC -> BDCR		|= src << RCC_BDCR_RTCSEL_Pos;	// set RTC source
-	RCC -> BDCR		|= RCC_BDCR_RTCEN;				// enable RTC
-	PWR -> CR 		&= ~PWR_CR_DBP;					// reblock backup domain writes
+		RCC->BDCR |= RCC_BDCR_RTCEN;                 // enable RTC
+	}
+
+	PWR->CR &= ~PWR_CR_DBP;              // disable backup domain access
 }
 
 void TIM2_IRQHandler(void) {

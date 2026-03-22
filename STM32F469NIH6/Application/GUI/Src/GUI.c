@@ -176,6 +176,8 @@ void GUI___Refresh_Time()
 		.day	= date.day
 	};
 
+
+	lv_calendar_set_showed_date(uic_Calendar, date.year, date.month);
 	lv_calendar_set_today_date(uic_Calendar, shown_date.year, shown_date.month, shown_date.day);
 
 	char time_Str[32];
@@ -187,6 +189,8 @@ void GUI___Refresh_Time()
 	GUI___Set_Text_If_Changed(uic_Graph_3HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 3), time.minute, 2, time_Str));
 	GUI___Set_Text_If_Changed(uic_Graph_2HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 2), time.minute, 2, time_Str));
 	GUI___Set_Text_If_Changed(uic_Graph_1HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 1), time.minute, 2, time_Str));
+
+
 
 	GUI___Set_Text_If_Changed(uic_Main_Clock, GUI___Formated_Time_String(time.hour, time.minute, time.pm, time_Str));
 	_ui_label_set_property(uic_Calendar_Clock, 0, time_Str);
@@ -231,12 +235,12 @@ void GUI___TS_Start_Task(void const * argument)
 
 void GUI___Date_Time_Change_Callback(lv_event_t * e)
 {
-	uint16_t month_Index = lv_roller_get_selected(uic_DT_Selector_Month);		// starts at 0:	Jan
-	uint16_t day_Index = lv_roller_get_selected(uic_DT_Selector_Day);			// starts at 0: 1
-	uint16_t year_Index = lv_roller_get_selected(uic_DT_Selector_Year);			// starts at 0: 2000
-	uint16_t hour_Index = lv_roller_get_selected(uic_DT_Selector_Hour);			// starts at 0: 1
-	uint16_t minute_Index = lv_roller_get_selected(uic_DT_Selector_Minute);		// starts at 0: 0
-	uint16_t AMPM_Index = lv_roller_get_selected(uic_DT_Selector_AMPM);			// starts at 0: AM
+	uint16_t month_Index 	= lv_roller_get_selected(uic_DT_Selector_Month);		// starts at 0:	Jan
+	uint16_t day_Index 		= lv_roller_get_selected(uic_DT_Selector_Day);			// starts at 0: 1
+	uint16_t year_Index 	= lv_roller_get_selected(uic_DT_Selector_Year);			// starts at 0: 2000
+	uint16_t hour_Index 	= lv_roller_get_selected(uic_DT_Selector_Hour);			// starts at 0: 1
+	uint16_t minute_Index 	= lv_roller_get_selected(uic_DT_Selector_Minute);		// starts at 0: 0
+	uint16_t AMPM_Index 	= lv_roller_get_selected(uic_DT_Selector_AMPM);			// starts at 0: AM
 
 	App___Time_TypeDef time;
 	time.hour 	= hour_Index + 1;

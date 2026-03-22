@@ -9,7 +9,11 @@
 #include "ADC.h"
 #include "main.h"
 
-#define test_Current 250
+#define test_Current 		250
+#define HEADROOM_LOW		2.7f
+#define HEADROOM_HIGH		3.3f
+#define BOOST_STEP_UP       0.1f
+#define BOOST_STEP_DOWN     0.1f
 
 uint8_t setup_Complete = 0;
 
@@ -72,6 +76,24 @@ void RX_Callback(CAN___Receive_TypeDef packet)
 	}
 }
 
+float get_Lowest_CC_Voltage()
+{
+	float channels[7] = {0};
+	for(uint8_t i = 0; i < 7; i++)
+	{
+		channels[i] = ADC___Get_Voltage(i) - CCS___Get_Channel_Current(i);
+	}
+	float ret = 100.0;
+	for(uint8_t i = 0; i < 7; i++)
+	{
+		if(channels[i] < ret)
+		{
+			ret = channels[i];
+		}
+	}
+	return(ret);
+}
+
 int main(void)
 {
 	clock___Init();
@@ -104,55 +126,29 @@ int main(void)
 	boost___Enable();
 
 	setup_Complete = 1;
-	/*for(uint8_t i = 0; i < 7; i++)
-	{
-		printf("Channel %d forward voltage = %0.3f\n", i, measure_Vf(i, test_Current));
-	}*/
+
+	float boost_cmd = 58.0f;   // start high
 
 	for(;;)
 	{
-		/*
-		for(uint8_t i = 0; i < 7; i++)
-		{
-			for(uint8_t j = 0; j < test_Current; j++)
-			{
-				CCS___Write_Channel(i, (float)j * 0.001f);
-				clock___Delay_ms(5);
-			}
-			clock___Delay_ms(5);
-			for(uint8_t j = test_Current; j > 0; j--)
-			{
-				CCS___Write_Channel(i, (float)j * 0.001f);
-				clock___Delay_ms(5);
-			}
-		}*/
-		/*
-		for(uint8_t j = 0; j < test_Current; j++)
-		{
-			CCS___Write_Channel(0, (float)j * 0.001f);
-			CCS___Write_Channel(1, (float)j * 0.001f);
-			CCS___Write_Channel(2, (float)j * 0.001f);
-			CCS___Write_Channel(3, (float)j * 0.001f);
-			CCS___Write_Channel(4, (float)j * 0.001f);
-			CCS___Write_Channel(5, (float)j * 0.001f);
-			CCS___Write_Channel(6, (float)j * 0.001f);
-			CCS___Write_Channel(7, (float)j * 0.001f);
-			clock___Delay_ms(20);
-		}
-		clock___Delay_ms(10);
-		for(uint8_t j = test_Current; j > 0; j--)
-		{
-			CCS___Write_Channel(0, (float)j * 0.001f);
-			CCS___Write_Channel(1, (float)j * 0.001f);
-			CCS___Write_Channel(2, (float)j * 0.001f);
-			CCS___Write_Channel(3, (float)j * 0.001f);
-			CCS___Write_Channel(4, (float)j * 0.001f);
-			CCS___Write_Channel(5, (float)j * 0.001f);
-			CCS___Write_Channel(6, (float)j * 0.001f);
-			CCS___Write_Channel(7, (float)j * 0.001f);
-			clock___Delay_ms(20);
-		}*/
+	    float V_min = get_Lowest_CC_Voltage();
 
+	    if(V_min < HEADROOM_LOW)
+	    {
+	        boost_cmd += BOOST_STEP_UP;     // increase
+	    }
+	    else if(V_min > HEADROOM_HIGH)
+	    {
+	        boost_cmd -= BOOST_STEP_DOWN;   // reduce
+	    }
+
+	    // clamp
+	    if(boost_cmd > V_FULLSCALE) boost_cmd = V_FULLSCALE;
+	    if(boost_cmd < V_ZEROSCALE) boost_cmd = V_ZEROSCALE;
+
+	    boost___Set_Voltage(boost_cmd);
+
+	    clock___Delay_ms(50);   // ~20 Hz loop
 	}
 }
 

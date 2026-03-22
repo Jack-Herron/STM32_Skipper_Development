@@ -18,16 +18,29 @@ void Profiles___Start_Task(void const * argument)
 	for(;;)
 	{
 		// simulated profile reads
-		osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+		osMutexWait(App___Profiles_State_Mutex, osWaitForever);
 
-		App___IO_Control_State.lighting.white 		= 3;
-		App___IO_Control_State.lighting.purple 		= 3;
-		App___IO_Control_State.lighting.lime 		= 3;
-		App___IO_Control_State.lighting.red 		= 3;
-		App___IO_Control_State.lighting.far_Red 	= 3;
+		if(App___Profiles_State.lighting_Mode == 0)
+		{
+			osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
 
-		osMutexRelease(App___IO_Control_State_Mutex);
+			App___IO_Control_State.lighting.white 		= 30;
+			App___IO_Control_State.lighting.purple 		= 60;
+			App___IO_Control_State.lighting.lime 		= 80;
+			App___IO_Control_State.lighting.red 		= 80;
+			App___IO_Control_State.lighting.far_Red 	= 60;
 
+			osMutexRelease(App___IO_Control_State_Mutex);
+		}
+		else
+		{
+			App___IO_Control_State.lighting.white 		= 80;
+			App___IO_Control_State.lighting.purple 		= 0;
+			App___IO_Control_State.lighting.lime 		= 0;
+			App___IO_Control_State.lighting.red 		= 0;
+			App___IO_Control_State.lighting.far_Red 	= 0;
+		}
+		osMutexRelease(App___Profiles_State_Mutex);
 		//TODO implement QSPI + littlefs reads
 		osDelay(100);
 	}
