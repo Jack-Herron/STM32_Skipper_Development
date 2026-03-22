@@ -11,7 +11,7 @@
 typedef struct
 {
 	uint16_t ID;
-	uint8_t* data;
+	uint8_t data[8];
 	uint8_t data_Length;
 
 }CAN___Transmit_TypeDef;

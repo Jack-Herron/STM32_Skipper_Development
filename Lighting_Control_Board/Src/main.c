@@ -11,6 +11,8 @@
 
 #define test_Current 250
 
+uint8_t setup_Complete = 0;
+
 float measure_Vf(uint8_t channel, float current)
 {
 	float boost_Voltage = 60.0;
@@ -49,6 +51,27 @@ void TIM5_Init(void)
     TIM3->CR1 |= TIM_CR1_CEN;             // Start timer
 }
 
+void write_Channels(uint8_t* data)
+{
+	for(uint8_t i = 0; i < 7; i++)
+	{
+		if(setup_Complete)
+		{
+			CCS___Write_Channel(i, ((float)data[i] * 2.5f * 0.001f));
+		}
+	}
+}
+
+void RX_Callback(CAN___Receive_TypeDef packet)
+{
+	switch(packet.ID)
+	{
+	case 0x100:
+		write_Channels(packet.data);
+		break;
+	}
+}
+
 int main(void)
 {
 	clock___Init();
@@ -57,6 +80,7 @@ int main(void)
 	CCS___Init();
 	CAN___Init();
 	CAN___Accept_All_Messages();
+	CAN___Set_RX_Callback(RX_Callback);
 	ADC___Init();
 	TIM5_Init();
 
@@ -79,6 +103,7 @@ int main(void)
 	indicate___Set_Value(7);
 	boost___Enable();
 
+	setup_Complete = 1;
 	/*for(uint8_t i = 0; i < 7; i++)
 	{
 		printf("Channel %d forward voltage = %0.3f\n", i, measure_Vf(i, test_Current));
@@ -86,7 +111,7 @@ int main(void)
 
 	for(;;)
 	{
-
+		/*
 		for(uint8_t i = 0; i < 7; i++)
 		{
 			for(uint8_t j = 0; j < test_Current; j++)
@@ -100,7 +125,7 @@ int main(void)
 				CCS___Write_Channel(i, (float)j * 0.001f);
 				clock___Delay_ms(5);
 			}
-		}
+		}*/
 		/*
 		for(uint8_t j = 0; j < test_Current; j++)
 		{

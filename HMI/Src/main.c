@@ -83,7 +83,7 @@ uint8_t TS_Get_Point_Callback(uint16_t* x, uint16_t* y)
 
 void CAN_Transmit_Callback(App___IO_TX_Data_Typedef packet)
 {
-	CAN___Transmit_TypeDef CAN_Packet;
+	CAN___Transmit_TypeDef CAN_Packet = {0};
 
 	CAN_Packet.ID = packet.ID;
 	CAN_Packet.data_Length = packet.data_Length;
@@ -198,7 +198,7 @@ int main(void)
 	App___Set_Get_Date_CallBack(get_Date_CallBack);
 	App___Set_Change_Backlight_Brightness_Callback(set_Backlight_Brightness_Callback);
 	App___Set_Time_And_Date_Callback(set_Time_And_Date_Callback);
-	APP___Set_Transmit_Callback(CAN_Transmit_Callback);
+	App___Set_Transmit_Callback(CAN_Transmit_Callback);
 
 	// App init
 

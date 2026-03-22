@@ -54,7 +54,7 @@ typedef struct
 
 typedef struct
 {
-	uint8_t ID;
+	uint16_t ID;
 	uint8_t data[8];
 	uint8_t data_Length;
 } App___IO_TX_Data_Typedef;
@@ -65,17 +65,19 @@ typedef struct {
 	uint8_t 	lime;
 	uint8_t 	purple;
 	uint8_t 	far_Red;
-} App___IO_Sense_Lighting_State_TypeDef;
+} App___IO_Lighting_TypeDef;
+
+
 
 typedef struct {
-	//App___IO_Control_Lighting_State_TypeDef lighting;
+	App___IO_Lighting_TypeDef lighting;
 } App___IO_Control_State_TypeDef;
 
 typedef struct {
 	App___IO_RX_Data_Typedef 				RX_Buffer[APP___IO_RX_FIFO_DEPTH];
 	volatile uint32_t						RX_Buffer_Head;
 	volatile uint32_t 						RX_Buffer_Tail;
-	App___IO_Sense_Lighting_State_TypeDef 	lighting_Status;
+	App___IO_Lighting_TypeDef 				lighting_Status;
 } App___IO_Sense_State_TypeDef;
 
 // GUI typedefs
@@ -167,5 +169,7 @@ void 				App___Set_Change_Backlight_Brightness_Callback	(void (*callback)(uint16
 void 				App___Set_Backlight_Brightness					(uint16_t level);
 uint32_t			App___Get_Tick									(void);
 void 				App___IO_Data_Received							(App___IO_RX_Data_Typedef* packet);
-void 				APP___Set_Transmit_Callback						(void (*callback)(App___IO_TX_Data_Typedef));
+void 				App___Set_Transmit_Callback						(void (*callback)(App___IO_TX_Data_Typedef));
+void 				App___Transmit									(App___IO_TX_Data_Typedef packet);
+
 #endif /* COMMON_INC_APP_H_ */

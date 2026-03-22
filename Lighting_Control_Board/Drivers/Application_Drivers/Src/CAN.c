@@ -6,10 +6,12 @@
  */
 
 #include "stm32f1xx.h"
+#include <stdlib.h>
 #include "CAN.h"
 
+void (*CAN___RX_Callback)(CAN___Receive_TypeDef) = NULL;
 
-//#if CAN___ENABLE_STDIO == 1
+#if CAN___ENABLE_STDIO == 1
 	int _write(int file __attribute__((unused)), char *data, int len)
 	{
 		CAN_Tansmit_TypeDef packet;
@@ -41,7 +43,7 @@
 
 		return len;
 	}
-//#endif
+#endif
 
 void CAN___GPIO_Init(void)
 {
@@ -120,13 +122,34 @@ void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
 	CAN1->sTxMailBox[0].TIR |= CAN_TI1R_TXRQ;									// request to send
 }
 
+void CAN___Set_RX_Callback(void (*callback)(CAN___Receive_TypeDef))
+{
+	CAN___RX_Callback = callback;
+}
+
 void USB_LP_CAN_RX0_IRQHandler(void)
 {
 	if (CAN1->RF0R & CAN_RF0R_FMP0) {                 			// if pending message
 
 		uint32_t RIR  = CAN1->sFIFOMailBox[0].RIR;
-		uint32_t RDLR = CAN1->sFIFOMailBox[0].RDLR;
+		uint32_t data[2];
+		data[0] = CAN1->sFIFOMailBox[0].RDLR;
+		data[1] = CAN1->sFIFOMailBox[0].RDHR;
 
+		uint32_t RDTR = CAN1->sFIFOMailBox[0].RDTR;
+
+		uint16_t ID = ((RIR & CAN_RI0R_STID_Msk) >> CAN_RI0R_STID_Pos);
+		uint16_t data_Length = ((RDTR & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos);
+
+		CAN___Receive_TypeDef RX_Payload;
+		RX_Payload.ID = ID;
+		RX_Payload.data = (uint8_t*)data;
+		RX_Payload.data_Length = data_Length;
+
+		if(CAN___RX_Callback != NULL)
+		{
+			CAN___RX_Callback(RX_Payload);
+		}
 		CAN1->RF0R |= CAN_RF0R_RFOM0;                 			// release FIFO0 output mailbox
 	}
 }

@@ -92,13 +92,39 @@ void IO___Sense_Start_Task(void const * argument)
 	}
 }
 
+void IO___Send_Lighting_Packet()
+{
+	App___IO_TX_Data_Typedef packet = {0};
+	packet.ID = 0x100;
+	packet.data_Length = 0x07;
+
+	osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+
+	packet.data[0] = App___IO_Control_State.lighting.white;
+	packet.data[1] = App___IO_Control_State.lighting.white;
+	packet.data[2] = App___IO_Control_State.lighting.red;
+	packet.data[3] = App___IO_Control_State.lighting.red;
+	packet.data[4] = App___IO_Control_State.lighting.lime;
+	packet.data[5] = App___IO_Control_State.lighting.purple;
+	packet.data[6] = App___IO_Control_State.lighting.far_Red;
+
+	osMutexRelease(App___IO_Control_State_Mutex);
+
+	App___Transmit(packet);
+}
+
+void IO___Send_Packets()
+{
+	IO___Send_Lighting_Packet();
+}
+
 void IO___Control_Start_Task(void const * argument)
 {
 	osSignalWait(APP___IO_CONTROL_TASK_START_FLAG, osWaitForever);
 
 	for(;;)
 	{
-
+		IO___Send_Packets();
 		osDelay(100);
 	}
 }

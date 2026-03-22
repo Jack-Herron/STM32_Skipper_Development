@@ -242,7 +242,15 @@ void App___Set_Time_And_Date(App___Time_TypeDef time, App___Date_TypeDef date)
 		App___Time_And_Date_Set_Callback(time, date);
 	}
 }
-void APP___Set_Transmit_Callback(void (*callback)(App___IO_TX_Data_Typedef))
+void App___Set_Transmit_Callback(void (*callback)(App___IO_TX_Data_Typedef))
 {
+	App___Transmit_Callback = callback;
+}
 
+void App___Transmit(App___IO_TX_Data_Typedef packet)
+{
+	if(App___Transmit_Callback != NULL)
+	{
+		App___Transmit_Callback(packet);
+	}
 }
