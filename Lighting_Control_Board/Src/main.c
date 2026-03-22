@@ -9,7 +9,7 @@
 #include "ADC.h"
 #include "main.h"
 
-#define test_Current 0.05f
+#define test_Current 250
 
 float measure_Vf(uint8_t channel, float current)
 {
@@ -69,7 +69,7 @@ int main(void)
 	CCS___Write_Channel(6, 0);
 	CCS___Write_Channel(7, 0);
 
-	boost___Set_Voltage(50.0);
+	boost___Set_Voltage(58.0);
 
 	clock___Delay_ms(1000);
 	indicate___Set_Value(1);
@@ -79,29 +79,29 @@ int main(void)
 	indicate___Set_Value(7);
 	boost___Enable();
 
-	for(uint8_t i = 0; i < 7; i++)
+	/*for(uint8_t i = 0; i < 7; i++)
 	{
 		printf("Channel %d forward voltage = %0.3f\n", i, measure_Vf(i, test_Current));
-	}
+	}*/
 
 	for(;;)
 	{
-		/*
+
 		for(uint8_t i = 0; i < 7; i++)
 		{
 			for(uint8_t j = 0; j < test_Current; j++)
 			{
-				CCS___Write_Channel(LED[i], (float)j * 0.001f);
-				clock___Delay_ms(10);
+				CCS___Write_Channel(i, (float)j * 0.001f);
+				clock___Delay_ms(5);
 			}
-			clock___Delay_ms(10*test_Current);
+			clock___Delay_ms(5);
 			for(uint8_t j = test_Current; j > 0; j--)
 			{
-				CCS___Write_Channel(LED[i], (float)j * 0.001f);
-				clock___Delay_ms(10);
+				CCS___Write_Channel(i, (float)j * 0.001f);
+				clock___Delay_ms(5);
 			}
 		}
-
+		/*
 		for(uint8_t j = 0; j < test_Current; j++)
 		{
 			CCS___Write_Channel(0, (float)j * 0.001f);
@@ -112,9 +112,9 @@ int main(void)
 			CCS___Write_Channel(5, (float)j * 0.001f);
 			CCS___Write_Channel(6, (float)j * 0.001f);
 			CCS___Write_Channel(7, (float)j * 0.001f);
-			clock___Delay_ms(10);
+			clock___Delay_ms(20);
 		}
-		clock___Delay_ms(10*test_Current);
+		clock___Delay_ms(10);
 		for(uint8_t j = test_Current; j > 0; j--)
 		{
 			CCS___Write_Channel(0, (float)j * 0.001f);
@@ -125,13 +125,12 @@ int main(void)
 			CCS___Write_Channel(5, (float)j * 0.001f);
 			CCS___Write_Channel(6, (float)j * 0.001f);
 			CCS___Write_Channel(7, (float)j * 0.001f);
-			clock___Delay_ms(10);
-		}
-		*/
+			clock___Delay_ms(20);
+		}*/
+
 	}
 }
 
-uint8_t x =0;
 void TIM3_IRQHandler(void)				// 10Hz CAN status interrupt
 {
     if (TIM3->SR & TIM_SR_UIF)

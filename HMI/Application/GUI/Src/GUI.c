@@ -122,22 +122,27 @@ void GUI_Toggle_Bright_Mode(lv_event_t * e)
 {
 	osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
 
-	App___IO_Control_State.lighting.mode ^=1;
+	//App___IO_Control_State.lighting.mode ^=1;
 
 	osMutexRelease(App___IO_Control_State_Mutex);
 }
 
 void GUI___Refresh_Lighting_Indicators(void)
 {
-	osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+	uint8_t colors[5];
+	osMutexWait(App___IO_Sense_State_Mutex, osWaitForever);
+		colors[0] = 	App___IO_Sense_State.lighting_Status.white * 2.55f;
+		colors[1] = 	App___IO_Sense_State.lighting_Status.purple * 2.55f;
+		colors[2] = 	App___IO_Sense_State.lighting_Status.lime * 2.55f;
+		colors[3] = 	App___IO_Sense_State.lighting_Status.red * 2.55f;
+		colors[4] = 	App___IO_Sense_State.lighting_Status.far_Red * 2.55f;
+	osMutexRelease(App___IO_Sense_State_Mutex);
 
-	_ui_bar_set_property(uic_White_Light_Indicator, 	0, 	App___IO_Control_State.lighting.white);
-	_ui_bar_set_property(uic_Purple_Light_Indicator, 	0, 	App___IO_Control_State.lighting.purple);
-	_ui_bar_set_property(uic_Lime_Light_Indicator, 		0, 	App___IO_Control_State.lighting.lime);
-	_ui_bar_set_property(uic_Red_Light_Indicator, 		0, 	App___IO_Control_State.lighting.red);
-	_ui_bar_set_property(uic_Far_Red_Light_Indicator, 	0, 	App___IO_Control_State.lighting.far_Red);
-
-	osMutexRelease(App___IO_Control_State_Mutex);
+	_ui_bar_set_property(uic_White_Light_Indicator, 	0, 	colors[0]);
+	_ui_bar_set_property(uic_Purple_Light_Indicator, 	0, 	colors[1]);
+	_ui_bar_set_property(uic_Lime_Light_Indicator, 		0, 	colors[2]);
+	_ui_bar_set_property(uic_Red_Light_Indicator, 		0,  colors[3]);
+	_ui_bar_set_property(uic_Far_Red_Light_Indicator, 	0, 	colors[4]);
 }
 
 uint8_t GUI___Get_Hour_xHours_Ago(uint8_t hour_Now, uint8_t x)

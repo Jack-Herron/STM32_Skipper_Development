@@ -13,26 +13,28 @@
 #include "Profiles.h"
 #include <stdlib.h>
 
+volatile uint8_t App___Ready = 0;
 
-uint32_t (*App___Get_Tick_CallBack)(void) = NULL;
-void (*App___GUI_GFX_Frame_Ready_CallBack)(uint8_t* buf) = NULL;
-uint8_t (*App___GUI_TS_Get_Point_Callback)(uint16_t* x, uint16_t* y);
-App___Time_TypeDef (*App___Get_Time_Callback)(void);
-App___Date_TypeDef (*App___Get_Date_Callback)(void);
-void (*App___Set_Backlight_Brightness_Callback)(uint16_t level) = NULL;
-void (*App___Time_And_Date_Set_Callback)(App___Time_TypeDef time, App___Date_TypeDef date);
+uint32_t 			(*App___Get_Tick_CallBack)					(void) 												= NULL;
+void 				(*App___GUI_GFX_Frame_Ready_CallBack)		(uint8_t* buf) 										= NULL;
+uint8_t 			(*App___GUI_TS_Get_Point_Callback)			(uint16_t* x, uint16_t* y) 							= NULL;
+App___Time_TypeDef 	(*App___Get_Time_Callback)					(void) 												= NULL;
+App___Date_TypeDef 	(*App___Get_Date_Callback)					(void) 												= NULL;
+void 				(*App___Set_Backlight_Brightness_Callback)	(uint16_t level) 									= NULL;
+void 				(*App___Time_And_Date_Set_Callback)			(App___Time_TypeDef time, App___Date_TypeDef date) 	= NULL;
+void 				(*App___Transmit_Callback)					(App___IO_TX_Data_Typedef) 							= NULL;
 
 volatile App___Profiles_State_TypeDef 		App___Profiles_State;
 volatile App___GUI_TS_State_TypeDef 		App___GUI_TS_State;
 volatile App___GUI_GFX_State_TypeDef	 	App___GUI_GFX_State;
-volatile App___IO_Sensor_State_TypeDef 		App___IO_Sensor_State;
+volatile App___IO_Sense_State_TypeDef 		App___IO_Sense_State;
 volatile App___IO_Control_State_TypeDef 	App___IO_Control_State;
 
 osMutexId App___IO_Control_State_Mutex;
 osMutexDef(App___IO_CONTROL_STATE_MUTEX);
 
-osMutexId App___IO_Sensor_State_Mutex;
-osMutexDef(App___IO_SENSOR_STATE_MUTEX);
+osMutexId App___IO_Sense_State_Mutex;
+osMutexDef(App___IO_SENSE_STATE_MUTEX);
 
 osMutexId App___GUI_GFX_State_Mutex;
 osMutexDef(App___GUI_GFX_STATE_MUTEX);
@@ -45,8 +47,8 @@ osMutexDef(App___PROFILES_STATE_MUTEX);
 
 // Declare thread handles
 
-osThreadId TX_Task_Handle;
-osThreadId RX_Task_Handle;
+osThreadId Control_Task_Handle;
+osThreadId Sense_Task_Handle;
 osThreadId profiles_Task_Handle;
 osThreadId TS_Task_Handle;
 osThreadId GFX_Task_Handle;
@@ -61,15 +63,17 @@ void* App___GUI_Buffer4_Ptr;
 
 uint32_t App___GUI_Buffer_Size;
 
+
+
 void App___Init(void)
 {
 	// Create threads
 
-	osThreadDef(TXTask, IO___TX_Start_Task, osPriorityNormal, 0, 512);
-	TX_Task_Handle = osThreadCreate(osThread(TXTask), NULL);
+	osThreadDef(ControlTask, IO___Control_Start_Task, osPriorityNormal, 0, 512);
+	Control_Task_Handle = osThreadCreate(osThread(ControlTask), NULL);
 
-	osThreadDef(RXTask, IO___RX_Start_Task, osPriorityNormal, 0, 512);
-	RX_Task_Handle = osThreadCreate(osThread(RXTask), NULL);
+	osThreadDef(SenseTask, IO___Sense_Start_Task, osPriorityNormal, 0, 512);
+	Sense_Task_Handle = osThreadCreate(osThread(SenseTask), NULL);
 
 	osThreadDef(profilesTask, Profiles___Start_Task, osPriorityNormal, 0, 4096);
 	profiles_Task_Handle = osThreadCreate(osThread(profilesTask), NULL);
@@ -82,8 +86,8 @@ void App___Init(void)
 
 	// Register Mutexes
 
-	App___IO_TX_State_Mutex 		= osMutexCreate(osMutex(App___IO_TX_STATE_MUTEX));
-	App___IO_RX_State_Mutex 		= osMutexCreate(osMutex(App___IO_RX_STATE_MUTEX));
+	App___IO_Control_State_Mutex 	= osMutexCreate(osMutex(App___IO_CONTROL_STATE_MUTEX));
+	App___IO_Sense_State_Mutex 		= osMutexCreate(osMutex(App___IO_SENSE_STATE_MUTEX));
 	App___GUI_GFX_State_Mutex 		= osMutexCreate(osMutex(App___GUI_GFX_STATE_MUTEX));
 	App___GUI_TS_State_Mutex 		= osMutexCreate(osMutex(App___GUI_TS_STATE_MUTEX));
 	App___Profiles_State_Mutex 		= osMutexCreate(osMutex(App___PROFILES_STATE_MUTEX));
@@ -93,9 +97,10 @@ void App___Init(void)
 	osSignalSet(GFX_Task_Handle, 		APP___GUI_GFX_TASK_START_FLAG);
 	osSignalSet(profiles_Task_Handle, 	APP___PROFILES_TASK_START_FLAG);
 	osSignalSet(TS_Task_Handle, 		APP___GUI_TS_TASK_START_FLAG);
-	osSignalSet(RX_Task_Handle, 		APP___IO_RX_TASK_START_FLAG);
-	osSignalSet(TX_Task_Handle, 		APP___IO_TX_TASK_START_FLAG);
+	osSignalSet(Control_Task_Handle, 	APP___IO_CONTROL_TASK_START_FLAG);
+	osSignalSet(Sense_Task_Handle, 		APP___IO_SENSE_TASK_START_FLAG);
 
+	App___Ready = 1;
 }
 
 void App___GUI_TS_Event_Detected()
@@ -103,9 +108,13 @@ void App___GUI_TS_Event_Detected()
 	osSignalSet(TS_Task_Handle, APP___GUI_TS_EVENT_FLAG);
 }
 
-void App___IO_Message_Received()
+void App___IO_Data_Received(App___IO_RX_Data_Typedef* packet)
 {
-	//osSignalSet(IO_Task_Handle, APP___GUI_TS_EVENT_FLAG);
+	if(App___Ready)
+	{
+		IO___Store_Packet(packet);
+		osSignalSet(Sense_Task_Handle, APP___IO_RX_EVENT_FLAG);
+	}
 }
 
 void App___Frame_Ready(uint8_t* buf)
@@ -232,4 +241,8 @@ void App___Set_Time_And_Date(App___Time_TypeDef time, App___Date_TypeDef date)
 	{
 		App___Time_And_Date_Set_Callback(time, date);
 	}
+}
+void APP___Set_Transmit_Callback(void (*callback)(App___IO_TX_Data_Typedef))
+{
+
 }

@@ -18,7 +18,7 @@
 #define APP___GUI_BUFFER1_ADDRESS 		(uint8_t*)(0xc0000000)
 #define APP___GUI_BUFFER2_ADDRESS 		(uint8_t*)(LCD_BUFFER1_ADDRESS + LCD_BUFFER_SIZE)
 #define APP___GUI_TS_FIFO_DEPTH			32
-#define APP___IO_RX_FIFO_DEPTH			64 																// hold 64 messages
+#define APP___IO_RX_FIFO_DEPTH			100 																// hold 64 messages
 
 // module data structures
 
@@ -37,13 +37,6 @@ typedef struct
 	uint8_t day;
 } App___Date_TypeDef;
 
-typedef struct
-{
-	uint8_t ID;
-	uint8_t data[8];
-	uint8_t data_Length;
-}App___RX_Data_Typedef;
-
 // IO structures
 enum App___IO_Control_Lighting_Mode_Enum
 {
@@ -52,22 +45,38 @@ enum App___IO_Control_Lighting_Mode_Enum
 	lighting_Mode_Off
 };
 
-typedef struct {
-	uint8_t 	white;
-	uint8_t 	purple;
-	uint8_t 	lime;
-	uint8_t 	red;
-	uint8_t 	far_Red;
-	uint8_t 	mode;
-} App___IO_Control_Lighting_State_TypeDef;
+typedef struct
+{
+	uint16_t ID;
+	uint8_t data[8];
+	uint8_t data_Length;
+}App___IO_RX_Data_Typedef;
+
+typedef struct
+{
+	uint8_t ID;
+	uint8_t data[8];
+	uint8_t data_Length;
+} App___IO_TX_Data_Typedef;
 
 typedef struct {
-	App___IO_Control_Lighting_State_TypeDef lighting;
+	uint8_t 	white;
+	uint8_t 	red;
+	uint8_t 	lime;
+	uint8_t 	purple;
+	uint8_t 	far_Red;
+} App___IO_Sense_Lighting_State_TypeDef;
+
+typedef struct {
+	//App___IO_Control_Lighting_State_TypeDef lighting;
 } App___IO_Control_State_TypeDef;
 
 typedef struct {
-	uint8_t tmp;
-} App___IO_Sensor_State_TypeDef;
+	App___IO_RX_Data_Typedef 				RX_Buffer[APP___IO_RX_FIFO_DEPTH];
+	volatile uint32_t						RX_Buffer_Head;
+	volatile uint32_t 						RX_Buffer_Tail;
+	App___IO_Sense_Lighting_State_TypeDef 	lighting_Status;
+} App___IO_Sense_State_TypeDef;
 
 // GUI typedefs
 typedef struct {
@@ -79,7 +88,6 @@ typedef struct {
     uint16_t y;
     uint8_t  pressed;
 } App___GUI_TS_Point_TypeDef;
-
 
 typedef struct
 {
@@ -100,11 +108,11 @@ typedef struct {
 extern volatile App___Profiles_State_TypeDef 	App___Profiles_State;
 extern volatile App___GUI_TS_State_TypeDef 		App___GUI_TS_State;
 extern volatile App___GUI_GFX_State_TypeDef	 	App___GUI_GFX_State;
-extern volatile App___IO_Sensor_State_TypeDef 	App___IO_RX_State;
-extern volatile App___IO_Control_State_TypeDef 	App___IO_TX_State;
+extern volatile App___IO_Sense_State_TypeDef 	App___IO_Sense_State;
+extern volatile App___IO_Control_State_TypeDef 	App___IO_Control_State;
 
-extern osMutexId App___IO_TX_State_Mutex;
-extern osMutexId App___IO_RX_State_Mutex;
+extern osMutexId App___IO_Control_State_Mutex;
+extern osMutexId App___IO_Sense_State_Mutex;
 extern osMutexId App___GUI_GFX_State_Mutex;
 extern osMutexId App___GUI_TS_State_Mutex;
 extern osMutexId App___Profiles_State_Mutex;
@@ -130,11 +138,12 @@ extern uint32_t App___GUI_Buffer_Size;
 #define APP___GUI_TS_TASK_START_FLAG (1 << 0)
 #define APP___GUI_TS_EVENT_FLAG (1U << 1)
 
-// RX task flags
-#define APP___IO_RX_TASK_START_FLAG (1 << 0)
+// Sense task flags
+#define APP___IO_SENSE_TASK_START_FLAG (1 << 0)
+#define APP___IO_RX_EVENT_FLAG (1U << 1)
 
-// TX task flags
-#define APP___IO_TX_TASK_START_FLAG (1 << 0)
+// Control task flags
+#define APP___IO_CONTROL_TASK_START_FLAG (1 << 0)
 
 /*
 return type		|	Function name								| 	Parameters */
@@ -157,5 +166,6 @@ void				App___Set_Time_And_Date_Callback				(void (*time_And_Date_Set_Callback)(
 void 				App___Set_Change_Backlight_Brightness_Callback	(void (*callback)(uint16_t));
 void 				App___Set_Backlight_Brightness					(uint16_t level);
 uint32_t			App___Get_Tick									(void);
-
+void 				App___IO_Data_Received							(App___IO_RX_Data_Typedef* packet);
+void 				APP___Set_Transmit_Callback						(void (*callback)(App___IO_TX_Data_Typedef));
 #endif /* COMMON_INC_APP_H_ */

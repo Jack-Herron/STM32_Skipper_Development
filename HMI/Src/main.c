@@ -34,6 +34,21 @@ void StartTSTask(void const * argument);
 void startGFXTask(void const * argument);
 
 // TODO make HW driver access thread safe
+volatile uint32_t packet_Count = 0;
+
+void CAN_Data_Receive_Callback(CAN___Receive_TypeDef CAN_Packet)
+{
+	App___IO_RX_Data_Typedef packet;
+	packet.ID = CAN_Packet.ID;
+	for(uint8_t i = 0; i < CAN_Packet.data_Length; i++)
+	{
+		packet.data[i] = CAN_Packet.data[i];
+	}
+	packet.data_Length = CAN_Packet.data_Length;
+
+	App___IO_Data_Received(&packet);
+	packet_Count++;
+}
 
 void DSI_Buffer_Swap_Callback(void)
 {
@@ -64,6 +79,20 @@ uint8_t TS_Get_Point_Callback(uint16_t* x, uint16_t* y)
 	}
 
 	return(num_Points);
+}
+
+void CAN_Transmit_Callback(App___IO_TX_Data_Typedef packet)
+{
+	CAN___Transmit_TypeDef CAN_Packet;
+
+	CAN_Packet.ID = packet.ID;
+	CAN_Packet.data_Length = packet.data_Length;
+	for(uint8_t i = 0; i < packet.data_Length; i++)
+	{
+		CAN_Packet.data[i]= packet.data[i];
+	}
+
+	CAN___Transmit(CAN_Packet);
 }
 
 App___Time_TypeDef get_Time_CallBack(void)
@@ -153,7 +182,7 @@ int main(void)
 	USART___Init(4);
 	CAN___Init();
 	CAN___Accept_All_Messages();
-
+	CAN___Set_RX_Callback(CAN_Data_Receive_Callback);
 	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
 	TS___Init();
 	TS___Set_Event_Callback(TS_Event_Callback);
@@ -169,12 +198,11 @@ int main(void)
 	App___Set_Get_Date_CallBack(get_Date_CallBack);
 	App___Set_Change_Backlight_Brightness_Callback(set_Backlight_Brightness_Callback);
 	App___Set_Time_And_Date_Callback(set_Time_And_Date_Callback);
-
+	APP___Set_Transmit_Callback(CAN_Transmit_Callback);
 
 	// App init
 
 	App___Init();
-
 	printf("Starting... \n");
 
 	osKernelStart();

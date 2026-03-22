@@ -10,6 +10,8 @@
 #include "CAN.h"
 #include <stdio.h>
 
+void (*CAN___RX_Callback)(CAN___Receive_TypeDef data) = NULL;
+
 void CAN___GPIO_Init()
 {
     /* Enable GPIOB clock */
@@ -67,7 +69,7 @@ void CAN___Init()		// baud rate = 250kHz				[ 1 Sync | 15 TS1 | 2 TS2 	] (18 bit
 
     CAN2->IER |= CAN_IER_FMPIE0;						// enable FIFO full interrupt
 
-    NVIC_SetPriority (CAN2_RX0_IRQn, 1);				// Set Interrupt Priority
+    NVIC_SetPriority (CAN2_RX0_IRQn, 14);				// Set Interrupt Priority
 	NVIC_EnableIRQ (CAN2_RX0_IRQn);						// Enable Interrupt
 
     CAN2->MCR &= ~CAN_MCR_SLEEP;						// exit sleep mode
@@ -92,7 +94,7 @@ void CAN___Accept_All_Messages(void)
     CAN1->FMR &= ~CAN_FMR_FINIT;                        // leave filter init mode
 }
 
-void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
+void CAN___Transmit(CAN___Transmit_TypeDef Payload)
 {
 	while ((CAN2->TSR & CAN_TSR_TME0) == 0);
 
@@ -110,6 +112,11 @@ void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
 	CAN2->sTxMailBox[0].TIR |= CAN_TI1R_TXRQ;									// request to send
 }
 
+void CAN___Set_RX_Callback(void (*callback)(CAN___Receive_TypeDef))
+{
+	CAN___RX_Callback = callback;
+}
+
 void CAN2_RX0_IRQHandler(void)
 {
 	if (CAN2->RF0R & CAN_RF0R_FMP0)
@@ -125,6 +132,11 @@ void CAN2_RX0_IRQHandler(void)
 		uint16_t ID = ((RIR & CAN_RI0R_STID_Msk) >> CAN_RI0R_STID_Pos);
 		uint16_t data_Length = ((RDTR & CAN_RDT0R_DLC_Msk) >> CAN_RDT0R_DLC_Pos);
 
+		CAN___Receive_TypeDef RX_Payload;
+		RX_Payload.ID = ID;
+		RX_Payload.data = (uint8_t*)data;
+		RX_Payload.data_Length = data_Length;
+
 		if(ID >= 0x700)
 		{
 			uint8_t string_Code = (ID-0x700) % 2; // 0 = start string, 1 = data for string
@@ -139,6 +151,11 @@ void CAN2_RX0_IRQHandler(void)
 					printf("%c", ((char*)data)[i]);
 				}
 			}
+		}
+		else if(CAN___RX_Callback != NULL)
+		{
+
+			CAN___RX_Callback(RX_Payload);
 		}
 
 		CAN2->RF0R |= CAN_RF0R_RFOM0;                 			// release FIFO0 output mailbox

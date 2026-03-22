@@ -11,15 +11,22 @@
 typedef struct
 {
 	uint16_t ID;
-	uint8_t data[8];
+	uint8_t* data;
 	uint8_t data_Length;
 
-}CAN_Tansmit_TypeDef;
+}CAN___Transmit_TypeDef;
+
+typedef struct
+{
+	uint16_t ID;
+	uint8_t* data;
+	uint8_t data_Length;
+}CAN___Receive_TypeDef;
 
 void CAN___Init();
 void CAN___Accept_All_Messages();
-void CAN___Transmit(CAN_Tansmit_TypeDef Payload);
-
+void CAN___Transmit(CAN___Transmit_TypeDef Payload);
+void CAN___Set_RX_Callback(void (*callback)(CAN___Receive_TypeDef));
 
 
 #endif /* CUSTOM_DRIVERS_INC_CAN_H_ */
