@@ -10,8 +10,8 @@
 #include "main.h"
 
 #define test_Current 		250
-#define HEADROOM_LOW		2.7f
-#define HEADROOM_HIGH		3.3f
+#define HEADROOM_LOW		2.3f
+#define HEADROOM_HIGH		1.7f
 #define BOOST_STEP_UP       0.1f
 #define BOOST_STEP_DOWN     0.1f
 

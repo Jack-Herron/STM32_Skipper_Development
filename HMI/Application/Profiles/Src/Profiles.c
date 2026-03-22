@@ -24,17 +24,17 @@ void Profiles___Start_Task(void const * argument)
 		{
 			osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
 
-			App___IO_Control_State.lighting.white 		= 30;
-			App___IO_Control_State.lighting.purple 		= 60;
-			App___IO_Control_State.lighting.lime 		= 80;
-			App___IO_Control_State.lighting.red 		= 80;
-			App___IO_Control_State.lighting.far_Red 	= 60;
+			App___IO_Control_State.lighting.white 		= 1;
+			App___IO_Control_State.lighting.purple 		= 10;
+			App___IO_Control_State.lighting.lime 		= 5;
+			App___IO_Control_State.lighting.red 		= 10;
+			App___IO_Control_State.lighting.far_Red 	= 5;
 
 			osMutexRelease(App___IO_Control_State_Mutex);
 		}
 		else
 		{
-			App___IO_Control_State.lighting.white 		= 80;
+			App___IO_Control_State.lighting.white 		= 100;
 			App___IO_Control_State.lighting.purple 		= 0;
 			App___IO_Control_State.lighting.lime 		= 0;
 			App___IO_Control_State.lighting.red 		= 0;
