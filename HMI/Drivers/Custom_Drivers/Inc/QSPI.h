@@ -20,5 +20,12 @@
 // Calculated values
 #define QSPI___PRESCALER_VALUE		(((uint32_t)QSPI_FREQ + (uint32_t)QSPI___MAX_FREQ - 1ul)/(uint32_t)QSPI___MAX_FREQ) - 1ul
 #define QSPI___REAL_FREQ			(uint32_t)QSPI_FREQ/(QSPI___PRESCALER_VALUE+1ul)
+#define QSPI___SIZE					16777216ul	// 16MB
+#define QSPI___FSIZE				23			// FSIZE = log2(QSPI___SIZE) - 1
+#define QSPI___CSHT					7			// number of cycles the CS line should be inactive between accesses (CSHT = numcycles - 1)
+
+
+
+void QSPI___Init();
 
 #endif /* INC_QSPI_H_ */

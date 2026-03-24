@@ -8,7 +8,7 @@
 #include "cmsis_os.h"
 #include "Clock.h"
 #include "FMC_SDRAM.h"
-//#include "QSPI.h"
+#include "QSPI.h"
 #include "DSI_LCD.h"
 #include "lvgl.h"
 #include "stdio.h"
@@ -26,15 +26,6 @@ uint32_t SystemCoreClock = HCLK_FREQ;
 #define COMPILE_MINUTE ((__TIME__[3] - '0') * 10 + (__TIME__[4] - '0'))
 #define COMPILE_SECOND ((__TIME__[6] - '0') * 10 + (__TIME__[7] - '0'))
 
-void StartControlTask(void const * argument);
-void StartSensorTask(void const * argument);
-void StartProfileTask(void const * argument);
-void StartTSTask(void const * argument);
-void startGFXTask(void const * argument);
-
-// TODO make HW driver access thread safe
-volatile uint32_t packet_Count = 0;
-
 void CAN_Data_Receive_Callback(CAN___Receive_TypeDef CAN_Packet)
 {
 	App___IO_RX_Data_Typedef packet;
@@ -46,7 +37,6 @@ void CAN_Data_Receive_Callback(CAN___Receive_TypeDef CAN_Packet)
 	packet.data_Length = CAN_Packet.data_Length;
 
 	App___IO_Data_Received(&packet);
-	packet_Count++;
 }
 
 void DSI_Buffer_Swap_Callback(void)
@@ -185,8 +175,7 @@ void TIM4CH2_Init(void)
 
 int main(void)
 {
-	// HW init
-
+	/* ------ HW Initialization + Setup ------ */
 	clock_Init();
 	millis_Init();
 	RTC___Init();
@@ -200,9 +189,9 @@ int main(void)
 	DSI_LCD___Set_Swap_Callback(DSI_Buffer_Swap_Callback);
 	TS___Init();
 	TS___Set_Event_Callback(TS_Event_Callback);
+	QSPI___Init();
 
-	// App setup
-
+	/* ------ Application Setup ------ */
 	App___GUI_Set_Buffers((void*)0xc0000000, (void*)(0xc0000000 + 768000), 768000);
 	App___GUI_Set_Dimentions(480, 800);
 	App___Set_GUI_GFX_Frame_Ready_CallBack(frame_Ready_Callback);
@@ -214,8 +203,7 @@ int main(void)
 	App___Set_Time_And_Date_Callback(set_Time_And_Date_Callback);
 	App___Set_Transmit_Callback(CAN_Transmit_Callback);
 
-	// App init
-
+	/* ------ Application Initialization ------ */
 	App___Init();
 	printf("Starting... \n");
 

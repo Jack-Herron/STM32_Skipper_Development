@@ -34,12 +34,17 @@ void Profiles___Start_Task(void const * argument)
 		}
 		else
 		{
+			osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+
 			App___IO_Control_State.lighting.white 		= 100;
-			App___IO_Control_State.lighting.purple 		= 0;
-			App___IO_Control_State.lighting.lime 		= 0;
-			App___IO_Control_State.lighting.red 		= 0;
-			App___IO_Control_State.lighting.far_Red 	= 0;
+			App___IO_Control_State.lighting.purple 		= 100;
+			App___IO_Control_State.lighting.lime 		= 100;
+			App___IO_Control_State.lighting.red 		= 100;
+			App___IO_Control_State.lighting.far_Red 	= 100;
+
+			osMutexRelease(App___IO_Control_State_Mutex);
 		}
+
 		osMutexRelease(App___Profiles_State_Mutex);
 		//TODO implement QSPI + littlefs reads
 		osDelay(100);
