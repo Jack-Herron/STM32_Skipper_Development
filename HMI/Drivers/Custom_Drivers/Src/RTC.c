@@ -61,15 +61,15 @@ void RTC___Init(void)
 	//time.second = RTC___INIT_SECOND;
 	//time.pm = RTC___INIT_AMPM;
 
-	//RTC___Set_Time_And_Date(time, date);
-
-	//RTC___Disable_Write_Protection();
-	//RTC___Enter_Init_Mode();
-
-	//RTC -> CR |= RTC_CR_FMT;
-
-	//RTC___Exit_Init_Mode();
-	//RTC___Enable_Write_Protection();
+//	RTC___Set_Time_And_Date(time, date);
+//
+//	RTC___Disable_Write_Protection();
+//	RTC___Enter_Init_Mode();
+//
+//	RTC -> CR &= ~RTC_CR_FMT;
+//
+//	RTC___Exit_Init_Mode();
+//	RTC___Enable_Write_Protection();
 }
 
 RTC___Time_TypeDef RTC___Get_Time(void)
@@ -80,7 +80,6 @@ RTC___Time_TypeDef RTC___Get_Time(void)
 	ret.hour = ((TR & RTC_TR_HT_Msk) >> RTC_TR_HT_Pos) * 10 + ((TR & RTC_TR_HU_Msk) >> RTC_TR_HU_Pos);
 	ret.minute = ((TR & RTC_TR_MNT_Msk) >> RTC_TR_MNT_Pos) * 10 + ((TR & RTC_TR_MNU_Msk) >> RTC_TR_MNU_Pos);
 	ret.second = ((TR & RTC_TR_ST_Msk) >> RTC_TR_ST_Pos) * 10 + ((TR & RTC_TR_SU_Msk) >> RTC_TR_SU_Pos);
-	ret.pm = ((TR & RTC_TR_PM_Msk) >> RTC_TR_PM_Pos);
 
 	return(ret);
 }
@@ -111,8 +110,7 @@ void RTC___Set_Time_And_Date(RTC___Time_TypeDef time, RTC___Date_TypeDef date)
 			((time.minute 	/10) << RTC_TR_MNT_Pos) |
 			((time.minute 	%10) << RTC_TR_MNU_Pos) |
 			((time.second 	/10) << RTC_TR_ST_Pos)  |
-			((time.second 	%10) << RTC_TR_SU_Pos)  |
-			((time.pm)           << RTC_TR_PM_Pos)	;
+			((time.second 	%10) << RTC_TR_SU_Pos)  ;
 
 	RTC->TR = TR;
 

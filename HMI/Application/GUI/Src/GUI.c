@@ -50,7 +50,7 @@ void GUI___TS_Push_Point(App___GUI_TS_Point_TypeDef point)
 
 	osMutexRelease(App___GUI_TS_State_Mutex);
 }
-
+//32.7715kHz
 App___GUI_TS_Point_TypeDef GUI___TS_Pop_Point()
 {
 	App___GUI_TS_Point_TypeDef ret;
@@ -185,7 +185,8 @@ void GUI___Refresh_Time()
 	App___Time_TypeDef time = App___Get_Time();
 	App___Date_TypeDef date = App___Get_Date();
 
-	lv_calendar_date_t shown_date = {
+	lv_calendar_date_t shown_date =
+	{
 	    .year  	= date.year,
 	    .month 	= date.month,
 		.day	= date.day

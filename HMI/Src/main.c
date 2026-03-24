@@ -20,12 +20,11 @@
 #include "USART.h"
 #include "CAN.h"
 
+uint32_t SystemCoreClock = HCLK_FREQ;
 
 #define COMPILE_HOUR   ((__TIME__[0] - '0') * 10 + (__TIME__[1] - '0'))
 #define COMPILE_MINUTE ((__TIME__[3] - '0') * 10 + (__TIME__[4] - '0'))
 #define COMPILE_SECOND ((__TIME__[6] - '0') * 10 + (__TIME__[7] - '0'))
-
-uint32_t SystemCoreClock = HCLK_FREQ;
 
 void StartControlTask(void const * argument);
 void StartSensorTask(void const * argument);
@@ -99,12 +98,19 @@ App___Time_TypeDef get_Time_CallBack(void)
 {
 	RTC___Time_TypeDef time = RTC___Get_Time();
 	App___Time_TypeDef ret;
-	ret.hour = time.hour;
+
+	ret.hour = time.hour % 12;
+
+	if (ret.hour == 0)
+	{
+	    ret.hour = 12;
+	}
+
 	ret.minute = time.minute;
 	ret.second = time.second;
-	ret.pm = time.pm;
+	ret.pm = (time.hour >= 12);
 
-	return(ret);
+	return ret;
 }
 
 App___Date_TypeDef get_Date_CallBack(void)
@@ -121,10 +127,18 @@ App___Date_TypeDef get_Date_CallBack(void)
 void set_Time_And_Date_Callback(App___Time_TypeDef time, App___Date_TypeDef date)
 {
 	RTC___Time_TypeDef RTC_Time;
-	RTC_Time.hour = time.hour;
+
+	if (time.pm)
+	{
+	    RTC_Time.hour = (time.hour % 12) + 12;
+	}
+	else
+	{
+	    RTC_Time.hour = (time.hour % 12);
+	}
+
 	RTC_Time.minute = time.minute;
 	RTC_Time.second = time.second;
-	RTC_Time.pm = time.pm;
 
 	RTC___Date_TypeDef RTC_Date;
 	RTC_Date.day = date.day;

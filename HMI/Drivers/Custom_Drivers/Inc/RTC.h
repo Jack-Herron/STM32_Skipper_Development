@@ -13,7 +13,6 @@ typedef struct
 	uint8_t hour;
 	uint8_t minute;
 	uint8_t second;
-	uint8_t pm;
 } RTC___Time_TypeDef;
 
 typedef struct
