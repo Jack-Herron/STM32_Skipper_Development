@@ -105,7 +105,10 @@ void App___Init(void)
 
 void App___GUI_TS_Event_Detected()
 {
-	osSignalSet(TS_Task_Handle, APP___GUI_TS_EVENT_FLAG);
+	if(App___Ready)
+	{
+		osSignalSet(TS_Task_Handle, APP___GUI_TS_EVENT_FLAG);
+	}
 }
 
 void App___IO_Data_Received(App___IO_RX_Data_Typedef* packet)
@@ -149,7 +152,10 @@ void App___Set_GUI_GFX_Frame_Ready_CallBack(void (*frame_Ready_CallBack)(uint8_t
 
 void App___GUI_GFX_Buffer_Swap_Ready(void)
 {
-	osSignalSet(GFX_Task_Handle, APP___GUI_GFX_FLUSH_READY_FLAG);
+	if(App___Ready)
+	{
+		osSignalSet(GFX_Task_Handle, APP___GUI_GFX_FLUSH_READY_FLAG);
+	}
 }
 
 void App___GUI_Set_Dimentions(uint32_t width, uint32_t height)
