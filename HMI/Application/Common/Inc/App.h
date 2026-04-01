@@ -60,11 +60,11 @@ typedef struct
 } App___IO_TX_Data_Typedef;
 
 typedef struct {
-	uint8_t 	white;
-	uint8_t 	red;
-	uint8_t 	lime;
-	uint8_t 	purple;
-	uint8_t 	far_Red;
+	uint16_t 	white;
+	uint16_t 	red;
+	uint16_t 	lime;
+	uint16_t 	purple;
+	uint16_t 	far_Red;
 } App___IO_Lighting_TypeDef;
 
 

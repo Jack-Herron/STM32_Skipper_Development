@@ -31,16 +31,18 @@ void SPI___Init()
 	RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
 
 	SPI2->CR1 = 0;
-	SPI2->CR1 &= ~SPI_CR1_DFF;		// 8 bit format
-	SPI2->CR1 |= SPI_CR1_MSTR;		// master mode
-	SPI2->CR1 &= ~SPI_CR1_CPOL;		// clock low when idle
-	SPI2->CR1 |= SPI_CR1_CPHA;		// sample on falling edge
+	SPI2->CR1 &= ~SPI_CR1_DFF;
+	SPI2->CR1 |= SPI_CR1_MSTR;
+	SPI2->CR1 &= ~SPI_CR1_CPOL;
+	SPI2->CR1 |= SPI_CR1_CPHA;
 
-	SPI2->CR1 |= SPI_CR1_SSM;       // software NSS
-    SPI2->CR1 |= SPI_CR1_SSI;       // internal NSS high
+	SPI2->CR1 |= SPI_CR1_SSM;
+	SPI2->CR1 |= SPI_CR1_SSI;
 
-	SPI2->CR1 |= SPI_CR1_SPE;		// enable SPI
+	SPI2->CR1 &= ~SPI_CR1_BR;
+	SPI2->CR1 |= SPI_CR1_BR_1 | SPI_CR1_BR_0;   // /16
 
+	SPI2->CR1 |= SPI_CR1_SPE;
 }
 
 void SPI___Transmit(uint8_t data)

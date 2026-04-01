@@ -10,10 +10,10 @@
 #include "main.h"
 
 #define test_Current 		250
-#define HEADROOM_LOW		2.3f
-#define HEADROOM_HIGH		1.7f
-#define BOOST_STEP_UP       0.1f
-#define BOOST_STEP_DOWN     0.1f
+#define HEADROOM_LOW		2.25f
+#define HEADROOM_HIGH		2.75f
+#define BOOST_STEP_UP       0.001f
+#define BOOST_STEP_DOWN     0.001f
 
 uint8_t setup_Complete = 0;
 
@@ -55,23 +55,37 @@ void TIM5_Init(void)
     TIM3->CR1 |= TIM_CR1_CEN;             // Start timer
 }
 
-void write_Channels(uint8_t* data)
+void write_Channel(uint8_t channel, uint16_t data)
 {
-	for(uint8_t i = 0; i < 7; i++)
-	{
-		if(setup_Complete)
-		{
-			CCS___Write_Channel(i, ((float)data[i] * 2.5f * 0.001f));
-		}
-	}
+	CCS___Write_Channel(channel, ((float)data / 65535.0f) * 0.250f);
 }
 
 void RX_Callback(CAN___Receive_TypeDef packet)
 {
+	uint16_t value = packet.data[0] | ((uint16_t)packet.data[1] << 8);
+
 	switch(packet.ID)
 	{
 	case 0x100:
-		write_Channels(packet.data);
+		write_Channel(WHITE_RIGHT, value);
+		write_Channel(WHITE_LEFT, value);
+		break;
+
+	case 0x101:
+		write_Channel(RED_RIGHT, value);
+		write_Channel(RED_LEFT, value);
+		break;
+
+	case 0x102:
+		write_Channel(LIME, value);
+		break;
+
+	case 0x103:
+		write_Channel(PURPLE, value);
+		break;
+
+	case 0x104:
+		write_Channel(FAR_RED, value);
 		break;
 	}
 }
@@ -92,6 +106,15 @@ float get_Lowest_CC_Voltage()
 		}
 	}
 	return(ret);
+}
+
+float get_Lowest_CC_Voltage_Filtered(void)
+{
+	static float filtered = 2.0f;
+	float raw = get_Lowest_CC_Voltage();
+
+	filtered = filtered + 0.1f * (raw - filtered);
+	return filtered;
 }
 
 int main(void)
@@ -115,7 +138,7 @@ int main(void)
 	CCS___Write_Channel(6, 0);
 	CCS___Write_Channel(7, 0);
 
-	boost___Set_Voltage(58.0);
+	boost___Set_Voltage(51.0);
 
 	clock___Delay_ms(1000);
 	indicate___Set_Value(1);
@@ -127,11 +150,12 @@ int main(void)
 
 	setup_Complete = 1;
 
-	float boost_cmd = 58.0f;   // start high
+
+	float boost_cmd = 45.0f;   // start lo2
 
 	for(;;)
 	{
-	    float V_min = get_Lowest_CC_Voltage();
+	    float V_min = get_Lowest_CC_Voltage_Filtered();
 
 	    if(V_min < HEADROOM_LOW)
 	    {
@@ -148,7 +172,7 @@ int main(void)
 
 	    boost___Set_Voltage(boost_cmd);
 
-	    clock___Delay_ms(50);   // ~20 Hz loop
+	    clock___Delay_ms(5);   // ~50 Hz loop
 	}
 }
 
