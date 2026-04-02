@@ -10,5 +10,6 @@
 
 void clock___Init();
 void clock___Delay_ms(uint32_t delay);
+uint32_t clock___Get_Millis();
 
 #endif /* APPLICATION_DRIVERS_INC_CLOCK_H_ */

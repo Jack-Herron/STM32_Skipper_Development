@@ -92,24 +92,60 @@ void IO___Sense_Start_Task(void const * argument)
 	}
 }
 
-void IO___Send_Lighting_Packet()
+void IO___Send_Lighting_Packet(void)
 {
 	App___IO_TX_Data_Typedef packet = {0};
-	packet.ID = 0x100;
-	packet.data_Length = 0x07;
 
+	uint16_t white;
+	uint16_t red;
+	uint16_t lime;
+	uint16_t purple;
+	uint16_t far_red;
+
+	/* Take one atomic snapshot of lighting state */
 	osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
 
-	packet.data[0] = App___IO_Control_State.lighting.white;
-	packet.data[1] = App___IO_Control_State.lighting.white;
-	packet.data[2] = App___IO_Control_State.lighting.red;
-	packet.data[3] = App___IO_Control_State.lighting.red;
-	packet.data[4] = App___IO_Control_State.lighting.lime;
-	packet.data[5] = App___IO_Control_State.lighting.purple;
-	packet.data[6] = App___IO_Control_State.lighting.far_Red;
+	white   = App___IO_Control_State.lighting.white;
+	red     = App___IO_Control_State.lighting.red;
+	lime    = App___IO_Control_State.lighting.lime;
+	purple  = App___IO_Control_State.lighting.purple;
+	far_red = App___IO_Control_State.lighting.far_Red;
 
 	osMutexRelease(App___IO_Control_State_Mutex);
 
+	/* Transmit White */
+	packet.ID = 0x100;
+	packet.data_Length = 0x02;
+	packet.data[0] = (uint8_t)(white & 0xFF);
+	packet.data[1] = (uint8_t)(white >> 8);
+	App___Transmit(packet);
+
+	/* Transmit Red */
+	packet.ID = 0x101;
+	packet.data_Length = 0x02;
+	packet.data[0] = (uint8_t)(red & 0xFF);
+	packet.data[1] = (uint8_t)(red >> 8);
+	App___Transmit(packet);
+
+	/* Transmit Lime */
+	packet.ID = 0x102;
+	packet.data_Length = 0x02;
+	packet.data[0] = (uint8_t)(lime & 0xFF);
+	packet.data[1] = (uint8_t)(lime >> 8);
+	App___Transmit(packet);
+
+	/* Transmit Purple */
+	packet.ID = 0x103;
+	packet.data_Length = 0x02;
+	packet.data[0] = (uint8_t)(purple & 0xFF);
+	packet.data[1] = (uint8_t)(purple >> 8);
+	App___Transmit(packet);
+
+	/* Transmit Far Red */
+	packet.ID = 0x104;
+	packet.data_Length = 0x02;
+	packet.data[0] = (uint8_t)(far_red & 0xFF);
+	packet.data[1] = (uint8_t)(far_red >> 8);
 	App___Transmit(packet);
 }
 
@@ -125,6 +161,6 @@ void IO___Control_Start_Task(void const * argument)
 	for(;;)
 	{
 		IO___Send_Packets();
-		osDelay(100);
+		osDelay(5);
 	}
 }

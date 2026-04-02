@@ -46,15 +46,26 @@ void boost___Enable()
 
 void boost___Set_Voltage(float V_Set)
 {
-	if(V_Set <= 60.0 && V_Set >= 30.0)
+	if (V_Set <= 60.0f && V_Set >= 30.0f)
 	{
-		uint16_t DAC_Code = (( (1-(V_Set - V_ZEROSCALE)/V_SPAN)) * (DAC_SPAN) + DAC_CODE_ZEROSCALE);
+		uint16_t DAC_Code = (uint16_t)(((1.0f - (V_Set - V_ZEROSCALE) / V_SPAN) * DAC_SPAN) + DAC_CODE_ZEROSCALE);
+		uint16_t transmission = (uint16_t)(DAC_Code << 2);
+
+		uint8_t tx_hi = (uint8_t)((transmission >> 8) & 0xFF);
+		uint8_t tx_lo = (uint8_t)(transmission & 0xFF);
+
+		__disable_irq();
+
 		boost___Select_CS();
-		uint16_t transmission = (DAC_Code << 2);
-		SPI___Transmit((transmission & 0xff00) >> 8);
-		SPI___Transmit(transmission & 0xff);
+
+		SPI___Transmit(tx_hi);
+		SPI___Transmit(tx_lo);
+
+		while (SPI2->SR & SPI_SR_BSY);
 
 		boost___Deselect_CS();
+
+		__enable_irq();
 	}
 }
 

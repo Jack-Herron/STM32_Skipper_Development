@@ -23,7 +23,7 @@
 #define CCS___CMD_SETUP_RB			0x09
 #define CCS___CMD_UPDATE_ALL		0x0A
 
-volatile float 	CCS___Channel_Current[7] 	= {0};
+volatile float 	CCS___Channel_Current[8] 	= {0};
 const    uint8_t CCS___Channel[8] 			= {0,6,1,4,2,5,3,7};
 
 void CCS___GPIO_Init()
@@ -69,24 +69,33 @@ void CCS___Deselect_CS()
 
 void CCS___Write_Channel(uint8_t channel, float C_Set)
 {
-
-	if((C_Set >= 0.0f) && (C_Set <= CCS___MAX_CURRENT))
+	if (channel >= 8)
 	{
-		CCS___Select_CS();
-		CCS___Channel_Current[channel] = C_Set;
-		uint8_t tx[3];
-		uint16_t C_Code = (uint16_t)(((C_Set/2.5f)*4095.0f) + 0.5f);
-		uint16_t packet = (C_Code << 4);
-		tx[0] = (CCS___CMD_WRITE_AND_UPDATE << 4) | (CCS___Channel[channel] & 0xf);
-		tx[1] = ((packet & 0xff00) >> 8);
-		tx[2] = (packet & 0xff);
+		return;
+	}
 
-		for(uint8_t i = 0; i < 3; i++)
+	if ((C_Set >= 0.0f) && (C_Set <= CCS___MAX_CURRENT))
+	{
+		uint8_t tx[3];
+		uint16_t C_Code = (uint16_t)(((C_Set / 2.5f) * 4095.0f) + 0.5f);
+		uint16_t packet = (C_Code << 4);
+
+		CCS___Channel_Current[channel] = C_Set;
+
+		tx[0] = (CCS___CMD_WRITE_AND_UPDATE << 4) | (CCS___Channel[channel] & 0x0F);
+		tx[1] = (uint8_t)((packet >> 8) & 0xFF);
+		tx[2] = (uint8_t)(packet & 0xFF);
+
+		__disable_irq();
+		CCS___Select_CS();
+
+		for (uint8_t i = 0; i < 3; i++)
 		{
 			SPI___Transmit(tx[i]);
 		}
 
 		CCS___Deselect_CS();
+		__enable_irq();
 	}
 }
 

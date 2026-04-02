@@ -190,7 +190,27 @@ int main(void)
 	TS___Init();
 	TS___Set_Event_Callback(TS_Event_Callback);
 	QSPI___Init();
+	QSPI___Erase_Sector(0x0000);
 
+	uint8_t data[256];
+	for (uint16_t i = 0; i < 256; i++)
+	{
+	    data[i] = 0x55;
+	}
+	data[0] = 0xFF;
+
+	QSPI___Program_Page(0x0000, data, 256);
+
+	QSPI___Enable_MemoryMapped_Mode();
+
+#define QSPI_BASE 0x90000000
+
+	uint8_t test[256];
+	for(uint16_t i = 0; i < 256; i++)
+	{
+		test[i] = *(volatile uint8_t *)(QSPI_BASE + i);
+	}
+	//QSPI___Read_Bytes(0x0100, test, 256);
 	/* ------ Application Setup ------ */
 	App___GUI_Set_Buffers((void*)0xc0000000, (void*)(0xc0000000 + 768000), 768000);
 	App___GUI_Set_Dimentions(480, 800);

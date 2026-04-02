@@ -63,6 +63,11 @@ void clock___Delay_ms(uint32_t delay)
 	}
 }
 
+uint32_t clock___Get_Millis()
+{
+	return(clock___Millis_Count);
+}
+
 void clock___Init()
 {
 	clock___Setup();
