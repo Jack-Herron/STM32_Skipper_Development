@@ -142,7 +142,7 @@ void CAN2_RX0_IRQHandler(void)
 			uint8_t string_Code = (ID-0x700) % 2; // 0 = start string, 1 = data for string
 			if(string_Code == 0)
 			{
-				printf("%x : ", (int)ID);
+				//printf("%x : ", (int)ID);
 			}
 			else
 			{

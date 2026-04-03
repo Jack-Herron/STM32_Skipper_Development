@@ -8,6 +8,7 @@
 #include "CAN.h"
 #include "ADC.h"
 #include "main.h"
+#include "Temp.h"
 
 #define test_Current 		250
 #define HEADROOM_LOW		2.25f
@@ -16,6 +17,7 @@
 #define BOOST_STEP_DOWN     0.001f
 
 uint8_t setup_Complete = 0;
+volatile float temperature = 0;
 
 float measure_Vf(uint8_t channel, float current)
 {
@@ -37,13 +39,13 @@ float measure_Vf(uint8_t channel, float current)
 	return(gen_Voltage - channel_Voltage);
 }
 
-void TIM5_Init(void)
+void TIM3_Init(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;   // Enable TIM5 clock
 
     TIM3->CR1 = 0;                        // Upcounting, edge-aligned, disabled during setup
-    TIM3->PSC = 71;                       // 72 MHz / (71 + 1) = 1 MHz
-    TIM3->ARR = 99999;                    // 1 MHz / (99999 + 1) = 10 Hz (100 ms)
+    TIM3->PSC = 7199;                       // 72 MHz / (71 + 1) = 1 MHz
+    TIM3->ARR = 9999;                    // 1 MHz / (99999 + 1) = 10 Hz (100 ms)
 
     TIM3->CNT = 0;                        // Clear counter
 
@@ -127,7 +129,8 @@ int main(void)
 	CAN___Accept_All_Messages();
 	CAN___Set_RX_Callback(RX_Callback);
 	ADC___Init();
-	TIM5_Init();
+	TIM3_Init();
+	Temp___Init();
 
 	CCS___Write_Channel(0, 0);
 	CCS___Write_Channel(1, 0);
@@ -190,5 +193,12 @@ void TIM3_IRQHandler(void)				// 10Hz CAN status interrupt
         	payload.data[i] = (uint8_t)((CCS___Get_Channel_Current(i) / CCS___MAX_CURRENT) * 100.0f);
         }
         CAN___Transmit(payload);
+
+        printf("{\"Board_Right\":%0.2f,\"Board_Left\":%0.2f,\"LED_Back\":%0.2f,\"LED_Front\":%0.2f}\n",
+               Temp___Get_Temp(0),
+               Temp___Get_Temp(4),
+               Temp___Get_Temp(2),
+               Temp___Get_Temp(6));
+        //printf("This is a test\n");
     }
 }

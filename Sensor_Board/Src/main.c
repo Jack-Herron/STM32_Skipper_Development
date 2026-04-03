@@ -88,7 +88,7 @@ int main(void)
 	GPIOB->CRH &= ~GPIO_CRH_MODE15_Msk;				// Clear PB11 mode
 	GPIOB->CRH &= ~GPIO_CRH_CNF15_Msk;				// clear PB11 configuration
 
-	GPIOB->ODR &= ~GPIO_ODR_ODR15;					// Clear
+	GPIOB->ODR |= GPIO_ODR_ODR15;					// Clear
 
 	GPIOB->CRH |= GPIO_CRH_MODE15_0;				// Set PB11 to output (slow)
 
