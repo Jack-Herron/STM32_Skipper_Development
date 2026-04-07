@@ -45,7 +45,7 @@ void TIM3_Init(void)
 
     TIM3->CR1 = 0;                        // Upcounting, edge-aligned, disabled during setup
     TIM3->PSC = 7199;                       // 72 MHz / (71 + 1) = 1 MHz
-    TIM3->ARR = 9999;                    // 1 MHz / (99999 + 1) = 10 Hz (100 ms)
+    TIM3->ARR = 999;                    // 1 MHz / (99999 + 1) = 10 Hz (100 ms)
 
     TIM3->CNT = 0;                        // Clear counter
 
@@ -175,7 +175,7 @@ int main(void)
 
 	    boost___Set_Voltage(boost_cmd);
 
-	    clock___Delay_ms(5);   // ~50 Hz loop
+	    clock___Delay_ms(5);   // ~200 Hz loop
 	}
 }
 
@@ -194,11 +194,15 @@ void TIM3_IRQHandler(void)				// 10Hz CAN status interrupt
         }
         CAN___Transmit(payload);
 
-        printf("{\"Board_Right\":%0.2f,\"Board_Left\":%0.2f,\"LED_Back\":%0.2f,\"LED_Front\":%0.2f}\n",
+        printf("{\"Board_Right\":%0.2f,"
+               "\"Board_Left\":%0.2f,"
+               "\"LED_Back\":%0.2f,"
+               "\"LED_Front\":%0.2f,"
+               "\"Boost_Voltage\":%0.2f}\n",
                Temp___Get_Temp(0),
                Temp___Get_Temp(4),
                Temp___Get_Temp(2),
-               Temp___Get_Temp(6));
-        //printf("This is a test\n");
+               Temp___Get_Temp(6),
+               ADC___Get_Voltage(8));
     }
 }

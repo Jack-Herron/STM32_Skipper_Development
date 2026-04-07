@@ -183,6 +183,7 @@ int main(void)
 	DSI_LCD___Init();
 	TIM4CH2_Init();
 	USART___Init(4);
+	USART___Set_Baud_Rate(4, 115200);
 	CAN___Init();
 	CAN___Accept_All_Messages();
 	CAN___Set_RX_Callback(CAN_Data_Receive_Callback);

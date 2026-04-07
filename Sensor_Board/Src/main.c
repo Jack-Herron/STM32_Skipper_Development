@@ -95,18 +95,22 @@ int main(void)
 
 	for(;;)
 	{
-		for(uint16_t i = 25; i < 100; i++)
-		{
-			set_Motor_Speed(i);
-			clock___Delay_ms(50);
-		}
-		clock___Delay_ms(1000);
-		for(uint16_t i = 99; i > 25; i--)
-		{
-			set_Motor_Speed(i);
-			clock___Delay_ms(50);
-		}
-		clock___Delay_ms(1000);
+		printf("{\"soil_moisture_1\":%.2f,\"soil_moisture_2\":%.2f,\"soil_moisture_3\":%.2f}\n",
+		       ADC___Get_Voltage(1),
+		       ADC___Get_Voltage(2),
+		       ADC___Get_Voltage(3));
+//		for(uint16_t i = 25; i < 100; i++)
+//		{
+//			set_Motor_Speed(i);
+//			clock___Delay_ms(50);
+//		}
+//		clock___Delay_ms(1000);
+//		for(uint16_t i = 99; i > 25; i--)
+//		{
+//			set_Motor_Speed(i);
+//			clock___Delay_ms(50);
+//		}
+  		clock___Delay_ms(1000);
 	}
 }
 

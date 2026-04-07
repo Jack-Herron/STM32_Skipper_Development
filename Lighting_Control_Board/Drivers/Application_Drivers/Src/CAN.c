@@ -12,37 +12,57 @@
 void (*CAN___RX_Callback)(CAN___Receive_TypeDef) = NULL;
 
 #if CAN___ENABLE_STDIO == 1
-	int _write(int file __attribute__((unused)), char *data, int len)
-	{
-		CAN_Tansmit_TypeDef packet;
-		packet.ID = 0x700;
-		packet.data_Length = 1;
-		CAN___Transmit(packet);
 
-		uint32_t len_Remaining = len;
-		uint32_t num_Packets = (len+7)/8;
+int _write(int file __attribute__((unused)), char *data, int len)
+{
+    if ((data == NULL) || (len <= 0))
+    {
+        return 0;
+    }
 
-		for(uint32_t i = 0; i < num_Packets; i++)
-		{
-			uint8_t length_To_Transmit = len_Remaining > 8 ? 8 : len_Remaining;
-			packet.ID = 0x701;
-			for(uint8_t j = 0; j < length_To_Transmit; j++)
-			{
-				packet.data[j] = data[i*8+j];
-			}
-			packet.data_Length = length_To_Transmit;
+    uint32_t primask = __get_PRIMASK();
+    __disable_irq();
 
-			CAN___Transmit(packet);
-			len_Remaining -= length_To_Transmit;
-		}
-		return(len);
-	}
+    CAN_Tansmit_TypeDef packet;
 
-	int _read(int file __attribute__((unused)), char *data, int len)
-	{
+    packet.ID = 0x700;
+    packet.data_Length = 1;
+    packet.data[0] = 0;
+    CAN___Transmit(packet);
 
-		return len;
-	}
+    uint32_t len_remaining = (uint32_t)len;
+    uint32_t num_packets   = ((uint32_t)len + 7U) / 8U;
+
+    for (uint32_t i = 0; i < num_packets; i++)
+    {
+        uint8_t length_to_transmit = (len_remaining > 8U) ? 8U : (uint8_t)len_remaining;
+
+        packet.ID = 0x701;
+        packet.data_Length = length_to_transmit;
+
+        for (uint8_t j = 0; j < length_to_transmit; j++)
+        {
+            packet.data[j] = (uint8_t)data[i * 8U + j];
+        }
+
+        CAN___Transmit(packet);
+        len_remaining -= length_to_transmit;
+    }
+
+    if (primask == 0U)
+    {
+        __enable_irq();
+    }
+
+    return len;
+}
+
+int _read(int file __attribute__((unused)), char *data, int len)
+{
+    (void)data;
+    return len;
+}
+
 #endif
 
 void CAN___GPIO_Init(void)

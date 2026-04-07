@@ -81,27 +81,6 @@ static float Profiles___Bell_Curve(float x)
 	return value;
 }
 
-/*
- * Smooth ramp from 0 to 1
- * x should be in range 0.0 to 1.0
- */
-static float Profiles___Rise_Curve(float x)
-{
-	x = Profiles___Clamp(x, 0.0f, 1.0f);
-	return 0.5f - 0.5f * cosf(x * 3.14159265f);
-}
-
-/*
- * Smooth ramp from 1 to 0
- * x should be in range 0.0 to 1.0
- */
-static float Profiles___Fall_Curve(float x)
-{
-	x = Profiles___Clamp(x, 0.0f, 1.0f);
-	return 0.5f + 0.5f * cosf(x * 3.14159265f);
-}
-
-
 void Profiles___Init_Demo_Profile(void)
 {
 	for (uint16_t i = 0; i < PROFILE_LENGTH; i++)
@@ -115,50 +94,30 @@ void Profiles___Init_Demo_Profile(void)
 		float white    = 0.0f;
 
 		/*
-		 * Only two regions:
-		 * - night
-		 * - active day window
-		 *
-		 * Day window = 90% of cycle
-		 * Night total = 10%
+		 * Extended night blanking:
+		 * active day only between 10% and 90%
 		 */
-		if ((phase >= 0.05f) && (phase <= 0.95f))
+		if ((phase >= 0.10f) && (phase <= 0.90f))
 		{
-			float x = (phase - 0.05f) / 0.90f;   // 0 to 1 across active day
+			float x = (phase - 0.10f) / 0.80f;   // 0 to 1 across active day
 
 			/*
-			 * Broad envelope for red/far-red:
-			 * keeps them elevated longer
+			 * Five pure bell curves.
+			 * Each channel uses one fixed-width bell only.
+			 * No piecewise regions, no changing scale factors over time.
 			 */
-			float x_red = (x - 0.5f) * 0.75f + 0.5f;
-			float bell_red = Profiles___Bell_Curve(x_red);
 
-			/*
-			 * Narrower envelope for lime/purple:
-			 * sharper peak near midday
-			 */
-			float x_narrow = (x - 0.5f) * 1.55f + 0.5f;
-			float bell_narrow = Profiles___Bell_Curve(x_narrow);
+			float red_curve      = powf(Profiles___Bell_Curve(x), 0.65f);  // widest
+			float far_red_curve  = powf(Profiles___Bell_Curve(x), 0.80f);
+			float white_curve    = powf(Profiles___Bell_Curve(x), 1.10f);
+			float lime_curve     = powf(Profiles___Bell_Curve(x), 1.45f);
+			float purple_curve   = powf(Profiles___Bell_Curve(x), 1.65f);  // narrowest
 
-			/*
-			 * White somewhere in between
-			 */
-			float x_white = (x - 0.5f) * 1.10f + 0.5f;
-			float bell_white = Profiles___Bell_Curve(x_white);
-
-			red     = 35.0f + 55.0f * bell_red;      // broad, lasts long
-			far_red = 12.0f + 26.0f * bell_red;      // broad, softer
-			purple  = 10.0f + 85.0f * bell_narrow;   // tall, narrow peak
-			lime    = 12.0f + 83.0f * bell_narrow;   // tall, narrow peak
-			white   =  6.0f + 34.0f * bell_white;    // moderate, smooth
-		}
-		else
-		{
-			red = 0.0f;
-			far_red = 0.0f;
-			purple = 0.0f;
-			lime = 0.0f;
-			white = 0.0f;
+			red     = 90.0f * red_curve;
+			far_red = 38.0f * far_red_curve;
+			white   = 42.0f * white_curve;
+			lime    = 95.0f * lime_curve;
+			purple  = 95.0f * purple_curve;
 		}
 
 		profile[i].white   = Profiles___To_Level(white);
@@ -243,10 +202,10 @@ void Profiles___Start_Task(void const * argument)
 			osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
 
 			App___IO_Control_State.lighting.white   = 65535;
-			App___IO_Control_State.lighting.red     = 65535;
-			App___IO_Control_State.lighting.far_Red = 65535;
-			App___IO_Control_State.lighting.purple  = 65535;
-			App___IO_Control_State.lighting.lime    = 65535;
+			App___IO_Control_State.lighting.red     = 0;
+			App___IO_Control_State.lighting.far_Red = 0;
+			App___IO_Control_State.lighting.purple  = 0;
+			App___IO_Control_State.lighting.lime    = 0;
 
 			osMutexRelease(App___IO_Control_State_Mutex);
 
