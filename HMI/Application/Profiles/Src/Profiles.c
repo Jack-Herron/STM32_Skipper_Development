@@ -142,6 +142,10 @@ void Profiles___Start_Task(void const * argument)
 
 	osSignalWait(APP___PROFILES_TASK_START_FLAG, osWaitForever);
 
+	osMutexWait(App___Profiles_State_Mutex, osWaitForever);
+	App___Profiles_State.lighting_Mode = 1;	// intitial state = paused
+	osMutexRelease(App___Profiles_State_Mutex);
+
 	for (;;)
 	{
 		osMutexWait(App___Profiles_State_Mutex, osWaitForever);

@@ -74,15 +74,6 @@ void ui_event_Panel16(lv_event_t * e)
     }
 }
 
-void ui_event_Panel20(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-
-    if(event_code == LV_EVENT_CLICKED) {
-        GUI_Toggle_Bright_Mode(e);
-    }
-}
-
 void ui_event_Panel17(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -550,7 +541,6 @@ void ui_Settings_screen_init(void)
                                                                                               lv_obj_get_style_pad_right(ui_Slider2, LV_PART_MAIN) + 1, LV_PART_MAIN);
     lv_obj_add_event_cb(ui_Button2, ui_event_Button2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel16, ui_event_Panel16, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_Panel20, ui_event_Panel20, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel17, ui_event_Panel17, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel18, ui_event_Panel18, LV_EVENT_ALL, NULL);
     uic_Graph_1HAgo = ui_Label44;

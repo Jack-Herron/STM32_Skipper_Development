@@ -3,18 +3,22 @@
 // LVGL version: 9.2.2
 // Project name: SquareLine_Project
 
-#ifndef _UI_EVENTS_H
-#define _UI_EVENTS_H
+#ifndef UI_TOOLS_H
+#define UI_TOOLS_H
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void GUI___Play_Pause(lv_event_t * e);
-void GUI___Date_Time_Change_Callback(lv_event_t * e);
+// SCREEN: ui_Tools
+extern void ui_Tools_screen_init(void);
+extern void ui_Tools_screen_destroy(void);
+extern lv_obj_t * ui_Tools;
+// CUSTOM VARIABLES
 
 #ifdef __cplusplus
 } /*extern "C"*/
 #endif
 
 #endif
+

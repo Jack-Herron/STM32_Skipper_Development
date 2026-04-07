@@ -25,6 +25,7 @@ extern "C" {
 #include "screens/ui_Calendar.h"
 #include "screens/ui_Profiles.h"
 #include "screens/ui_Water.h"
+#include "screens/ui_Tools.h"
 
 ///////////////////// VARIABLES ////////////////////
 
@@ -36,6 +37,9 @@ extern lv_obj_t * ui____initial_actions0;
 
 // IMAGES AND IMAGE SETS
 LV_IMG_DECLARE(ui_img_carolina_reaper_icon_250x250_png);    // assets/Carolina_Reaper_Icon_250x250.png
+LV_IMG_DECLARE(ui_img_pause_icon_60x60_png);    // assets/Pause_Icon_60x60.png
+LV_IMG_DECLARE(ui_img_play_icon_60x60_png);    // assets/Play_Icon_60x60.png
+LV_IMG_DECLARE(ui_img_toolbox_icon_60x60_png);    // assets/Toolbox_Icon_60x60.png
 LV_IMG_DECLARE(ui_img_statistics_icon_60x60_png);    // assets/Statistics_Icon_60x60.png
 LV_IMG_DECLARE(ui_img_settings_icon_60x60_png);    // assets/Settings Icon 60x60.png
 LV_IMG_DECLARE(ui_img_duck_80x80_png);    // assets/Duck_80x80.png

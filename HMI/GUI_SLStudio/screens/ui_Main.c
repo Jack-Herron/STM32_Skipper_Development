@@ -5,7 +5,11 @@
 
 #include "../ui.h"
 
+lv_obj_t * uic_Play_Image;
+lv_obj_t * uic_Pause_Image;
+lv_obj_t * uic_Status_Text;
 lv_obj_t * uic_Main_Clock;
+lv_obj_t * uic_Progress_Bar;
 lv_obj_t * ui_Main = NULL;
 lv_obj_t * ui_Bar6 = NULL;
 lv_obj_t * ui_Container4 = NULL;
@@ -28,7 +32,10 @@ lv_obj_t * ui_Label5 = NULL;
 lv_obj_t * ui_Label9 = NULL;
 lv_obj_t * ui_Container2 = NULL;
 lv_obj_t * ui_Panel6 = NULL;
+lv_obj_t * ui_Image3 = NULL;
+lv_obj_t * ui_Image2 = NULL;
 lv_obj_t * ui_Panel7 = NULL;
+lv_obj_t * ui_Image6 = NULL;
 lv_obj_t * ui_Panel8 = NULL;
 lv_obj_t * ui_Image5 = NULL;
 lv_obj_t * ui_Panel3 = NULL;
@@ -84,7 +91,7 @@ void ui_event_Panel6(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
 
     if(event_code == LV_EVENT_CLICKED) {
-        _ui_screen_change(&ui_Status, LV_SCR_LOAD_ANIM_NONE, 0, 0, &ui_Status_screen_init);
+        GUI___Play_Pause(e);
     }
 }
 
@@ -144,7 +151,7 @@ void ui_Main_screen_init(void)
     lv_obj_set_align(ui_Bar6, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Bar6, LV_OBJ_FLAG_FLOATING);     /// Flags
     lv_obj_set_style_radius(ui_Bar6, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Bar6, lv_color_hex(0x043616), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Bar6, lv_color_hex(0x343604), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Bar6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_left(ui_Bar6, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_Bar6, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -154,7 +161,7 @@ void ui_Main_screen_init(void)
     lv_obj_set_style_pad_column(ui_Bar6, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_set_style_radius(ui_Bar6, 0, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_Bar6, lv_color_hex(0x07FF00), LV_PART_INDICATOR | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_Bar6, lv_color_hex(0xFFD600), LV_PART_INDICATOR | LV_STATE_DEFAULT);
     lv_obj_set_style_bg_opa(ui_Bar6, 255, LV_PART_INDICATOR | LV_STATE_DEFAULT);
 
     //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
@@ -271,7 +278,7 @@ void ui_Main_screen_init(void)
     lv_obj_set_width(ui_Label13, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label13, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_Label13, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_Label13, "TIME_ERR");
+    lv_label_set_text(ui_Label13, "9:48 AM");
     lv_obj_set_style_text_font(ui_Label13, &lv_font_montserrat_26, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_Panel2 = lv_obj_create(ui_Container4);
@@ -302,8 +309,8 @@ void ui_Main_screen_init(void)
     lv_obj_set_x(ui_Label7, lv_pct(0));
     lv_obj_set_y(ui_Label7, lv_pct(-40));
     lv_obj_set_align(ui_Label7, LV_ALIGN_RIGHT_MID);
-    lv_label_set_text(ui_Label7, "Ready To Harvest");
-    lv_obj_set_style_text_color(ui_Label7, lv_color_hex(0x00FF1D), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_Label7, "Paused");
+    lv_obj_set_style_text_color(ui_Label7, lv_color_hex(0xFFD600), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_Label7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_Label7, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -364,6 +371,24 @@ void ui_Main_screen_init(void)
     lv_obj_set_style_border_opa(ui_Panel6, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Panel6, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_Image3 = lv_image_create(ui_Panel6);
+    lv_image_set_src(ui_Image3, &ui_img_pause_icon_60x60_png);
+    lv_obj_set_width(ui_Image3, 60);
+    lv_obj_set_height(ui_Image3, LV_SIZE_CONTENT);    /// 60
+    lv_obj_set_align(ui_Image3, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image3, LV_OBJ_FLAG_HIDDEN | LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_remove_flag(ui_Image3, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+
+    ui_Image2 = lv_image_create(ui_Panel6);
+    lv_image_set_src(ui_Image2, &ui_img_play_icon_60x60_png);
+    lv_obj_set_width(ui_Image2, 60);
+    lv_obj_set_height(ui_Image2, LV_SIZE_CONTENT);    /// 60
+    lv_obj_set_align(ui_Image2, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_remove_flag(ui_Image2, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+
     ui_Panel7 = lv_obj_create(ui_Container2);
     lv_obj_set_width(ui_Panel7, 90);
     lv_obj_set_height(ui_Panel7, 90);
@@ -376,6 +401,15 @@ void ui_Main_screen_init(void)
     lv_obj_set_style_border_color(ui_Panel7, lv_color_hex(0x7B7B87), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_opa(ui_Panel7, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_border_width(ui_Panel7, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Image6 = lv_image_create(ui_Panel7);
+    lv_image_set_src(ui_Image6, &ui_img_toolbox_icon_60x60_png);
+    lv_obj_set_width(ui_Image6, 60);
+    lv_obj_set_height(ui_Image6, LV_SIZE_CONTENT);    /// 60
+    lv_obj_set_align(ui_Image6, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image6, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
+    lv_obj_remove_flag(ui_Image6, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_GESTURE_BUBBLE |
+                       LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE);     /// Flags
 
     ui_Panel8 = lv_obj_create(ui_Container2);
     lv_obj_set_width(ui_Panel8, 90);
@@ -392,7 +426,7 @@ void ui_Main_screen_init(void)
 
     ui_Image5 = lv_image_create(ui_Panel8);
     lv_image_set_src(ui_Image5, &ui_img_statistics_icon_60x60_png);
-    lv_obj_set_width(ui_Image5, LV_SIZE_CONTENT);   /// 60
+    lv_obj_set_width(ui_Image5, 60);
     lv_obj_set_height(ui_Image5, LV_SIZE_CONTENT);    /// 60
     lv_obj_set_align(ui_Image5, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_Image5, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_EVENT_BUBBLE);     /// Flags
@@ -430,7 +464,11 @@ void ui_Main_screen_init(void)
     lv_obj_add_event_cb(ui_Panel7, ui_event_Panel7, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel8, ui_event_Panel8, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel3, ui_event_Panel3, LV_EVENT_ALL, NULL);
+    uic_Progress_Bar = ui_Bar6;
     uic_Main_Clock = ui_Label13;
+    uic_Status_Text = ui_Label7;
+    uic_Pause_Image = ui_Image3;
+    uic_Play_Image = ui_Image2;
 
 }
 
@@ -440,6 +478,7 @@ void ui_Main_screen_destroy(void)
 
     // NULL screen variables
     ui_Main = NULL;
+    uic_Progress_Bar = NULL;
     ui_Bar6 = NULL;
     ui_Container4 = NULL;
     ui_Panel1 = NULL;
@@ -455,6 +494,7 @@ void ui_Main_screen_destroy(void)
     ui_Label13 = NULL;
     ui_Panel2 = NULL;
     ui_Label3 = NULL;
+    uic_Status_Text = NULL;
     ui_Label7 = NULL;
     ui_Label4 = NULL;
     ui_Label8 = NULL;
@@ -462,7 +502,12 @@ void ui_Main_screen_destroy(void)
     ui_Label9 = NULL;
     ui_Container2 = NULL;
     ui_Panel6 = NULL;
+    uic_Pause_Image = NULL;
+    ui_Image3 = NULL;
+    uic_Play_Image = NULL;
+    ui_Image2 = NULL;
     ui_Panel7 = NULL;
+    ui_Image6 = NULL;
     ui_Panel8 = NULL;
     ui_Image5 = NULL;
     ui_Panel3 = NULL;

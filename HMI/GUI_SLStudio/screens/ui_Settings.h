@@ -36,7 +36,6 @@ extern lv_obj_t * ui_Label51;
 extern lv_obj_t * ui_Label52;
 extern lv_obj_t * ui_Label53;
 extern lv_obj_t * ui_Container5;
-extern void ui_event_Panel20(lv_event_t * e);
 extern lv_obj_t * ui_Panel20;
 extern lv_obj_t * ui_Panel4;
 extern lv_obj_t * ui_Bar13;

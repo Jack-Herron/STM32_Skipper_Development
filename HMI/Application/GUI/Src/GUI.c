@@ -116,11 +116,42 @@ void GUI___LV_Flush_wait_Callback(lv_display_t * disp)
     lv_display_flush_ready(disp);
 }
 
+int GUI___Set_Text_If_Changed(lv_obj_t *label, const char *new_text)
+{
+    const char *current = lv_label_get_text(label);
+    if(current && new_text && strcmp(current, new_text) == 0) return false;
 
-// TODO rename this function
-void GUI_Toggle_Bright_Mode(lv_event_t * e)
+    lv_label_set_text(label, new_text);
+    return true;
+}
+
+
+void GUI___Play_Pause(lv_event_t * e)
 {
 	osMutexWait(App___Profiles_State_Mutex, osWaitForever);
+
+	if(App___Profiles_State.lighting_Mode == 0)		// paused mode
+	{
+		lv_obj_set_flag(uic_Pause_Image, LV_OBJ_FLAG_HIDDEN, 1);
+		lv_obj_set_flag(uic_Play_Image, LV_OBJ_FLAG_HIDDEN, 0);
+
+		lv_obj_set_style_bg_color(uic_Progress_Bar, lv_color_hex(0x343604), LV_PART_MAIN);
+		lv_obj_set_style_bg_color(uic_Progress_Bar, lv_color_hex(0xFFD600), LV_PART_INDICATOR);
+
+		lv_obj_set_style_text_color(uic_Status_Text, lv_color_hex(0xFFD600), LV_PART_MAIN);
+		GUI___Set_Text_If_Changed(uic_Status_Text, "Paused");
+	}
+	else
+	{
+		lv_obj_set_flag(uic_Pause_Image, LV_OBJ_FLAG_HIDDEN, 0);
+		lv_obj_set_flag(uic_Play_Image, LV_OBJ_FLAG_HIDDEN, 1);
+
+		lv_obj_set_style_bg_color(uic_Progress_Bar, lv_color_hex(0x043616), LV_PART_MAIN);
+		lv_obj_set_style_bg_color(uic_Progress_Bar, lv_color_hex(0x07FF00), LV_PART_INDICATOR);
+
+		lv_obj_set_style_text_color(uic_Status_Text, lv_color_hex(0x00FF1D), LV_PART_MAIN);
+		GUI___Set_Text_If_Changed(uic_Status_Text, "Ready To Harvest");
+	}
 
 	App___Profiles_State.lighting_Mode ^= 1;
 
@@ -169,15 +200,6 @@ char* GUI___Formated_Time_String(uint8_t hour, uint8_t minute, uint8_t pm, char*
 	}
 
 	return(buffer);
-}
-
-int GUI___Set_Text_If_Changed(lv_obj_t *label, const char *new_text)
-{
-    const char *current = lv_label_get_text(label);
-    if(current && new_text && strcmp(current, new_text) == 0) return false;
-
-    lv_label_set_text(label, new_text);
-    return true;
 }
 
 void GUI___Refresh_Time()

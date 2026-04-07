@@ -17,7 +17,14 @@ extern lv_obj_t * ui_Status;
 extern void ui_event_Button4(lv_event_t * e);
 extern lv_obj_t * ui_Button4;
 extern lv_obj_t * ui_Label22;
-extern lv_obj_t * ui_Label23;
+extern lv_obj_t * ui_Panel22;
+extern lv_obj_t * ui_Panel19;
+extern lv_obj_t * ui_Bar5;
+extern lv_obj_t * ui_Bar1;
+extern lv_obj_t * ui_Bar2;
+extern lv_obj_t * ui_Bar3;
+extern lv_obj_t * ui_WhiteLightIndicator2;
+extern lv_obj_t * ui_Label14;
 // CUSTOM VARIABLES
 
 #ifdef __cplusplus
