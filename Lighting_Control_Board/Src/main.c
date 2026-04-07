@@ -194,15 +194,20 @@ void TIM3_IRQHandler(void)				// 10Hz CAN status interrupt
         }
         CAN___Transmit(payload);
 
-        printf("{\"Board_Right\":%0.2f,"
-               "\"Board_Left\":%0.2f,"
-               "\"LED_Back\":%0.2f,"
-               "\"LED_Front\":%0.2f,"
-               "\"Boost_Voltage\":%0.2f}\n",
-               Temp___Get_Temp(0),
-               Temp___Get_Temp(4),
-               Temp___Get_Temp(2),
-               Temp___Get_Temp(6),
-               ADC___Get_Voltage(8));
+        float br = Temp___Get_Temp(0);
+        float bl = Temp___Get_Temp(4);
+        float lb = Temp___Get_Temp(2);
+        float lf = Temp___Get_Temp(6);
+        float bv = ADC___Get_Voltage(8);
+
+        if (br != 0.0f && bl != 0.0f && lb != 0.0f && lf != 0.0f && bv != 0.0f)
+        {
+			printf("{\"Board_Right\":%0.2f,"
+				   "\"Board_Left\":%0.2f,"
+				   "\"LED_Back\":%0.2f,"
+				   "\"LED_Front\":%0.2f,"
+				   "\"Boost_Voltage\":%0.2f}\n",
+				   br, bl, lb, lf, bv);
+        }
     }
 }
