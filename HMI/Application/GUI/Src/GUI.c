@@ -125,6 +125,39 @@ int GUI___Set_Text_If_Changed(lv_obj_t *label, const char *new_text)
     return true;
 }
 
+uint32_t profile_Length = 115;
+
+void GUI___Select_Pepper(lv_event_t * e)
+{
+	lv_obj_set_flag(uic_Pepper, LV_OBJ_FLAG_HIDDEN, 0);
+	lv_obj_set_flag(uic_Onion, LV_OBJ_FLAG_HIDDEN, 1);
+	GUI___Set_Text_If_Changed(uic_Profile_Label, "Carolina Reaper");
+	profile_Length = 115;
+
+	osMutexWait(App___Profiles_State_Mutex, osWaitForever);
+	App___Profiles_State.initial_Days_Remaining = 115;
+	App___Profiles_State.days_Remaining = 115;
+	App___Profiles_State.day_Number = 0;
+
+	osMutexRelease(App___Profiles_State_Mutex);
+
+}
+
+void GUI___Select_Onion(lv_event_t * e)
+{
+	lv_obj_set_flag(uic_Pepper, LV_OBJ_FLAG_HIDDEN, 1);
+	lv_obj_set_flag(uic_Onion, LV_OBJ_FLAG_HIDDEN, 0);
+	GUI___Set_Text_If_Changed(uic_Profile_Label, "Onion");
+	profile_Length = 132;
+
+	osMutexWait(App___Profiles_State_Mutex, osWaitForever);
+
+	App___Profiles_State.initial_Days_Remaining = 135;
+	App___Profiles_State.days_Remaining = 135;
+	App___Profiles_State.day_Number = 0;
+
+	osMutexRelease(App___Profiles_State_Mutex);
+}
 
 void GUI___Play_Pause(lv_event_t * e)
 {
@@ -150,11 +183,11 @@ void GUI___Play_Pause(lv_event_t * e)
 		lv_obj_set_style_bg_color(uic_Progress_Bar, lv_color_hex(0x07FF00), LV_PART_INDICATOR);
 
 		lv_obj_set_style_text_color(uic_Status_Text, lv_color_hex(0x00FF1D), LV_PART_MAIN);
-		GUI___Set_Text_If_Changed(uic_Status_Text, "Ready To Harvest");
+		//GUI___Set_Text_If_Changed(uic_Status_Text, "Ready To Harvest");
 	}
 
 	App___Profiles_State.lighting_Mode ^= 1;
-
+	App___Profiles_State.paused ^= 1;
 	osMutexRelease(App___Profiles_State_Mutex);
 }
 
@@ -218,15 +251,48 @@ void GUI___Refresh_Time()
 
 	char time_Str[32];
 
-	GUI___Set_Text_If_Changed(uic_Graph_7HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 7), time.minute, 2, time_Str));
-	GUI___Set_Text_If_Changed(uic_Graph_6HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 6), time.minute, 2, time_Str));
-	GUI___Set_Text_If_Changed(uic_Graph_5HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 5), time.minute, 2, time_Str));
-	GUI___Set_Text_If_Changed(uic_Graph_4HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 4), time.minute, 2, time_Str));
-	GUI___Set_Text_If_Changed(uic_Graph_3HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 3), time.minute, 2, time_Str));
-	GUI___Set_Text_If_Changed(uic_Graph_2HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 2), time.minute, 2, time_Str));
-	GUI___Set_Text_If_Changed(uic_Graph_1HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 1), time.minute, 2, time_Str));
+//	GUI___Set_Text_If_Changed(uic_Graph_7HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 7), time.minute, 2, time_Str));
+//	GUI___Set_Text_If_Changed(uic_Graph_6HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 6), time.minute, 2, time_Str));
+//	GUI___Set_Text_If_Changed(uic_Graph_5HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 5), time.minute, 2, time_Str));
+//	GUI___Set_Text_If_Changed(uic_Graph_4HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 4), time.minute, 2, time_Str));
+//	GUI___Set_Text_If_Changed(uic_Graph_3HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 3), time.minute, 2, time_Str));
+//	GUI___Set_Text_If_Changed(uic_Graph_2HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 2), time.minute, 2, time_Str));
+//	GUI___Set_Text_If_Changed(uic_Graph_1HAgo, GUI___Formated_Time_String(GUI___Get_Hour_xHours_Ago(time.hour, 1), time.minute, 2, time_Str));
 
 	GUI___Set_Text_If_Changed(uic_Main_Clock, GUI___Formated_Time_String(time.hour, time.minute, time.pm, time_Str));
+
+	osMutexWait(App___Profiles_State_Mutex, osWaitForever);
+
+	char buffer[16];
+
+	sprintf(buffer, "%d days", App___Profiles_State.days_Remaining);
+
+	GUI___Set_Text_If_Changed(uic_Time_Remaining, buffer);
+
+	sprintf(buffer, "%d days", App___Profiles_State.day_Number);
+
+	GUI___Set_Text_If_Changed(uic_Time_Since_Start, buffer);
+
+	if(App___Profiles_State.lighting_Mode == 0)
+	{
+		if(App___Profiles_State.days_Remaining < 10)
+		{
+			GUI___Set_Text_If_Changed(uic_Status_Text, "Ready To Harvest");
+		}
+		else if(App___Profiles_State.day_Number < 10)
+		{
+			GUI___Set_Text_If_Changed(uic_Status_Text, "Seedling");
+		}
+		else
+		{
+			GUI___Set_Text_If_Changed(uic_Status_Text, "Growing");
+		}
+	}
+
+	_ui_bar_set_property(uic_Progress_Bar, 	0, 	((float)App___Profiles_State.day_Number / ((float)App___Profiles_State.days_Remaining + (float)App___Profiles_State.day_Number)) * 100.0f);
+
+	osMutexRelease(App___Profiles_State_Mutex);
+
 	_ui_label_set_property(uic_Calendar_Clock, 0, time_Str);
 
 }

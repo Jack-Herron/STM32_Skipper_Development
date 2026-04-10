@@ -105,6 +105,10 @@ typedef struct {
 // Profiles typedefs
 typedef struct {
 	uint8_t lighting_Mode;
+	uint8_t day_Number;
+	uint8_t days_Remaining;
+	uint8_t initial_Days_Remaining;
+	uint8_t paused;
 } App___Profiles_State_TypeDef;
 
 extern volatile App___Profiles_State_TypeDef 	App___Profiles_State;

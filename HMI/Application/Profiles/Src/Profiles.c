@@ -13,7 +13,7 @@
 
 #define PROFILE_LENGTH          300U
 #define INTERPOLATION_STEPS     36U
-#define PROFILE_STEP_MS         5U
+#define PROFILE_STEP_MS         1U
 
 typedef struct
 {
@@ -104,7 +104,6 @@ void Profiles___Init_Demo_Profile(void)
 			/*
 			 * Five pure bell curves.
 			 * Each channel uses one fixed-width bell only.
-			 * No piecewise regions, no changing scale factors over time.
 			 */
 
 			float red_curve      = powf(Profiles___Bell_Curve(x), 0.65f);  // widest
@@ -128,7 +127,6 @@ void Profiles___Init_Demo_Profile(void)
 	}
 }
 
-
 void Profiles___Start_Task(void const * argument)
 {
 	uint16_t profile_Index = 0;
@@ -138,12 +136,18 @@ void Profiles___Start_Task(void const * argument)
 	Lighting_Profile_Point next_Point;
 	Lighting_Profile_Point output_Point;
 
+	(void)argument;
+
 	Profiles___Init_Demo_Profile();
 
 	osSignalWait(APP___PROFILES_TASK_START_FLAG, osWaitForever);
 
 	osMutexWait(App___Profiles_State_Mutex, osWaitForever);
-	App___Profiles_State.lighting_Mode = 1;	// intitial state = paused
+	App___Profiles_State.lighting_Mode = 1;   // initial state = paused
+	App___Profiles_State.days_Remaining = 115;
+	App___Profiles_State.initial_Days_Remaining = 115;
+	App___Profiles_State.paused = 1;
+
 	osMutexRelease(App___Profiles_State_Mutex);
 
 	for (;;)
@@ -152,52 +156,70 @@ void Profiles___Start_Task(void const * argument)
 
 		if (App___Profiles_State.lighting_Mode == 0)
 		{
-			current_Point = profile[profile_Index];
-
-			if ((profile_Index + 1U) >= PROFILE_LENGTH)
+			if (App___Profiles_State.days_Remaining == 0)
 			{
-				next_Point = profile[0];
+				App___Profiles_State.lighting_Mode = 1;
 			}
 			else
 			{
-				next_Point = profile[profile_Index + 1U];
-			}
+				current_Point = profile[profile_Index];
 
-			output_Point.white =
-				Profiles___Interpolate_U16(current_Point.white, next_Point.white, interp_Step, INTERPOLATION_STEPS);
-
-			output_Point.red =
-				Profiles___Interpolate_U16(current_Point.red, next_Point.red, interp_Step, INTERPOLATION_STEPS);
-
-			output_Point.far_red =
-				Profiles___Interpolate_U16(current_Point.far_red, next_Point.far_red, interp_Step, INTERPOLATION_STEPS);
-
-			output_Point.purple =
-				Profiles___Interpolate_U16(current_Point.purple, next_Point.purple, interp_Step, INTERPOLATION_STEPS);
-
-			output_Point.lime =
-				Profiles___Interpolate_U16(current_Point.lime, next_Point.lime, interp_Step, INTERPOLATION_STEPS);
-
-			osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
-
-			App___IO_Control_State.lighting.white   = output_Point.white;
-			App___IO_Control_State.lighting.red     = output_Point.red;
-			App___IO_Control_State.lighting.far_Red = output_Point.far_red;
-			App___IO_Control_State.lighting.purple  = output_Point.purple;
-			App___IO_Control_State.lighting.lime    = output_Point.lime;
-
-			osMutexRelease(App___IO_Control_State_Mutex);
-
-			interp_Step++;
-
-			if (interp_Step > INTERPOLATION_STEPS)
-			{
-				interp_Step = 0;
-				profile_Index++;
-
-				if (profile_Index >= PROFILE_LENGTH)
+				if ((profile_Index + 1U) >= PROFILE_LENGTH)
 				{
-					profile_Index = 0;
+					next_Point = profile[0];
+				}
+				else
+				{
+					next_Point = profile[profile_Index + 1U];
+				}
+
+				output_Point.white =
+					Profiles___Interpolate_U16(current_Point.white, next_Point.white, interp_Step, INTERPOLATION_STEPS);
+
+				output_Point.red =
+					Profiles___Interpolate_U16(current_Point.red, next_Point.red, interp_Step, INTERPOLATION_STEPS);
+
+				output_Point.far_red =
+					Profiles___Interpolate_U16(current_Point.far_red, next_Point.far_red, interp_Step, INTERPOLATION_STEPS);
+
+				output_Point.purple =
+					Profiles___Interpolate_U16(current_Point.purple, next_Point.purple, interp_Step, INTERPOLATION_STEPS);
+
+				output_Point.lime =
+					Profiles___Interpolate_U16(current_Point.lime, next_Point.lime, interp_Step, INTERPOLATION_STEPS);
+
+				osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+
+				App___IO_Control_State.lighting.white   = output_Point.white;
+				App___IO_Control_State.lighting.red     = output_Point.red;
+				App___IO_Control_State.lighting.far_Red = output_Point.far_red;
+				App___IO_Control_State.lighting.purple  = output_Point.purple;
+				App___IO_Control_State.lighting.lime    = output_Point.lime;
+
+				osMutexRelease(App___IO_Control_State_Mutex);
+
+				interp_Step++;
+
+				if (interp_Step > INTERPOLATION_STEPS)
+				{
+					interp_Step = 0;
+					profile_Index++;
+
+					if (profile_Index >= PROFILE_LENGTH)
+					{
+						profile_Index = 0;
+
+						if (App___Profiles_State.days_Remaining > 0)
+						{
+							App___Profiles_State.days_Remaining--;
+							App___Profiles_State.day_Number++;
+						}
+
+						if (App___Profiles_State.days_Remaining == 0)
+						{
+							App___Profiles_State.lighting_Mode = 1;
+						}
+					}
 				}
 			}
 		}
@@ -215,6 +237,27 @@ void Profiles___Start_Task(void const * argument)
 
 			profile_Index = 0;
 			interp_Step   = 0;
+
+			static uint32_t restart_timer = 0;
+
+			if (restart_timer == 0)
+			{
+				restart_timer = 5000 / PROFILE_STEP_MS;
+			}
+			else
+			{
+				if(App___Profiles_State.paused == 0)
+				{
+					restart_timer--;
+				}
+
+				if (restart_timer == 0)
+				{
+					App___Profiles_State.day_Number     = 0;
+					App___Profiles_State.days_Remaining = App___Profiles_State.initial_Days_Remaining;
+					App___Profiles_State.lighting_Mode  = 0;
+				}
+			}
 		}
 
 		osMutexRelease(App___Profiles_State_Mutex);

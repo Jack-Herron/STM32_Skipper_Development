@@ -7,8 +7,13 @@
 
 lv_obj_t * uic_Play_Image;
 lv_obj_t * uic_Pause_Image;
+lv_obj_t * uic_Time_Since_Start;
+lv_obj_t * uic_Time_Remaining;
 lv_obj_t * uic_Status_Text;
 lv_obj_t * uic_Main_Clock;
+lv_obj_t * uic_Onion;
+lv_obj_t * uic_Pepper;
+lv_obj_t * uic_Profile_Label;
 lv_obj_t * uic_Progress_Bar;
 lv_obj_t * ui_Main = NULL;
 lv_obj_t * ui_Bar6 = NULL;
@@ -19,6 +24,7 @@ lv_obj_t * ui_Label2 = NULL;
 lv_obj_t * ui_Container1 = NULL;
 lv_obj_t * ui_Panel9 = NULL;
 lv_obj_t * ui_Image1 = NULL;
+lv_obj_t * ui_Image7 = NULL;
 lv_obj_t * ui_Panel10 = NULL;
 lv_obj_t * ui_Bar7 = NULL;
 lv_obj_t * ui_Panel5 = NULL;
@@ -231,6 +237,15 @@ void ui_Main_screen_init(void)
     lv_obj_set_height(ui_Image1, 250);
     lv_obj_set_align(ui_Image1, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_Image1, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_SNAPPABLE |
+                       LV_OBJ_FLAG_SCROLLABLE);     /// Flags
+
+    ui_Image7 = lv_image_create(ui_Panel9);
+    lv_image_set_src(ui_Image7, &ui_img_onion_icon_250x250_png);
+    lv_obj_set_width(ui_Image7, 250);
+    lv_obj_set_height(ui_Image7, 250);
+    lv_obj_set_align(ui_Image7, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_Image7, LV_OBJ_FLAG_HIDDEN);     /// Flags
+    lv_obj_remove_flag(ui_Image7, LV_OBJ_FLAG_PRESS_LOCK | LV_OBJ_FLAG_CLICK_FOCUSABLE | LV_OBJ_FLAG_SNAPPABLE |
                        LV_OBJ_FLAG_SCROLLABLE);     /// Flags
 
     ui_Panel10 = lv_obj_create(ui_Container1);
@@ -465,8 +480,13 @@ void ui_Main_screen_init(void)
     lv_obj_add_event_cb(ui_Panel8, ui_event_Panel8, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_Panel3, ui_event_Panel3, LV_EVENT_ALL, NULL);
     uic_Progress_Bar = ui_Bar6;
+    uic_Profile_Label = ui_Label2;
+    uic_Pepper = ui_Image1;
+    uic_Onion = ui_Image7;
     uic_Main_Clock = ui_Label13;
     uic_Status_Text = ui_Label7;
+    uic_Time_Remaining = ui_Label8;
+    uic_Time_Since_Start = ui_Label9;
     uic_Pause_Image = ui_Image3;
     uic_Play_Image = ui_Image2;
 
@@ -483,10 +503,14 @@ void ui_Main_screen_destroy(void)
     ui_Container4 = NULL;
     ui_Panel1 = NULL;
     ui_Label1 = NULL;
+    uic_Profile_Label = NULL;
     ui_Label2 = NULL;
     ui_Container1 = NULL;
     ui_Panel9 = NULL;
+    uic_Pepper = NULL;
     ui_Image1 = NULL;
+    uic_Onion = NULL;
+    ui_Image7 = NULL;
     ui_Panel10 = NULL;
     ui_Bar7 = NULL;
     ui_Panel5 = NULL;
@@ -497,8 +521,10 @@ void ui_Main_screen_destroy(void)
     uic_Status_Text = NULL;
     ui_Label7 = NULL;
     ui_Label4 = NULL;
+    uic_Time_Remaining = NULL;
     ui_Label8 = NULL;
     ui_Label5 = NULL;
+    uic_Time_Since_Start = NULL;
     ui_Label9 = NULL;
     ui_Container2 = NULL;
     ui_Panel6 = NULL;

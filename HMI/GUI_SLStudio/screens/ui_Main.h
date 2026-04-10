@@ -24,6 +24,7 @@ extern lv_obj_t * ui_Container1;
 extern void ui_event_Panel9(lv_event_t * e);
 extern lv_obj_t * ui_Panel9;
 extern lv_obj_t * ui_Image1;
+extern lv_obj_t * ui_Image7;
 extern void ui_event_Panel10(lv_event_t * e);
 extern lv_obj_t * ui_Panel10;
 extern lv_obj_t * ui_Bar7;
@@ -54,8 +55,13 @@ extern lv_obj_t * ui_Panel3;
 extern lv_obj_t * ui_Image4;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Progress_Bar;
+extern lv_obj_t * uic_Profile_Label;
+extern lv_obj_t * uic_Pepper;
+extern lv_obj_t * uic_Onion;
 extern lv_obj_t * uic_Main_Clock;
 extern lv_obj_t * uic_Status_Text;
+extern lv_obj_t * uic_Time_Remaining;
+extern lv_obj_t * uic_Time_Since_Start;
 extern lv_obj_t * uic_Pause_Image;
 extern lv_obj_t * uic_Play_Image;
 

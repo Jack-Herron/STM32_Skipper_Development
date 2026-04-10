@@ -17,8 +17,15 @@ extern lv_obj_t * ui_Profiles;
 extern void ui_event_Button3(lv_event_t * e);
 extern lv_obj_t * ui_Button3;
 extern lv_obj_t * ui_Label20;
-extern lv_obj_t * ui_Label21;
+extern void ui_event_Panel17(lv_event_t * e);
+extern lv_obj_t * ui_Panel17;
+extern lv_obj_t * ui_Image9;
+extern void ui_event_Panel16(lv_event_t * e);
+extern lv_obj_t * ui_Panel16;
+extern lv_obj_t * ui_Image10;
 // CUSTOM VARIABLES
+extern lv_obj_t * uic_Pepper_Small;
+extern lv_obj_t * uic_Onion_Small;
 
 #ifdef __cplusplus
 } /*extern "C"*/

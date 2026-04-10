@@ -12,6 +12,8 @@ extern "C" {
 
 void GUI___Play_Pause(lv_event_t * e);
 void GUI___Date_Time_Change_Callback(lv_event_t * e);
+void GUI___Select_Pepper(lv_event_t * e);
+void GUI___Select_Onion(lv_event_t * e);
 
 #ifdef __cplusplus
 } /*extern "C"*/
