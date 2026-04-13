@@ -125,21 +125,89 @@ void CAN___Accept_All_Messages()
 	CAN1->FMR &= ~CAN_FMR_FINIT;
 }
 
+#define CAN_TX_TIMEOUT_COUNT 100000U
+
+
+static void CAN___Abort_All_TX(void)
+{
+    CAN1->TSR |= CAN_TSR_ABRQ0 | CAN_TSR_ABRQ1 | CAN_TSR_ABRQ2;
+}
+
+static void CAN___Recover(void)
+{
+    CAN___Abort_All_TX();
+
+    CAN1->MCR |= CAN_MCR_INRQ;
+    while ((CAN1->MSR & CAN_MSR_INAK) == 0U);
+
+    CAN1->MCR &= ~CAN_MCR_INRQ;
+    while ((CAN1->MSR & CAN_MSR_INAK) != 0U);
+}
+
 void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
 {
-	while ((CAN1->TSR & CAN_TSR_TME0) == 0);
-	CAN1->sTxMailBox[0].TIR = (Payload.ID << CAN_TI1R_STID_Pos);				// Set message ID
+    uint32_t timeout = CAN_TX_TIMEOUT_COUNT;
+    CAN_TxMailBox_TypeDef *mailbox = 0;
 
-	CAN1->sTxMailBox[0].TDTR = (Payload.data_Length << CAN_TDT1R_DLC_Pos);		// set data length
+    if (CAN1->ESR & CAN_ESR_BOFF)
+    {
+        CAN___Recover();
+        return;
+    }
 
-	CAN1->sTxMailBox[0].TDLR = ((uint32_t*)(Payload.data))[0];					// send first 4 bytes
+    while (timeout-- > 0U)
+    {
+        if (CAN1->TSR & CAN_TSR_TME0)
+        {
+            mailbox = &CAN1->sTxMailBox[0];
+            break;
+        }
+        if (CAN1->TSR & CAN_TSR_TME1)
+        {
+            mailbox = &CAN1->sTxMailBox[1];
+            break;
+        }
+        if (CAN1->TSR & CAN_TSR_TME2)
+        {
+            mailbox = &CAN1->sTxMailBox[2];
+            break;
+        }
 
-	if(Payload.data_Length > 4)
-	{
-		CAN1->sTxMailBox[0].TDHR = ((uint32_t*)(Payload.data))[1];				// send next bytes if length is >4
-	}
+        if (CAN1->ESR & CAN_ESR_BOFF)
+        {
+            CAN___Recover();
+            return;
+        }
+    }
 
-	CAN1->sTxMailBox[0].TIR |= CAN_TI1R_TXRQ;									// request to send
+    if (mailbox == 0)
+    {
+        if (CAN1->ESR & CAN_ESR_BOFF)
+        {
+            CAN___Recover();
+            return;
+        }
+
+        CAN___Abort_All_TX();
+        return;
+    }
+
+    mailbox->TIR = 0U;
+    mailbox->TDTR = (Payload.data_Length & 0x0FU);
+
+    mailbox->TDLR =
+        ((uint32_t)Payload.data[0]) |
+        ((uint32_t)Payload.data[1] << 8) |
+        ((uint32_t)Payload.data[2] << 16) |
+        ((uint32_t)Payload.data[3] << 24);
+
+    mailbox->TDHR =
+        ((uint32_t)Payload.data[4]) |
+        ((uint32_t)Payload.data[5] << 8) |
+        ((uint32_t)Payload.data[6] << 16) |
+        ((uint32_t)Payload.data[7] << 24);
+
+    mailbox->TIR = ((uint32_t)Payload.ID << CAN_TI0R_STID_Pos) | CAN_TI0R_TXRQ;
 }
 
 void CAN___Set_RX_Callback(void (*callback)(CAN___Receive_TypeDef))

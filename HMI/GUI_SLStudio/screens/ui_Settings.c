@@ -5,6 +5,8 @@
 
 #include "../ui.h"
 
+lv_obj_t * uic_Soil_Moisture;
+lv_obj_t * uic_Soil_Moisture_Setpoint;
 lv_obj_t * uic_Backlight_Brightness;
 lv_obj_t * uic_White_Light_Indicator;
 lv_obj_t * uic_Lime_Light_Indicator;
@@ -25,6 +27,10 @@ lv_obj_t * ui_WhiteLightIndicator = NULL;
 lv_obj_t * ui_Label27 = NULL;
 lv_obj_t * ui_Slider2 = NULL;
 lv_obj_t * ui_Label6 = NULL;
+lv_obj_t * ui_Label10 = NULL;
+lv_obj_t * ui_Slider1 = NULL;
+lv_obj_t * ui_Bar1 = NULL;
+lv_obj_t * ui_Label11 = NULL;
 // event funtions
 void ui_event_Button2(lv_event_t * e)
 {
@@ -229,7 +235,7 @@ void ui_Settings_screen_init(void)
     lv_obj_set_width(ui_Slider2, 412);
     lv_obj_set_height(ui_Slider2, 19);
     lv_obj_set_x(ui_Slider2, 0);
-    lv_obj_set_y(ui_Slider2, 147);
+    lv_obj_set_y(ui_Slider2, 163);
     lv_obj_set_align(ui_Slider2, LV_ALIGN_CENTER);
 
     //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
@@ -239,10 +245,52 @@ void ui_Settings_screen_init(void)
     lv_obj_set_width(ui_Label6, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_Label6, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Label6, 0);
-    lv_obj_set_y(ui_Label6, 88);
+    lv_obj_set_y(ui_Label6, 110);
     lv_obj_set_align(ui_Label6, LV_ALIGN_CENTER);
     lv_label_set_text(ui_Label6, "Backlight Brightness");
     lv_obj_set_style_text_font(ui_Label6, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Label10 = lv_label_create(ui_Settings);
+    lv_obj_set_width(ui_Label10, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label10, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label10, 0);
+    lv_obj_set_y(ui_Label10, -49);
+    lv_obj_set_align(ui_Label10, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label10, "Soil Moisture Setpoint");
+    lv_obj_set_style_text_font(ui_Label10, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_Slider1 = lv_slider_create(ui_Settings);
+    lv_slider_set_value(ui_Slider1, 0, LV_ANIM_OFF);
+    if(lv_slider_get_mode(ui_Slider1) == LV_SLIDER_MODE_RANGE) lv_slider_set_left_value(ui_Slider1, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_Slider1, 412);
+    lv_obj_set_height(ui_Slider1, 19);
+    lv_obj_set_x(ui_Slider1, 0);
+    lv_obj_set_y(ui_Slider1, 7);
+    lv_obj_set_align(ui_Slider1, LV_ALIGN_CENTER);
+
+    //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
+    if(lv_obj_get_style_pad_top(ui_Slider1, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_Slider1,
+                                                                                              lv_obj_get_style_pad_right(ui_Slider1, LV_PART_MAIN) + 1, LV_PART_MAIN);
+    ui_Bar1 = lv_bar_create(ui_Settings);
+    lv_bar_set_value(ui_Bar1, 25, LV_ANIM_OFF);
+    lv_bar_set_start_value(ui_Bar1, 0, LV_ANIM_OFF);
+    lv_obj_set_width(ui_Bar1, 400);
+    lv_obj_set_height(ui_Bar1, 10);
+    lv_obj_set_x(ui_Bar1, 2);
+    lv_obj_set_y(ui_Bar1, -111);
+    lv_obj_set_align(ui_Bar1, LV_ALIGN_CENTER);
+
+    //Compensating for LVGL9.1 draw crash with bar/slider max value when top-padding is nonzero and right-padding is 0
+    if(lv_obj_get_style_pad_top(ui_Bar1, LV_PART_MAIN) > 0) lv_obj_set_style_pad_right(ui_Bar1,
+                                                                                           lv_obj_get_style_pad_right(ui_Bar1, LV_PART_MAIN) + 1, LV_PART_MAIN);
+    ui_Label11 = lv_label_create(ui_Settings);
+    lv_obj_set_width(ui_Label11, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_Label11, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_Label11, 0);
+    lv_obj_set_y(ui_Label11, -159);
+    lv_obj_set_align(ui_Label11, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_Label11, "Measured Moisture");
+    lv_obj_set_style_text_font(ui_Label11, &lv_font_montserrat_24, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     lv_obj_add_event_cb(ui_Button2, ui_event_Button2, LV_EVENT_ALL, NULL);
     uic_Far_Red_Light_Indicator = ui_Bar13;
@@ -251,6 +299,8 @@ void ui_Settings_screen_init(void)
     uic_Lime_Light_Indicator = ui_Bar10;
     uic_White_Light_Indicator = ui_WhiteLightIndicator;
     uic_Backlight_Brightness = ui_Slider2;
+    uic_Soil_Moisture_Setpoint = ui_Slider1;
+    uic_Soil_Moisture = ui_Bar1;
 
 }
 
@@ -279,5 +329,11 @@ void ui_Settings_screen_destroy(void)
     uic_Backlight_Brightness = NULL;
     ui_Slider2 = NULL;
     ui_Label6 = NULL;
+    ui_Label10 = NULL;
+    uic_Soil_Moisture_Setpoint = NULL;
+    ui_Slider1 = NULL;
+    uic_Soil_Moisture = NULL;
+    ui_Bar1 = NULL;
+    ui_Label11 = NULL;
 
 }

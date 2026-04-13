@@ -28,6 +28,10 @@ extern lv_obj_t * ui_WhiteLightIndicator;
 extern lv_obj_t * ui_Label27;
 extern lv_obj_t * ui_Slider2;
 extern lv_obj_t * ui_Label6;
+extern lv_obj_t * ui_Label10;
+extern lv_obj_t * ui_Slider1;
+extern lv_obj_t * ui_Bar1;
+extern lv_obj_t * ui_Label11;
 // CUSTOM VARIABLES
 extern lv_obj_t * uic_Far_Red_Light_Indicator;
 extern lv_obj_t * uic_Red_Light_Indicator;
@@ -35,6 +39,8 @@ extern lv_obj_t * uic_Purple_Light_Indicator;
 extern lv_obj_t * uic_Lime_Light_Indicator;
 extern lv_obj_t * uic_White_Light_Indicator;
 extern lv_obj_t * uic_Backlight_Brightness;
+extern lv_obj_t * uic_Soil_Moisture_Setpoint;
+extern lv_obj_t * uic_Soil_Moisture;
 
 #ifdef __cplusplus
 } /*extern "C"*/
