@@ -8,6 +8,8 @@
 #include "main.h"
 
 uint8_t setup_Complete = 0;
+uint8_t setpoint = 0;
+uint8_t soil_Moisture_Percent = 0;
 
 void TIM3_Init(void)
 {
@@ -65,12 +67,27 @@ void RX_Callback(CAN___Receive_TypeDef packet)
 {
 	switch(packet.ID)
 	{
-	case 0x100:
-
+	case 0x110:
+		setpoint = packet.data[0];
 		break;
 	}
 }
 
+uint8_t voltage_To_Moisture(float voltage)
+{
+    const float V_WET = 1.1f;
+    const float V_DRY = 1.7f;
+
+    if (voltage <= V_WET)
+        return 100;
+
+    if (voltage >= V_DRY)
+        return 0;
+
+    float moisture = (V_DRY - voltage) / (V_DRY - V_WET);
+
+    return (uint8_t)(moisture * 100.0f);
+}
 
 int main(void)
 {
@@ -85,32 +102,32 @@ int main(void)
 
 	setup_Complete = 1;
 
-	GPIOB->CRH &= ~GPIO_CRH_MODE15_Msk;				// Clear PB11 mode
-	GPIOB->CRH &= ~GPIO_CRH_CNF15_Msk;				// clear PB11 configuration
+	GPIOB->CRH &= ~GPIO_CRH_MODE15_Msk;				// Clear PB15 mode
+	GPIOB->CRH &= ~GPIO_CRH_CNF15_Msk;				// clear PB15 configuration
 
 	GPIOB->ODR |= GPIO_ODR_ODR15;					// Clear
 
-	GPIOB->CRH |= GPIO_CRH_MODE15_0;				// Set PB11 to output (slow)
+	GPIOB->CRH |= GPIO_CRH_MODE15_0;				// Set PB15 to output (slow)
 
 
 	for(;;)
 	{
-		printf("{\"soil_moisture_1\":%.2f,\"soil_moisture_2\":%.2f,\"soil_moisture_3\":%.2f}\n",
-		       ADC___Get_Voltage(1),
-		       ADC___Get_Voltage(2),
-		       ADC___Get_Voltage(3));
-//		for(uint16_t i = 25; i < 100; i++)
-//		{
-//			set_Motor_Speed(i);
-//			clock___Delay_ms(50);
-//		}
-//		clock___Delay_ms(1000);
-//		for(uint16_t i = 99; i > 25; i--)
-//		{
-//			set_Motor_Speed(i);
-//			clock___Delay_ms(50);
-//		}
-  		clock___Delay_ms(1000);
+//		printf("{\"soil_moisture_1\":%d,\"soil_moisture_2\":%d,\"soil_moisture_3\":%d}\n",
+//		       voltage_To_Moisture(ADC___Get_Voltage(1)),
+//		       voltage_To_Moisture(ADC___Get_Voltage(2)),
+//		       voltage_To_Moisture(ADC___Get_Voltage(3)));
+		soil_Moisture_Percent = voltage_To_Moisture(ADC___Get_Voltage(3));
+
+		if(soil_Moisture_Percent < setpoint)
+		{
+			set_Motor_Speed(100);
+		}
+		else
+		{
+			set_Motor_Speed(0);
+		}
+
+  		clock___Delay_ms(50);
 	}
 }
 
@@ -120,7 +137,15 @@ void TIM3_IRQHandler(void)				// 10Hz CAN status interrupt
     {
         TIM3->SR &= ~TIM_SR_UIF;          // Clear interrupt flag
 
-        //CAN_Tansmit_TypeDef payload;
-        //CAN___Transmit(payload);
+        CAN_Tansmit_TypeDef payload;
+        payload.ID = 0x210;
+        payload.data_Length = 1;
+        payload.data[0] = soil_Moisture_Percent;
+        CAN___Transmit(payload);
+
+        payload.ID = 0x211;
+        payload.data_Length = 1;
+        payload.data[0] = soil_Moisture_Percent;
+        CAN___Transmit(payload);
     }
 }

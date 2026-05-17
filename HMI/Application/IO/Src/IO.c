@@ -62,6 +62,15 @@ void IO___Read_LED_Status_Packet(uint8_t* status)
 	osMutexRelease(App___IO_Sense_State_Mutex);
 }
 
+void IO___Read_Soil_Moisture_Status_Packet(uint8_t* data)
+{
+	osMutexWait(App___IO_Sense_State_Mutex, osWaitForever);
+
+	App___IO_Sense_State.soil_Moisture = data[0];
+
+	osMutexRelease(App___IO_Sense_State_Mutex);
+}
+
 void IO___Read_Packets()
 {
 	App___IO_RX_Data_Typedef packet;
@@ -74,6 +83,9 @@ void IO___Read_Packets()
 		{
 		case 0x200:
 			IO___Read_LED_Status_Packet(packet.data);
+			break;
+		case 0x210:
+			IO___Read_Soil_Moisture_Status_Packet(packet.data);
 			break;
 		}
 
@@ -149,9 +161,30 @@ void IO___Send_Lighting_Packet(void)
 	App___Transmit(packet);
 }
 
+void IO___Send_Soil_Moisture_Setpoint_Packet(void)
+{
+	App___IO_TX_Data_Typedef packet = {0};
+
+	uint8_t setpoint;
+
+	/* Take one atomic snapshot of lighting state */
+	osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+
+	setpoint   = App___IO_Control_State.soil_Moisture_Setpoint;
+
+	osMutexRelease(App___IO_Control_State_Mutex);
+
+	/* Transmit White */
+	packet.ID = 0x110;
+	packet.data_Length = 0x01;
+	packet.data[0] = setpoint;
+	App___Transmit(packet);
+}
+
 void IO___Send_Packets()
 {
 	IO___Send_Lighting_Packet();
+	IO___Send_Soil_Moisture_Setpoint_Packet();
 }
 
 void IO___Control_Start_Task(void const * argument)

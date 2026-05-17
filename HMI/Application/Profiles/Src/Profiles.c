@@ -190,11 +190,11 @@ void Profiles___Start_Task(void const * argument)
 
 				osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
 
-				App___IO_Control_State.lighting.white   = output_Point.white;
-				App___IO_Control_State.lighting.red     = output_Point.red;
-				App___IO_Control_State.lighting.far_Red = output_Point.far_red;
-				App___IO_Control_State.lighting.purple  = output_Point.purple;
-				App___IO_Control_State.lighting.lime    = output_Point.lime;
+				App___IO_Control_State.lighting.white   = output_Point.white/6;
+				App___IO_Control_State.lighting.red     = output_Point.red/6;
+				App___IO_Control_State.lighting.far_Red = output_Point.far_red/6;
+				App___IO_Control_State.lighting.purple  = output_Point.purple/6;
+				App___IO_Control_State.lighting.lime    = output_Point.lime/6;
 
 				osMutexRelease(App___IO_Control_State_Mutex);
 

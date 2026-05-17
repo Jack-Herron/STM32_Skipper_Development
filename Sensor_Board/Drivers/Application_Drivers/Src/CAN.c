@@ -9,33 +9,53 @@
 #include <stdlib.h>
 #include "CAN.h"
 
+#define CAN_TX_TIMEOUT_COUNT 1000000U
+
 void (*CAN___RX_Callback)(CAN___Receive_TypeDef) = NULL;
 
 #if CAN___ENABLE_STDIO == 1
 	int _write(int file __attribute__((unused)), char *data, int len)
 	{
+		if ((data == NULL) || (len <= 0))
+		{
+			return 0;
+		}
+
+		uint32_t primask = __get_PRIMASK();
+		__disable_irq();
+
 		CAN_Tansmit_TypeDef packet;
-		packet.ID = 0x700;
+
+		packet.ID = 0x702;
 		packet.data_Length = 1;
+		packet.data[0] = 0;
 		CAN___Transmit(packet);
 
-		uint32_t len_Remaining = len;
-		uint32_t num_Packets = (len+7)/8;
+		uint32_t len_remaining = (uint32_t)len;
+		uint32_t num_packets   = ((uint32_t)len + 7U) / 8U;
 
-		for(uint32_t i = 0; i < num_Packets; i++)
+		for (uint32_t i = 0; i < num_packets; i++)
 		{
-			uint8_t length_To_Transmit = len_Remaining > 8 ? 8 : len_Remaining;
+			uint8_t length_to_transmit = (len_remaining > 8U) ? 8U : (uint8_t)len_remaining;
+
 			packet.ID = 0x703;
-			for(uint8_t j = 0; j < length_To_Transmit; j++)
+			packet.data_Length = length_to_transmit;
+
+			for (uint8_t j = 0; j < length_to_transmit; j++)
 			{
-				packet.data[j] = data[i*8+j];
+				packet.data[j] = (uint8_t)data[i * 8U + j];
 			}
-			packet.data_Length = length_To_Transmit;
 
 			CAN___Transmit(packet);
-			len_Remaining -= length_To_Transmit;
+			len_remaining -= length_to_transmit;
 		}
-		return(len);
+
+		if (primask == 0U)
+		{
+			__enable_irq();
+		}
+
+		return len;
 	}
 
 	int _read(int file __attribute__((unused)), char *data, int len)
@@ -105,21 +125,86 @@ void CAN___Accept_All_Messages()
 	CAN1->FMR &= ~CAN_FMR_FINIT;
 }
 
+static void CAN___Abort_All_TX(void)
+{
+    CAN1->TSR |= CAN_TSR_ABRQ0 | CAN_TSR_ABRQ1 | CAN_TSR_ABRQ2;
+}
+
+static void CAN___Recover(void)
+{
+    CAN___Abort_All_TX();
+
+    CAN1->MCR |= CAN_MCR_INRQ;
+    while ((CAN1->MSR & CAN_MSR_INAK) == 0U);
+
+    CAN1->MCR &= ~CAN_MCR_INRQ;
+    while ((CAN1->MSR & CAN_MSR_INAK) != 0U);
+}
+
 void CAN___Transmit(CAN_Tansmit_TypeDef Payload)
 {
-	while ((CAN1->TSR & CAN_TSR_TME0) == 0);
-	CAN1->sTxMailBox[0].TIR = (Payload.ID << CAN_TI1R_STID_Pos);				// Set message ID
+    uint32_t timeout = CAN_TX_TIMEOUT_COUNT;
+    CAN_TxMailBox_TypeDef *mailbox = 0;
 
-	CAN1->sTxMailBox[0].TDTR = (Payload.data_Length << CAN_TDT1R_DLC_Pos);		// set data length
+    if (CAN1->ESR & CAN_ESR_BOFF)
+    {
+        CAN___Recover();
+        return;
+    }
 
-	CAN1->sTxMailBox[0].TDLR = ((uint32_t*)(Payload.data))[0];					// send first 4 bytes
+    while (timeout-- > 0U)
+    {
+        if (CAN1->TSR & CAN_TSR_TME0)
+        {
+            mailbox = &CAN1->sTxMailBox[0];
+            break;
+        }
+        if (CAN1->TSR & CAN_TSR_TME1)
+        {
+            mailbox = &CAN1->sTxMailBox[1];
+            break;
+        }
+        if (CAN1->TSR & CAN_TSR_TME2)
+        {
+            mailbox = &CAN1->sTxMailBox[2];
+            break;
+        }
 
-	if(Payload.data_Length > 4)
-	{
-		CAN1->sTxMailBox[0].TDHR = ((uint32_t*)(Payload.data))[1];				// send next bytes if length is >4
-	}
+        if (CAN1->ESR & CAN_ESR_BOFF)
+        {
+            CAN___Recover();
+            return;
+        }
+    }
 
-	CAN1->sTxMailBox[0].TIR |= CAN_TI1R_TXRQ;									// request to send
+    if (mailbox == 0)
+    {
+        if (CAN1->ESR & CAN_ESR_BOFF)
+        {
+            CAN___Recover();
+            return;
+        }
+
+        CAN___Abort_All_TX();
+        return;
+    }
+
+    mailbox->TIR = 0U;
+    mailbox->TDTR = (Payload.data_Length & 0x0FU);
+
+    mailbox->TDLR =
+        ((uint32_t)Payload.data[0]) |
+        ((uint32_t)Payload.data[1] << 8) |
+        ((uint32_t)Payload.data[2] << 16) |
+        ((uint32_t)Payload.data[3] << 24);
+
+    mailbox->TDHR =
+        ((uint32_t)Payload.data[4]) |
+        ((uint32_t)Payload.data[5] << 8) |
+        ((uint32_t)Payload.data[6] << 16) |
+        ((uint32_t)Payload.data[7] << 24);
+
+    mailbox->TIR = ((uint32_t)Payload.ID << CAN_TI0R_STID_Pos) | CAN_TI0R_TXRQ;
 }
 
 void CAN___Set_RX_Callback(void (*callback)(CAN___Receive_TypeDef))

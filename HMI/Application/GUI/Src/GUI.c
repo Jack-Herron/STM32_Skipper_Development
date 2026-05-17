@@ -194,12 +194,15 @@ void GUI___Play_Pause(lv_event_t * e)
 void GUI___Refresh_Lighting_Indicators(void)
 {
 	uint8_t colors[5];
+	uint8_t moisture;
+
 	osMutexWait(App___IO_Sense_State_Mutex, osWaitForever);
 		colors[0] = 	App___IO_Sense_State.lighting_Status.white * 2.55f;
 		colors[1] = 	App___IO_Sense_State.lighting_Status.purple * 2.55f;
 		colors[2] = 	App___IO_Sense_State.lighting_Status.lime * 2.55f;
 		colors[3] = 	App___IO_Sense_State.lighting_Status.red * 2.55f;
 		colors[4] = 	App___IO_Sense_State.lighting_Status.far_Red * 2.55f;
+		moisture  =		App___IO_Sense_State.soil_Moisture;
 	osMutexRelease(App___IO_Sense_State_Mutex);
 
 	_ui_bar_set_property(uic_White_Light_Indicator, 	0, 	colors[0]);
@@ -207,6 +210,8 @@ void GUI___Refresh_Lighting_Indicators(void)
 	_ui_bar_set_property(uic_Lime_Light_Indicator, 		0, 	colors[2]);
 	_ui_bar_set_property(uic_Red_Light_Indicator, 		0,  colors[3]);
 	_ui_bar_set_property(uic_Far_Red_Light_Indicator, 	0, 	colors[4]);
+
+	_ui_bar_set_property(uic_Soil_Moisture, 	0, 	moisture);
 }
 
 uint8_t GUI___Get_Hour_xHours_Ago(uint8_t hour_Now, uint8_t x)
@@ -291,9 +296,12 @@ void GUI___Refresh_Time()
 
 	_ui_bar_set_property(uic_Progress_Bar, 	0, 	((float)App___Profiles_State.day_Number / ((float)App___Profiles_State.days_Remaining + (float)App___Profiles_State.day_Number)) * 100.0f);
 
+
 	osMutexRelease(App___Profiles_State_Mutex);
 
+
 	_ui_label_set_property(uic_Calendar_Clock, 0, time_Str);
+
 
 }
 
@@ -368,6 +376,16 @@ void GUI___Backlight_Changed_Callback(lv_event_t * e)
 	App___Set_Backlight_Brightness(lv_slider_get_value(slider));
 }
 
+void GUI___Soil_Moisture_Setpoint_Changed_Callback(lv_event_t * e)
+{
+    lv_obj_t * slider = lv_event_get_target(e);
+    osMutexWait(App___IO_Control_State_Mutex, osWaitForever);
+
+	App___IO_Control_State.soil_Moisture_Setpoint = lv_slider_get_value(slider);
+
+	osMutexRelease(App___IO_Control_State_Mutex);
+}
+
 void GUI___GFX_Start_Task(void const * argument)
 {
 	osSignalWait(APP___GUI_GFX_TASK_START_FLAG, osWaitForever);
@@ -390,6 +408,7 @@ void GUI___GFX_Start_Task(void const * argument)
 
 	DuckAnim_Animation(ui_Duck, 0);
 	lv_obj_add_event_cb(uic_Backlight_Brightness, GUI___Backlight_Changed_Callback, LV_EVENT_VALUE_CHANGED, NULL);
+	lv_obj_add_event_cb(uic_Soil_Moisture_Setpoint, GUI___Soil_Moisture_Setpoint_Changed_Callback, LV_EVENT_VALUE_CHANGED, NULL);
 
 	uint32_t last_UI_Element_Update = 0;
 

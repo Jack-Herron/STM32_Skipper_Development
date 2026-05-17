@@ -67,10 +67,9 @@ typedef struct {
 	uint16_t 	far_Red;
 } App___IO_Lighting_TypeDef;
 
-
-
 typedef struct {
-	App___IO_Lighting_TypeDef lighting;
+	App___IO_Lighting_TypeDef 	lighting;
+	uint8_t 					soil_Moisture_Setpoint;
 } App___IO_Control_State_TypeDef;
 
 typedef struct {
@@ -78,6 +77,7 @@ typedef struct {
 	volatile uint32_t						RX_Buffer_Head;
 	volatile uint32_t 						RX_Buffer_Tail;
 	App___IO_Lighting_TypeDef 				lighting_Status;
+	uint8_t 								soil_Moisture;
 } App___IO_Sense_State_TypeDef;
 
 // GUI typedefs

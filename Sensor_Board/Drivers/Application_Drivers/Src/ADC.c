@@ -42,6 +42,16 @@ void ADC___DMA_Init()
     DMA1_Channel1->CCR |= DMA_CCR_EN;
 }
 
+float ADC___Get_Voltage(uint8_t channel)
+{
+	uint16_t code = ADC___Channel_Value[ADC___Channel[channel]];
+	float voltage;
+
+	voltage = (((float)code) / 4095) * 3.3f;
+
+	return(voltage);
+}
+
 void ADC___Init(void)
 {
 	ADC___GPIO_Init();
@@ -84,14 +94,4 @@ void ADC___Init(void)
 
     ADC1->CR2 |= ADC_CR2_EXTTRIG;
     ADC1->CR2 |= ADC_CR2_SWSTART;
-}
-
-float ADC___Get_Voltage(uint8_t channel)
-{
-	uint16_t code = ADC___Channel_Value[ADC___Channel[channel]];
-	float voltage;
-
-	voltage = (((float)code) / 4095) * 3.3f;
-
-	return(voltage);
 }
