@@ -8,7 +8,6 @@
 #ifndef INC_BOARD_H_
 #define INC_BOARD_H_
 
-#define STM32H7A3xxQ
-
+void Board_Init();
 
 #endif /* INC_BOARD_H_ */

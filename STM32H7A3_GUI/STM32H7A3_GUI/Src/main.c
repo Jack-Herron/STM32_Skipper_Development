@@ -4,6 +4,7 @@
 
 int main(void)
 {
-    /* Loop forever */
+	Board_Init();
+
 	for(;;);
 }
