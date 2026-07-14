@@ -18,7 +18,7 @@
 #endif
 
 #ifndef RCC_HSE_BYPASS_ENABLE
-#define RCC_HSE_BYPASS_ENABLE                  	1U
+#define RCC_HSE_BYPASS_ENABLE                  	0U
 #endif
 
 #ifndef CLOCK_FLASH_LATENCY
@@ -383,8 +383,8 @@ static void RCC_SetVOS(void)
      * Configure power supply.
      */
 
-    PWR->CR3 &= ~PWR_CR3_LDOEN;
-    PWR->CR3 |=  PWR_CR3_SMPSEN;
+    PWR->CR3 &= ~PWR_CR3_SMPSEN;
+    PWR->CR3 |=  PWR_CR3_LDOEN;
 
 #if (CLOCK_SYSCLK_FREQ > 225000000UL)
 

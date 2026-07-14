@@ -10,24 +10,97 @@
 #include "STM32H7A3_RCC.h"
 #include "STM32H7_GPIO.h"
 #include "STM32H7A3_TIM.h"
+#include "STM32H7A3_LTDC.h"
+#include "STM32H7A3_I2C.h"
+#include "ADV7513.h"
 
-TIM_Handle_t red_LED_TIM =
+uint16_t Framebuffer[480U * 800U] = {0};
+uint16_t BoxBuffer[32U * 32U];
+
+static I2C_BusHandleTypeDef I2C4_BusHandle =
 {
-    .instance = TIM12,
-	.mode = TIM_MODE_PWM1,
-	.frequency = 1000U,
-	.enable_update_interrupt = 0U,
-	.channel = 1U,
-	.active_low = 1U,
-	.duty_permille = 250U,
+    .Instance = I2C4,
+    .BusFreq = 100000U,
+    .Timeout = 100000U
 };
+
+static I2C_DeviceHandleTypeDef ADV7513_I2CHandle =
+{
+    .Bus = &I2C4_BusHandle,
+    .Address = 0x39U,
+    .AddressingMode = I2C_ADDRESSING_MODE_7BIT
+};
+
+static ADV7513_HandleTypeDef ADV7513_Handle =
+{
+    .I2C = &ADV7513_I2CHandle,
+
+    .OutputMode = ADV7513_OUTPUT_MODE_HDMI
+};
+
+static LTDC_LayerHandleTypeDef MainLayer =
+{
+    .LayerIndex = LTDC_LAYER_1,
+
+    .FramebufferAddress = (uint32_t)Framebuffer,
+
+    .X = 0U,
+    .Y = 0U,
+
+    .Width = 480U,
+    .Height = 800U,
+
+    .PixelFormat = LTDC_PIXEL_FORMAT_RGB565,
+
+    .Alpha = 255U
+};
+
+static LTDC_LayerHandleTypeDef OverlayLayer =
+{
+    .LayerIndex = LTDC_LAYER_2,
+
+    .FramebufferAddress = (uint32_t)BoxBuffer,
+
+    .X = 0U,
+    .Y = 0U,
+
+    .Width = 32U,
+    .Height = 32U,
+
+    .PixelFormat = LTDC_PIXEL_FORMAT_RGB565,
+
+    .Alpha = 255U
+};
+
+static LTDC_HandleTypeDef HDMI_LCDConfig =
+{
+    .Instance = LTDC,
+
+    .HorizontalSyncWidth 	= 120U,
+    .HorizontalBackPorch 	= 120U,
+    .ActiveWidth 			= 480U,
+    .HorizontalFrontPorch 	= 48U,
+
+    .VerticalSyncHeight 	= 80U,
+    .VerticalBackPorch 		= 80U,
+    .ActiveHeight 			= 800U,
+    .VerticalFrontPorch 	= 8U,
+
+    .HorizontalSyncPolarity	= LTDC_POLARITY_ACTIVE_HIGH,
+    .VerticalSyncPolarity 	= LTDC_POLARITY_ACTIVE_HIGH,
+    .DataEnablePolarity 	= LTDC_POLARITY_ACTIVE_LOW,
+    .PixelClockPolarity 	= LTDC_PIXEL_CLOCK_NORMAL,
+
+	.BGColor = { .Red = 255U, .Green = 255U, .Blue = 255U }
+};
+
 
 void Board_GPIOInit(void)
 {
     /*
      * LTDC RGB interface.
      *
-     * Medium speed for now, push-pull, no pull resistors.
+     * Medium speed, push-pull, no pull resistors.
      */
 
     const GPIO_Config_t ltdc_af14 =
@@ -190,7 +263,7 @@ void Board_GPIOInit(void)
 
 
     /*
-     * Board-controlled outputs.
+     * Board outputs.
      */
 
     const GPIO_Config_t output_low =
@@ -204,39 +277,62 @@ void Board_GPIOInit(void)
     };
 
     GPIO_Init(GPIOB, 0U,  &output_low); /* LD1 green LED */
-    //GPIO_Init(GPIOB, 14U, &output_low); /* LD3 red LED */
+    GPIO_Init(GPIOB, 14U, &output_low); /* LD3 red LED */
     GPIO_Init(GPIOE, 1U,  &output_low); /* LD2 yellow LED */
     GPIO_Init(GPIOF, 10U, &output_low); /* USB_FS_PWR_EN */
-
-    // temp \/\/\/\/\/
-
-    GPIO_Config_t tim12_ch1 =
-    {
-        .mode = GPIO_MODE_AF,
-        .output_type = GPIO_OTYPE_PP,
-        .speed = GPIO_SPEED_HIGH,
-        .pull = GPIO_PULL_NONE,
-
-        .alternate_function = 2u,
-
-        .initial_output_state = 0u
-    };
-
-    GPIO_Init(GPIOB, 14u, &tim12_ch1);
 }
+
+int32_t BoxX = 0;
+int32_t BoxY = 0;
+
+int32_t BoxDX = 2;
+int32_t BoxDY = 2;
 
 void Board_Init()
 {
 	RCC_Init();
 	Board_GPIOInit();
-	TIM_Init(&red_LED_TIM);
-	TIM_Start(&red_LED_TIM);
+
+	/*for(uint32_t i = 0; i < 480*800; i++)
+	{
+		Framebuffer[i] = 0xFFFF;
+	}*/
+
+	for(uint32_t i = 0U; i < (32U * 32U); i++)
+	{
+	    BoxBuffer[i] = 0xF800U;
+	}
+
+	LTDC_Init(&HDMI_LCDConfig);
+	LTDC_LayerInit(&HDMI_LCDConfig, &MainLayer);
+	LTDC_LayerInit(&HDMI_LCDConfig, &OverlayLayer);
+	LTDC_LayerEnable(&HDMI_LCDConfig, &MainLayer);
+	LTDC_LayerEnable(&HDMI_LCDConfig, &OverlayLayer);
+	LTDC_Reload(&HDMI_LCDConfig, LTDC_RELOAD_IMMEDIATE);
+	I2C_Init(&I2C4_BusHandle);
+	for(uint32_t i = 0; i < 10000000; i++);
+	ADV7513_Init(&ADV7513_Handle);
+
 	while(1)
 	{
-		for(uint32_t i = 0; i < 1000; i++)
-		{
-			for(uint32_t j = 0; j < 10000; j++);
-			TIM_SetPWMDutyPermille(&red_LED_TIM, i);
-		}
+	    LTDC_LayerMoveWindow(&HDMI_LCDConfig, &OverlayLayer, BoxX, BoxY);
+	    LTDC_Reload(&HDMI_LCDConfig, LTDC_RELOAD_VERTICAL_BLANKING);
+
+	    BoxX += BoxDX;
+	    BoxY += BoxDY;
+
+	    if((BoxX <= 0) || (BoxX >= (480 - 32)))
+	    {
+	        BoxDX = -BoxDX;
+	    }
+
+	    if((BoxY <= 0) || (BoxY >= (800 - 32)))
+	    {
+	        BoxDY = -BoxDY;
+	    }
+
+	    for(volatile uint32_t Delay = 0U; Delay < 100000U; Delay++)
+	    {
+	    }
 	}
 }
