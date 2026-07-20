@@ -65,14 +65,7 @@ typedef enum
 typedef struct
 {
     SPI_TypeDef *Instance;
-
-    uint32_t BusFreq;
     uint32_t Timeout;
-
-    SPI_ModeTypeDef Mode;
-    SPI_BitOrderTypeDef BitOrder;
-    SPI_FrameSizeTypeDef FrameSize;
-    SPI_DirectionTypeDef Direction;
 
 } SPI_BusHandleTypeDef;
 
@@ -82,8 +75,13 @@ typedef struct
 
     GPIO_TypeDef *ChipSelectPort;
     uint16_t ChipSelectPin;
-
     SPI_ChipSelectPolarityTypeDef ChipSelectPolarity;
+
+    uint32_t MaxClockFrequency;
+    SPI_ModeTypeDef Mode;
+    SPI_BitOrderTypeDef BitOrder;
+    SPI_FrameSizeTypeDef FrameSize;
+    SPI_DirectionTypeDef Direction;
 
 } SPI_DeviceHandleTypeDef;
 

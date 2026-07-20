@@ -68,7 +68,7 @@ static ST7701S_StatusTypeDef ST7701S_ValidateHandle(
         return ST7701S_STATUS_INVALID_PARAMETER;
     }
 
-    if(Handle->SPI->Bus->FrameSize != SPI_FRAME_SIZE_9_BIT)
+    if(Handle->SPI->FrameSize != SPI_FRAME_SIZE_9_BIT)
     {
         return ST7701S_STATUS_INVALID_PARAMETER;
     }

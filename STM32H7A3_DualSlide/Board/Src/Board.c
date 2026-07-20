@@ -17,6 +17,10 @@
 #include "W430WVC004_A.h"
 #include "STM32H7A3_LTDC.h"
 #include "IMG.h"
+#include "STM32H7A3_DAC.h"
+#include "STM32H7A3_DMA.h"
+#include "Audio.h"
+#include "Board_AudioTest.h"
 
 #define LCD_WIDTH              480U
 #define LCD_HEIGHT             800U
@@ -29,22 +33,26 @@
 #define LCD_VERTICAL_BP        18U
 #define LCD_VERTICAL_FP        20U
 
-
-SPI_BusHandleTypeDef SPI2_Bus = {
-		.Instance 			= SPI2,
-		.BusFreq 			= 1000000U,
-		.Timeout 			= 1000U,
-		.Mode 				= SPI_MODE_0,
-		.BitOrder 			= SPI_BIT_ORDER_MSB_FIRST,
-		.FrameSize 			= SPI_FRAME_SIZE_9_BIT,
-		.Direction 			= SPI_DIRECTION_TX_ONLY };
+SPI_BusHandleTypeDef SPI2_Bus =
+{
+    .Instance = SPI2,
+    .Timeout  = 1000U
+};
 
 SPI_DeviceHandleTypeDef LCD_SPI =
 {
-		.Bus 				= &SPI2_Bus,
-		.ChipSelectPort 	= GPIOA,
-		.ChipSelectPin 		= (1U << 10),
-		.ChipSelectPolarity = SPI_CHIP_SELECT_ACTIVE_LOW };
+    .Bus                  = &SPI2_Bus,
+
+    .ChipSelectPort       = GPIOA,
+    .ChipSelectPin        = (1U << 10),
+    .ChipSelectPolarity   = SPI_CHIP_SELECT_ACTIVE_LOW,
+
+    .MaxClockFrequency    = 1000000U,
+    .Mode                 = SPI_MODE_0,
+    .BitOrder             = SPI_BIT_ORDER_MSB_FIRST,
+    .FrameSize            = SPI_FRAME_SIZE_9_BIT,
+    .Direction            = SPI_DIRECTION_TX_ONLY
+};
 
 ST7701S_HandleTypeDef ST7701S_LCD_Controller =
 {
@@ -64,15 +72,15 @@ LTDC_HandleTypeDef LCD_LTDC =
 {
     .Instance = LTDC,
 
-    .HorizontalSyncWidth  = LCD_HSYNC_WIDTH,
-    .HorizontalBackPorch  = LCD_HORIZONTAL_BP,
-    .ActiveWidth          = LCD_WIDTH,
-    .HorizontalFrontPorch = LCD_HORIZONTAL_FP,
+    .HorizontalSyncWidth  	= LCD_HSYNC_WIDTH,
+    .HorizontalBackPorch  	= LCD_HORIZONTAL_BP,
+    .ActiveWidth          	= LCD_WIDTH,
+    .HorizontalFrontPorch 	= LCD_HORIZONTAL_FP,
 
-    .VerticalSyncHeight   = LCD_VSYNC_HEIGHT,
-    .VerticalBackPorch    = LCD_VERTICAL_BP,
-    .ActiveHeight         = LCD_HEIGHT,
-    .VerticalFrontPorch   = LCD_VERTICAL_FP,
+    .VerticalSyncHeight   	= LCD_VSYNC_HEIGHT,
+    .VerticalBackPorch    	= LCD_VERTICAL_BP,
+    .ActiveHeight         	= LCD_HEIGHT,
+    .VerticalFrontPorch   	= LCD_VERTICAL_FP,
 
     .HorizontalSyncPolarity = LTDC_POLARITY_ACTIVE_LOW,
     .VerticalSyncPolarity   = LTDC_POLARITY_ACTIVE_LOW,
@@ -109,6 +117,35 @@ LTDC_LayerHandleTypeDef LCD_Layer =
     .Alpha = 255U
 };
 
+DAC_HandleTypeDef DAC_Audio =
+{
+    .Instance      = DAC1,
+    .Channel       = DAC_CHANNEL_1,
+    .Alignment     = DAC_ALIGNMENT_12BIT_RIGHT,
+    .Trigger       = DAC_TRIGGER_TIM6_TRGO,
+    .OutputBuffer  = DAC_OUTPUT_BUFFER_ENABLED
+};
+
+DMA_HandleTypeDef DMA_Audio =
+{
+    .Instance = DMA1_Stream1,
+	.InterruptPriority = 5U,
+	.Config =
+    {
+        .Request = DMA_REQUEST_DAC1_CH1,
+    }
+};
+
+Audio_HandleTypeDef Audio =
+{
+    .DAC = &DAC_Audio,
+    .DMA = &DMA_Audio,
+
+    .TimerInstance = TIM6,
+    .TimerKernelClockHz = 200000000UL,
+    .SampleRateHz = 48000UL
+};
+
 void Board_GPIOInit(void)
 {
     /*
@@ -121,7 +158,7 @@ void Board_GPIOInit(void)
     {
         .mode                 = GPIO_MODE_AF,
         .output_type          = GPIO_OTYPE_PP,
-        .speed                = GPIO_SPEED_VERY_HIGH,
+        .speed                = GPIO_SPEED_MEDIUM,
         .pull                 = GPIO_PULL_NONE,
         .alternate_function   = 14U,
         .initial_output_state = 0U
@@ -131,7 +168,7 @@ void Board_GPIOInit(void)
     {
         .mode                 = GPIO_MODE_AF,
         .output_type          = GPIO_OTYPE_PP,
-        .speed                = GPIO_SPEED_VERY_HIGH,
+        .speed                = GPIO_SPEED_MEDIUM,
         .pull                 = GPIO_PULL_NONE,
         .alternate_function   = 13U,
         .initial_output_state = 0U
@@ -141,7 +178,7 @@ void Board_GPIOInit(void)
     {
         .mode                 = GPIO_MODE_AF,
         .output_type          = GPIO_OTYPE_PP,
-        .speed                = GPIO_SPEED_VERY_HIGH,
+        .speed                = GPIO_SPEED_MEDIUM,
         .pull                 = GPIO_PULL_NONE,
         .alternate_function   = 11U,
         .initial_output_state = 0U
@@ -151,7 +188,7 @@ void Board_GPIOInit(void)
     {
         .mode                 = GPIO_MODE_AF,
         .output_type          = GPIO_OTYPE_PP,
-        .speed                = GPIO_SPEED_VERY_HIGH,
+        .speed                = GPIO_SPEED_MEDIUM,
         .pull                 = GPIO_PULL_NONE,
         .alternate_function   = 10U,
         .initial_output_state = 0U
@@ -161,7 +198,7 @@ void Board_GPIOInit(void)
     {
         .mode                 = GPIO_MODE_AF,
         .output_type          = GPIO_OTYPE_PP,
-        .speed                = GPIO_SPEED_VERY_HIGH,
+        .speed                = GPIO_SPEED_MEDIUM,
         .pull                 = GPIO_PULL_NONE,
         .alternate_function   = 9U,
         .initial_output_state = 0U
@@ -364,6 +401,7 @@ void Board_Init()
 	DELAY_Init(280000000UL);
 	Board_GPIOInit();
 	SPI_Init(&SPI2_Bus);
+	Audio_Init(&Audio);
 
 	W430WVC004_A_StatusTypeDef PanelStatus;
 	LTDC_StatusTypeDef LTDCStatus;
@@ -388,10 +426,17 @@ void Board_Init()
 
 	if(LTDCStatus != LTDC_STATUS_OK) while(1);
 
+
+	if(Audio_Init(&Audio) != AUDIO_STATUS_OK)  while(1);
+
+	if(Board_AudioTestStart(&Audio) != AUDIO_STATUS_OK) while(1);
+
 	uint8_t i = 0;
 	while(1)
 	{
-		DELAY_ms(1000);
+
+		DELAY_ms(5);
+
 		if(GPIO_Read(GPIOC, 14U) == 0)
 		{
 			GPIO_Write(GPIOB, 7U, 1);
@@ -421,5 +466,6 @@ void Board_Init()
 
 		GPIO_Write(GPIOB,6,i%2);
 		i++;
+		Board_AudioTestUpdate();
 	}
 }

@@ -13,12 +13,13 @@
 
 static uint32_t SPI_CalculateBaudRate(
     uint32_t KernelClockHz,
-    uint32_t BusFreq)
+    uint32_t MaxClockFrequency)
 {
     uint32_t Divider;
     uint32_t BaudRate;
 
-    if((KernelClockHz == 0U) || (BusFreq == 0U))
+    if((KernelClockHz == 0U) ||
+       (MaxClockFrequency == 0U))
     {
         return 0xFFFFFFFFU;
     }
@@ -28,7 +29,7 @@ static uint32_t SPI_CalculateBaudRate(
 
     while(Divider <= 256U)
     {
-        if((KernelClockHz / Divider) <= BusFreq)
+        if((KernelClockHz / Divider) <= MaxClockFrequency)
         {
             return BaudRate;
         }
@@ -41,9 +42,9 @@ static uint32_t SPI_CalculateBaudRate(
 }
 
 static uint16_t SPI_GetFrameMask(
-    const SPI_BusHandleTypeDef *Bus)
+    const SPI_DeviceHandleTypeDef *Device)
 {
-    if(Bus->FrameSize == SPI_FRAME_SIZE_9_BIT)
+    if(Device->FrameSize == SPI_FRAME_SIZE_9_BIT)
     {
         return 0x01FFU;
     }
@@ -54,7 +55,8 @@ static uint16_t SPI_GetFrameMask(
 static void SPI_DeviceSelect(
     SPI_DeviceHandleTypeDef *Device)
 {
-    if(Device->ChipSelectPolarity == SPI_CHIP_SELECT_ACTIVE_LOW)
+    if(Device->ChipSelectPolarity ==
+       SPI_CHIP_SELECT_ACTIVE_LOW)
     {
         Device->ChipSelectPort->BSRR =
             ((uint32_t)Device->ChipSelectPin << 16U);
@@ -69,7 +71,8 @@ static void SPI_DeviceSelect(
 static void SPI_DeviceDeselect(
     SPI_DeviceHandleTypeDef *Device)
 {
-    if(Device->ChipSelectPolarity == SPI_CHIP_SELECT_ACTIVE_LOW)
+    if(Device->ChipSelectPolarity ==
+       SPI_CHIP_SELECT_ACTIVE_LOW)
     {
         Device->ChipSelectPort->BSRR =
             Device->ChipSelectPin;
@@ -112,18 +115,35 @@ static SPI_StatusTypeDef SPI_ValidateDevice(
     }
 
     if((Length == 0U) ||
-       (Device->ChipSelectPin == 0U))
+       (Device->ChipSelectPin == 0U) ||
+       (Device->MaxClockFrequency == 0U))
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
 
-    if((Device->Bus->FrameSize != SPI_FRAME_SIZE_8_BIT) &&
-       (Device->Bus->FrameSize != SPI_FRAME_SIZE_9_BIT))
+    if(Device->Mode > SPI_MODE_3)
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
 
-    if(Device->Bus->Direction > SPI_DIRECTION_HALF_DUPLEX)
+    if(Device->BitOrder > SPI_BIT_ORDER_LSB_FIRST)
+    {
+        return SPI_STATUS_INVALID_PARAMETER;
+    }
+
+    if((Device->FrameSize != SPI_FRAME_SIZE_8_BIT) &&
+       (Device->FrameSize != SPI_FRAME_SIZE_9_BIT))
+    {
+        return SPI_STATUS_INVALID_PARAMETER;
+    }
+
+    if(Device->Direction > SPI_DIRECTION_HALF_DUPLEX)
+    {
+        return SPI_STATUS_INVALID_PARAMETER;
+    }
+
+    if(Device->ChipSelectPolarity >
+       SPI_CHIP_SELECT_ACTIVE_HIGH)
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
@@ -131,14 +151,93 @@ static SPI_StatusTypeDef SPI_ValidateDevice(
     return SPI_STATUS_OK;
 }
 
-static void SPI_StopTransfer(
+static SPI_StatusTypeDef SPI_ConfigureDevice(
     SPI_DeviceHandleTypeDef *Device)
 {
     SPI_TypeDef *Instance;
+    uint32_t KernelClockHz;
+    uint32_t BaudRate;
+    uint32_t Config1;
+    uint32_t Config2;
 
     Instance = Device->Bus->Instance;
 
-    Instance->CR1 &= ~SPI_CR1_SPE;
+    if((Instance->CR1 & SPI_CR1_SPE) != 0U)
+    {
+        return SPI_STATUS_BUSY;
+    }
+
+    KernelClockHz = RCC_GetKernelFreq(Instance);
+
+    BaudRate = SPI_CalculateBaudRate(
+        KernelClockHz,
+        Device->MaxClockFrequency);
+
+    if(BaudRate == 0xFFFFFFFFU)
+    {
+        return SPI_STATUS_INVALID_PARAMETER;
+    }
+
+    Config1 =
+        (((uint32_t)Device->FrameSize - 1U)
+            << SPI_CFG1_DSIZE_Pos) |
+        ((BaudRate & 0x07U)
+            << SPI_CFG1_MBR_Pos);
+
+    Config2 =
+        SPI_CFG2_MASTER |
+        SPI_CFG2_SSM |
+        SPI_CFG2_AFCNTR;
+
+    if((Device->Mode == SPI_MODE_1) ||
+       (Device->Mode == SPI_MODE_3))
+    {
+        Config2 |= SPI_CFG2_CPHA;
+    }
+
+    if((Device->Mode == SPI_MODE_2) ||
+       (Device->Mode == SPI_MODE_3))
+    {
+        Config2 |= SPI_CFG2_CPOL;
+    }
+
+    if(Device->BitOrder == SPI_BIT_ORDER_LSB_FIRST)
+    {
+        Config2 |= SPI_CFG2_LSBFRST;
+    }
+
+    switch(Device->Direction)
+    {
+        case SPI_DIRECTION_FULL_DUPLEX:
+            break;
+
+        case SPI_DIRECTION_TX_ONLY:
+            Config2 |= SPI_CFG2_COMM_0;
+            break;
+
+        case SPI_DIRECTION_RX_ONLY:
+            Config2 |= SPI_CFG2_COMM_1;
+            break;
+
+        case SPI_DIRECTION_HALF_DUPLEX:
+            Config2 |= SPI_CFG2_COMM_0 |
+                       SPI_CFG2_COMM_1;
+            break;
+
+        default:
+            return SPI_STATUS_INVALID_PARAMETER;
+    }
+
+    Instance->CFG1 = Config1;
+    Instance->CFG2 = Config2;
+
+    return SPI_STATUS_OK;
+}
+
+static void SPI_StopTransfer(
+    SPI_DeviceHandleTypeDef *Device)
+{
+    Device->Bus->Instance->CR1 &= ~SPI_CR1_SPE;
     SPI_DeviceDeselect(Device);
 }
 
@@ -175,7 +274,7 @@ static void SPI_WriteFrame(
     SPI_DeviceHandleTypeDef *Device,
     uint16_t Frame)
 {
-    if(Device->Bus->FrameSize == SPI_FRAME_SIZE_9_BIT)
+    if(Device->FrameSize == SPI_FRAME_SIZE_9_BIT)
     {
         *((__IO uint16_t *)&Device->Bus->Instance->TXDR) =
             Frame;
@@ -190,58 +289,26 @@ static void SPI_WriteFrame(
 static uint16_t SPI_ReadFrame(
     SPI_DeviceHandleTypeDef *Device)
 {
-    if(Device->Bus->FrameSize == SPI_FRAME_SIZE_9_BIT)
+    if(Device->FrameSize == SPI_FRAME_SIZE_9_BIT)
     {
-        return *((__IO uint16_t *)&Device->Bus->Instance->RXDR);
+        return *((__IO uint16_t *)
+            &Device->Bus->Instance->RXDR);
     }
 
-    return *((__IO uint8_t *)&Device->Bus->Instance->RXDR);
+    return *((__IO uint8_t *)
+        &Device->Bus->Instance->RXDR);
 }
 
 SPI_StatusTypeDef SPI_Init(
     SPI_BusHandleTypeDef *Handle)
 {
-    uint32_t KernelClockHz;
-    uint32_t BaudRate;
-    uint32_t Config1;
-    uint32_t Config2;
-
     if((Handle == NULL) ||
        (Handle->Instance == NULL))
     {
         return SPI_STATUS_ERROR;
     }
 
-    KernelClockHz = RCC_GetKernelFreq(Handle->Instance);
-
-    if((KernelClockHz == 0U) ||
-       (Handle->BusFreq == 0U))
-    {
-        return SPI_STATUS_INVALID_PARAMETER;
-    }
-
-    if((Handle->Mode > SPI_MODE_3) ||
-       (Handle->BitOrder > SPI_BIT_ORDER_LSB_FIRST))
-    {
-        return SPI_STATUS_INVALID_PARAMETER;
-    }
-
-    if((Handle->FrameSize != SPI_FRAME_SIZE_8_BIT) &&
-       (Handle->FrameSize != SPI_FRAME_SIZE_9_BIT))
-    {
-        return SPI_STATUS_INVALID_PARAMETER;
-    }
-
-    if(Handle->Direction > SPI_DIRECTION_HALF_DUPLEX)
-    {
-        return SPI_STATUS_INVALID_PARAMETER;
-    }
-
-    BaudRate = SPI_CalculateBaudRate(
-        KernelClockHz,
-        Handle->BusFreq);
-
-    if(BaudRate == 0xFFFFFFFFU)
+    if(Handle->Timeout == 0U)
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
@@ -251,8 +318,8 @@ SPI_StatusTypeDef SPI_Init(
     Handle->Instance->CR1 &= ~SPI_CR1_SPE;
 
     /*
-     * SSI must be high when software slave management is enabled,
-     * otherwise the master can enter mode-fault state.
+     * SSI must remain high while software slave management is used,
+     * otherwise the master may enter mode-fault state.
      */
     Handle->Instance->CR1 = SPI_CR1_SSI;
     Handle->Instance->CR2 = 0U;
@@ -260,60 +327,6 @@ SPI_StatusTypeDef SPI_Init(
     Handle->Instance->CFG2 = 0U;
     Handle->Instance->IER = 0U;
     Handle->Instance->IFCR = 0xFFFFFFFFU;
-
-    Config1 =
-        (((uint32_t)Handle->FrameSize - 1U)
-            << SPI_CFG1_DSIZE_Pos) |
-        ((BaudRate & 0x07U)
-            << SPI_CFG1_MBR_Pos);
-
-    Handle->Instance->CFG1 = Config1;
-
-    Config2 =
-        SPI_CFG2_MASTER |
-        SPI_CFG2_SSM |
-        SPI_CFG2_AFCNTR;
-
-    if((Handle->Mode == SPI_MODE_1) ||
-       (Handle->Mode == SPI_MODE_3))
-    {
-        Config2 |= SPI_CFG2_CPHA;
-    }
-
-    if((Handle->Mode == SPI_MODE_2) ||
-       (Handle->Mode == SPI_MODE_3))
-    {
-        Config2 |= SPI_CFG2_CPOL;
-    }
-
-    if(Handle->BitOrder == SPI_BIT_ORDER_LSB_FIRST)
-    {
-        Config2 |= SPI_CFG2_LSBFRST;
-    }
-
-    switch(Handle->Direction)
-    {
-        case SPI_DIRECTION_FULL_DUPLEX:
-            break;
-
-        case SPI_DIRECTION_TX_ONLY:
-            Config2 |= SPI_CFG2_COMM_0;
-            break;
-
-        case SPI_DIRECTION_RX_ONLY:
-            Config2 |= SPI_CFG2_COMM_1;
-            break;
-
-        case SPI_DIRECTION_HALF_DUPLEX:
-            Config2 |= SPI_CFG2_COMM_0 |
-                       SPI_CFG2_COMM_1;
-            break;
-
-        default:
-            return SPI_STATUS_INVALID_PARAMETER;
-    }
-
-    Handle->Instance->CFG2 = Config2;
 
     return SPI_STATUS_OK;
 }
@@ -338,18 +351,20 @@ SPI_StatusTypeDef SPI_DeviceTransferFrames(
         return Status;
     }
 
-    if(Device->Bus->Direction != SPI_DIRECTION_FULL_DUPLEX)
+    if(Device->Direction != SPI_DIRECTION_FULL_DUPLEX)
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
 
-    Instance = Device->Bus->Instance;
-    FrameMask = SPI_GetFrameMask(Device->Bus);
+    Status = SPI_ConfigureDevice(Device);
 
-    if((Instance->CR1 & SPI_CR1_SPE) != 0U)
+    if(Status != SPI_STATUS_OK)
     {
-        return SPI_STATUS_BUSY;
+        return Status;
     }
+
+    Instance = Device->Bus->Instance;
+    FrameMask = SPI_GetFrameMask(Device);
 
     Instance->IFCR = 0xFFFFFFFFU;
     Instance->CR2 =
@@ -359,9 +374,6 @@ SPI_StatusTypeDef SPI_DeviceTransferFrames(
 
     Instance->CR1 |= SPI_CR1_SPE;
 
-    /*
-     * Preload the first frame before starting the master transfer.
-     */
     Status = SPI_WaitForFlag(Device, SPI_SR_TXP);
 
     if(Status != SPI_STATUS_OK)
@@ -370,14 +382,10 @@ SPI_StatusTypeDef SPI_DeviceTransferFrames(
         return Status;
     }
 
-    if(TxData != NULL)
-    {
-        TransmitFrame = TxData[0U] & FrameMask;
-    }
-    else
-    {
-        TransmitFrame = FrameMask;
-    }
+    TransmitFrame =
+        (TxData != NULL) ?
+        (TxData[0U] & FrameMask) :
+        FrameMask;
 
     SPI_WriteFrame(Device, TransmitFrame);
     Instance->CR1 |= SPI_CR1_CSTART;
@@ -394,14 +402,10 @@ SPI_StatusTypeDef SPI_DeviceTransferFrames(
                 return Status;
             }
 
-            if(TxData != NULL)
-            {
-                TransmitFrame = TxData[Index] & FrameMask;
-            }
-            else
-            {
-                TransmitFrame = FrameMask;
-            }
+            TransmitFrame =
+                (TxData != NULL) ?
+                (TxData[Index] & FrameMask) :
+                FrameMask;
 
             SPI_WriteFrame(Device, TransmitFrame);
         }
@@ -414,7 +418,8 @@ SPI_StatusTypeDef SPI_DeviceTransferFrames(
             return Status;
         }
 
-        ReceivedFrame = SPI_ReadFrame(Device) & FrameMask;
+        ReceivedFrame =
+            SPI_ReadFrame(Device) & FrameMask;
 
         if(RxData != NULL)
         {
@@ -451,8 +456,7 @@ SPI_StatusTypeDef SPI_DeviceReadFrames(
     }
 
     if((Device == NULL) ||
-       (Device->Bus == NULL) ||
-       (Device->Bus->Direction != SPI_DIRECTION_FULL_DUPLEX))
+       (Device->Direction != SPI_DIRECTION_FULL_DUPLEX))
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
@@ -474,6 +478,7 @@ SPI_StatusTypeDef SPI_DeviceWriteFrames(
     uint16_t FrameMask;
     uint16_t Index;
     uint16_t ReceivedFrame;
+    uint32_t Timeout;
 
     Status = SPI_ValidateDevice(Device, Length);
 
@@ -487,19 +492,21 @@ SPI_StatusTypeDef SPI_DeviceWriteFrames(
         return SPI_STATUS_ERROR;
     }
 
-    if((Device->Bus->Direction != SPI_DIRECTION_TX_ONLY) &&
-       (Device->Bus->Direction != SPI_DIRECTION_FULL_DUPLEX))
+    if((Device->Direction != SPI_DIRECTION_TX_ONLY) &&
+       (Device->Direction != SPI_DIRECTION_FULL_DUPLEX))
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
 
-    Instance = Device->Bus->Instance;
-    FrameMask = SPI_GetFrameMask(Device->Bus);
+    Status = SPI_ConfigureDevice(Device);
 
-    if((Instance->CR1 & SPI_CR1_SPE) != 0U)
+    if(Status != SPI_STATUS_OK)
     {
-        return SPI_STATUS_BUSY;
+        return Status;
     }
+
+    Instance = Device->Bus->Instance;
+    FrameMask = SPI_GetFrameMask(Device);
 
     Instance->IFCR = 0xFFFFFFFFU;
     Instance->CR2 =
@@ -509,10 +516,6 @@ SPI_StatusTypeDef SPI_DeviceWriteFrames(
 
     Instance->CR1 |= SPI_CR1_SPE;
 
-    /*
-     * Preload the first frame before CSTART. This is important for
-     * the STM32H7 master transfer state machine.
-     */
     Status = SPI_WaitForFlag(Device, SPI_SR_TXP);
 
     if(Status != SPI_STATUS_OK)
@@ -541,11 +544,8 @@ SPI_StatusTypeDef SPI_DeviceWriteFrames(
             Device,
             Data[Index] & FrameMask);
 
-        /*
-         * In full-duplex mode, drain RXDR so an unused received
-         * frame cannot cause an overrun.
-         */
-        if((Device->Bus->Direction == SPI_DIRECTION_FULL_DUPLEX) &&
+        if((Device->Direction ==
+            SPI_DIRECTION_FULL_DUPLEX) &&
            ((Instance->SR & SPI_SR_RXP) != 0U))
         {
             ReceivedFrame = SPI_ReadFrame(Device);
@@ -553,11 +553,10 @@ SPI_StatusTypeDef SPI_DeviceWriteFrames(
         }
     }
 
-    /*
-     * Drain any final receive data when writing in full-duplex mode.
-     */
-    if(Device->Bus->Direction == SPI_DIRECTION_FULL_DUPLEX)
+    if(Device->Direction == SPI_DIRECTION_FULL_DUPLEX)
     {
+        Timeout = Device->Bus->Timeout;
+
         while((Instance->SR & SPI_SR_EOT) == 0U)
         {
             Status = SPI_GetError(Instance);
@@ -574,27 +573,10 @@ SPI_StatusTypeDef SPI_DeviceWriteFrames(
                 (void)ReceivedFrame;
             }
 
-            if(Device->Bus->Timeout == 0U)
+            if(Timeout-- == 0U)
             {
                 SPI_StopTransfer(Device);
                 return SPI_STATUS_TIMEOUT;
-            }
-
-            {
-                uint32_t Timeout = Device->Bus->Timeout;
-
-                while(((Instance->SR &
-                       (SPI_SR_RXP |
-                        SPI_SR_EOT |
-                        SPI_SR_OVR |
-                        SPI_SR_MODF)) == 0U))
-                {
-                    if(Timeout-- == 0U)
-                    {
-                        SPI_StopTransfer(Device);
-                        return SPI_STATUS_TIMEOUT;
-                    }
-                }
             }
         }
     }
@@ -638,22 +620,24 @@ SPI_StatusTypeDef SPI_DeviceTransfer(
         return Status;
     }
 
-    if(Device->Bus->FrameSize != SPI_FRAME_SIZE_8_BIT)
+    if(Device->FrameSize != SPI_FRAME_SIZE_8_BIT)
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
 
-    if(Device->Bus->Direction != SPI_DIRECTION_FULL_DUPLEX)
+    if(Device->Direction != SPI_DIRECTION_FULL_DUPLEX)
     {
         return SPI_STATUS_INVALID_PARAMETER;
+    }
+
+    Status = SPI_ConfigureDevice(Device);
+
+    if(Status != SPI_STATUS_OK)
+    {
+        return Status;
     }
 
     Instance = Device->Bus->Instance;
-
-    if((Instance->CR1 & SPI_CR1_SPE) != 0U)
-    {
-        return SPI_STATUS_BUSY;
-    }
 
     Instance->IFCR = 0xFFFFFFFFU;
     Instance->CR2 =
@@ -671,16 +655,14 @@ SPI_StatusTypeDef SPI_DeviceTransfer(
         return Status;
     }
 
-    if(TxData != NULL)
-    {
-        TransmitData = TxData[0U];
-    }
-    else
-    {
-        TransmitData = 0xFFU;
-    }
+    TransmitData =
+        (TxData != NULL) ?
+        TxData[0U] :
+        0xFFU;
 
-    *((__IO uint8_t *)&Instance->TXDR) = TransmitData;
+    *((__IO uint8_t *)&Instance->TXDR) =
+        TransmitData;
+
     Instance->CR1 |= SPI_CR1_CSTART;
 
     for(Index = 0U; Index < Length; Index++)
@@ -695,14 +677,10 @@ SPI_StatusTypeDef SPI_DeviceTransfer(
                 return Status;
             }
 
-            if(TxData != NULL)
-            {
-                TransmitData = TxData[Index];
-            }
-            else
-            {
-                TransmitData = 0xFFU;
-            }
+            TransmitData =
+                (TxData != NULL) ?
+                TxData[Index] :
+                0xFFU;
 
             *((__IO uint8_t *)&Instance->TXDR) =
                 TransmitData;
@@ -754,8 +732,7 @@ SPI_StatusTypeDef SPI_DeviceRead(
     }
 
     if((Device == NULL) ||
-       (Device->Bus == NULL) ||
-       (Device->Bus->Direction != SPI_DIRECTION_FULL_DUPLEX))
+       (Device->Direction != SPI_DIRECTION_FULL_DUPLEX))
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
@@ -776,6 +753,7 @@ SPI_StatusTypeDef SPI_DeviceWrite(
     SPI_StatusTypeDef Status;
     uint16_t Index;
     uint8_t ReceivedData;
+    uint32_t Timeout;
 
     Status = SPI_ValidateDevice(Device, Length);
 
@@ -789,23 +767,25 @@ SPI_StatusTypeDef SPI_DeviceWrite(
         return SPI_STATUS_ERROR;
     }
 
-    if(Device->Bus->FrameSize != SPI_FRAME_SIZE_8_BIT)
+    if(Device->FrameSize != SPI_FRAME_SIZE_8_BIT)
     {
         return SPI_STATUS_INVALID_PARAMETER;
     }
 
-    if((Device->Bus->Direction != SPI_DIRECTION_TX_ONLY) &&
-       (Device->Bus->Direction != SPI_DIRECTION_FULL_DUPLEX))
+    if((Device->Direction != SPI_DIRECTION_TX_ONLY) &&
+       (Device->Direction != SPI_DIRECTION_FULL_DUPLEX))
     {
         return SPI_STATUS_INVALID_PARAMETER;
+    }
+
+    Status = SPI_ConfigureDevice(Device);
+
+    if(Status != SPI_STATUS_OK)
+    {
+        return Status;
     }
 
     Instance = Device->Bus->Instance;
-
-    if((Instance->CR1 & SPI_CR1_SPE) != 0U)
-    {
-        return SPI_STATUS_BUSY;
-    }
 
     Instance->IFCR = 0xFFFFFFFFU;
     Instance->CR2 =
@@ -823,7 +803,9 @@ SPI_StatusTypeDef SPI_DeviceWrite(
         return Status;
     }
 
-    *((__IO uint8_t *)&Instance->TXDR) = Data[0U];
+    *((__IO uint8_t *)&Instance->TXDR) =
+        Data[0U];
+
     Instance->CR1 |= SPI_CR1_CSTART;
 
     for(Index = 1U; Index < Length; Index++)
@@ -839,7 +821,8 @@ SPI_StatusTypeDef SPI_DeviceWrite(
         *((__IO uint8_t *)&Instance->TXDR) =
             Data[Index];
 
-        if((Device->Bus->Direction == SPI_DIRECTION_FULL_DUPLEX) &&
+        if((Device->Direction ==
+            SPI_DIRECTION_FULL_DUPLEX) &&
            ((Instance->SR & SPI_SR_RXP) != 0U))
         {
             ReceivedData =
@@ -849,9 +832,9 @@ SPI_StatusTypeDef SPI_DeviceWrite(
         }
     }
 
-    if(Device->Bus->Direction == SPI_DIRECTION_FULL_DUPLEX)
+    if(Device->Direction == SPI_DIRECTION_FULL_DUPLEX)
     {
-        uint32_t Timeout = Device->Bus->Timeout;
+        Timeout = Device->Bus->Timeout;
 
         while((Instance->SR & SPI_SR_EOT) == 0U)
         {
